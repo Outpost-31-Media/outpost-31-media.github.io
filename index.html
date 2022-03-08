@@ -4,50 +4,45 @@
     <!-- we import arjs version without NFT but with marker + location based support -->
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     
+<body style='margin : 0px; overflow: hidden;'>
+  <a-scene embedded arjs>
+    <!-- create your content here. just a box for now -->
+    <a-box position='0 0.5 0' material='opacity: 0.5;'></a-box>
+    <!-- define a camera which will move according to the marker position -->
+    <a-marker-camera preset='hiro'></a-marker-camera>
+  </a-scene>
+</body>
 
-
-    <body style="margin : 0px; overflow: hidden;">
+<!--  <body style="margin : 0px; overflow: hidden;">
 
 
         <a-scene embedded arjs='sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 4x4_BCH_13_5_5; smooth: true;'>
 
 
-<!-- 
+
         <a-assets>
             <a-asset-item id="animated-asset" src="./monkey.gltf"></a-asset-item>
-        </a-assets> -->
-
-        <a-box position='0 0.5 0' color="yellow"></a-box>
-        <a-marker-camera type='barcode' value='0'></a-marker-camera>
+        </a-assets>
 
 
+        <a-marker-camera type='barcode' value='0'>
+            <a-box position='0 0.5 0' color="yellow"></a-box>
+        </a-marker-camera>
 
-<!--         <a-marker-camera id="animated-marker" type='barcode' value='1'>
+
+
+        <a-marker-camera id="animated-marker" type='barcode' value='1'>
             <a-entity
                 gltf-model="#animated-asset"
                 position="0 0 0"
                 scale="1 1 1">
             </a-entity>
-        </a-marker-camera> -->
+        </a-marker-camera>
 
 
-
-
-    <!--         <a-marker
-        preset="barcode"
-        matrixCodeType="4x4_BCH_13_5_5"
-        smooth="true"
-        value="0"
-        >
-        we use cors proxy to avoid cross-origin problems ATTENTION! you need to set up your server
-        <a-entity
-            position="0 0 0"
-            scale="5 5 5"
-            gltf-model="./fireweed.gltf"
-        ></a-entity>
-    </a-marker> -->
     
 
     </a-scene>
-</body>
+</body> -->
+
 </html>
