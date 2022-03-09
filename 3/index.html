@@ -87,7 +87,8 @@
           model.visible = true; // make sure we set the model to visible
           // just update its position, not necessarily to create a new one
           model.position.setFromMatrixPosition(reticle.matrix); 
-          model.quaternion.setFromRotationMatrix(reticle.matrix); 
+          model.quaternion.setFromRotationMatrix(reticle.matrix);
+          model.translateY(-.4); 
           spawned = true;
         }
       }
