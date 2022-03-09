@@ -34,7 +34,7 @@ class Reticle extends THREE.Object3D {
 
 window.gltfLoader.load("./gltf/xrship.glb", function(gltf) {
   const flower = gltf.scene.children.find(c => c.name === 'sphere')
-  flower.castShadow = false;
+  flower.castShadow = true;
   window.sunflower = gltf.scene;
 });
 
@@ -94,28 +94,12 @@ window.DemoUtils = {
   createCubeScene() {
     const scene = new THREE.Scene();
 
-    const materials = [
-      new THREE.MeshBasicMaterial({ color: 0xff0000 }),
-      new THREE.MeshBasicMaterial({ color: 0x0000ff }),
-      new THREE.MeshBasicMaterial({ color: 0x00ff00 }),
-      new THREE.MeshBasicMaterial({ color: 0xff00ff }),
-      new THREE.MeshBasicMaterial({ color: 0x00ffff }),
-      new THREE.MeshBasicMaterial({ color: 0xffff00 })
-    ];
+    const loader = new GLTFLoader();
 
-    const ROW_COUNT = 4;
-    const SPREAD = 1;
-    const HALF = ROW_COUNT / 2;
-    for (let i = 0; i < ROW_COUNT; i++) {
-      for (let j = 0; j < ROW_COUNT; j++) {
-        for (let k = 0; k < ROW_COUNT; k++) {
-          const box = new THREE.Mesh(new THREE.BoxBufferGeometry(0.2, 0.2, 0.2), materials);
-          box.position.set(i - HALF, j - HALF, k - HALF);
-          box.position.multiplyScalar(SPREAD);
-          scene.add(box);
-        }
-      }
-    }
+    loader.load( './xrship.glb', function ( gltf ) {
+
+      scene.add( gltf.scene );
+
 
     return scene;
   },
