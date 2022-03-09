@@ -121,10 +121,19 @@
         WebXR image tracking
       </h1>
       <p>
+        <b>WARNING: Experimental.</b> This is a <a href="https://github.com/immersive-web/marker-tracking/blob/main/explainer.md">preliminary API</a> and is likely to change.
+      </p>
+      <p>
         Currently requires Chrome Canary 88.0.4313.2 or newer, and needs "WebXR Incubations" enabled in chrome://flags. 
       </p>
+      <p>
+        To test tracking, print one of these images, or <button onclick="showImages()" href="javascript:{}">display them</button> on a separate device:
+          <a href="https://cdn.glitch.com/170bb543-c9df-448f-aced-de914aeedbba%2Farcore-sample-000-earth.jpg?v=1592958053263">Earth</a>, 
+          <a href="https://cdn.glitch.com/170bb543-c9df-448f-aced-de914aeedbba%2Ftrack-sourdough-s.jpg?v=1604425235485">Bread</a>,
+          <a href="https://cdn.glitch.com/170bb543-c9df-448f-aced-de914aeedbba%2Ftrack-granite-s.jpg?v=1604425239889">Granite</a>.
+      </p>
     </div>
-    <a-scene
+<a-scene
       background="color: #ECECEC"
       webxr="requiredFeatures: image-tracking,local-floor; optionalFeatures: dom-overlay; overlayElement: #overlay"
     >
