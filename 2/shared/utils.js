@@ -32,9 +32,9 @@ class Reticle extends THREE.Object3D {
   }
 }
 
-window.gltfLoader.load("./gltf/xrship.gltf", function(gltf) {
+window.gltfLoader.load("./gltf/xrship.glb", function(gltf) {
   const flower = gltf.scene.children.find(c => c.name === 'sphere')
-  flower.castShadow = true;
+  flower.castShadow = false;
   window.sunflower = gltf.scene;
 });
 
