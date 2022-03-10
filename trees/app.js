@@ -140,7 +140,7 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
           }
         );
         ship = gltf.scene;
-        ship.scale.multiplyScalar(.7);
+        ship.scale.multiplyScalar(.5);
         ship.visible = false; 
         scene.add(ship);
       }
@@ -163,7 +163,7 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
           const clone = ship.clone();
           clone.position.setFromMatrixPosition(reticle.matrix); 
           clone.quaternion.setFromRotationMatrix(reticle.matrix);
-          clone.translateY(-.4); 
+          clone.translateY(-.01); 
           clone.visible = true;
           scene.add(clone);
           
