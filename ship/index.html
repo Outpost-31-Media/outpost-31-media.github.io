@@ -74,10 +74,10 @@
 
         // load the ship
         const gltf = await loader.loadAsync(shipUrl);
-        ship = gltf.scene; // save a reference to this object in the "ship" variable
-        ship.scale.multiplyScalar(.7); // make this particular ship a bit larger
-        ship.visible = false; // set the ship to false
-        scene.add(ship); // so ship is in the scene but invisible
+        ship = gltf.scene;
+        ship.scale.multiplyScalar(.7);
+        ship.visible = false; 
+        scene.add(ship);
       }
       async function addMaskToScene() {
 
@@ -85,14 +85,13 @@
 
         const maskLoader = new THREE.GLTFLoader();
 
-        // load the ship
+      
         const maskGltf = await maskLoader.loadAsync(maskUrl);
-        mask = maskGltf.scene; // save a reference to this object in the "ship" variable
-        mask.scale.multiplyScalar(.7); // make this particular ship a bit larger
-        mask.visible = false; // set the ship to false
-        //mask.material.color.set( 0x0000ff );
-        //mask.material.colorWrite = true;
-        scene.add(mask); // so ship is in the scene but invisible
+        mask = maskGltf.scene; 
+        mask.scale.multiplyScalar(.7); 
+        mask.visible = false; 
+       
+        scene.add(mask);
         setMaterialsOnGLTF(mask);
         console.log(mask);
       }
@@ -127,8 +126,7 @@
         console.log("tap");
         if (reticle.visible && ship && mask) {
           mask.visible = true;
-          ship.visible = true; // make sure we set the ship to visible
-          // just update its position, not necessarily to create a new one
+          ship.visible = true;
           ship.position.setFromMatrixPosition(reticle.matrix); 
           ship.quaternion.setFromRotationMatrix(reticle.matrix);
           ship.translateY(-.4); 
@@ -146,10 +144,9 @@
 	
 				renderer.setSize(window.innerWidth, window.innerHeight);
 			}
-	
-			// this function is only called one time
+
 			function animate() {
-				// here we set the render function to be called in a loop
+				
 				renderer.setAnimationLoop(render);
 			}
 
@@ -158,8 +155,7 @@
       let hitTestSourceInitialized = false;
       let spawned = false;
 
-      // This function gets called just once to initialize a hitTestSource
-      // The purpose of this function is to get a) a hit test source and b) a reference space
+
       async function initializeHitTestSource() {
         const session = renderer.xr.getSession();
         const viewerSpace = await session.requestReferenceSpace("viewer");//get viewer space basically orgin of the phone that always moves with phone
@@ -169,7 +165,7 @@
         console.log(localSpace);
         hitTestSourceInitialized = true;
 
-        // In case we close the AR session by hitting the button "End AR"
+       
         session.addEventListener("end", () => {
           hitTestSourceInitialized = false;
           hitTestSource = null;
@@ -177,8 +173,7 @@
       }
 
 	
-			// render function called on a loop every time the screen is refreshed
-			// which typically means 60 times a second (60 frames per second)
+
 			function render(timestamp, frame) {
         if (frame) {
           if (!spawned){
@@ -188,7 +183,7 @@
             
             if(hitTestSourceInitialized){
               const hitTestResults = frame.getHitTestResults(hitTestSource);
-              //console.log(hitTestResults); //sends an array every frame, the first result in the array is the closest to camera
+              //console.log(hitTestResults); 
   
               if (hitTestResults.length > 0) {
                 const hit = hitTestResults[0];
