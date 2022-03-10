@@ -18,9 +18,15 @@
     	let loader;
       let reticle;
       let controller;
-      let model;
+      let ship;
+      let mask;
+      var object3D = null;
 
-			init();
+
+
+
+
+      init();
 			animate();
 
 			function init() {
@@ -47,26 +53,62 @@
         scene.add(controller);
 	 
 				addReticleToScene();
-        addModelToScene();
+        addMaskToScene();
+        addShipToScene();
+
+        
 
         const button = ARButton.createButton(renderer, {requiredFeatures: ["hit-test"]});
         document.body.appendChild(button);
 
         window.addEventListener('resize', onWindowResize, false);
 			}
-      async function addModelToScene() {
 
-        const modelUrl = "xrship3.glb";
+
+
+      async function addShipToScene() {
+
+        const shipUrl = "xrship3.glb";
 
         const loader = new THREE.GLTFLoader();
 
-        // load the model
-        const gltf = await loader.loadAsync(modelUrl);
-        model = gltf.scene; // save a reference to this object in the "model" variable
-        model.scale.multiplyScalar(.7); // make this particular model a bit larger
-        model.visible = false; // set the model to false
-        
-        scene.add(model); // so model is in the scene but invisible
+        // load the ship
+        const gltf = await loader.loadAsync(shipUrl);
+        ship = gltf.scene; // save a reference to this object in the "ship" variable
+        ship.scale.multiplyScalar(.7); // make this particular ship a bit larger
+        ship.visible = false; // set the ship to false
+        scene.add(ship); // so ship is in the scene but invisible
+      }
+      async function addMaskToScene() {
+
+        const maskUrl = "mask.glb";
+
+        const maskLoader = new THREE.GLTFLoader();
+
+        // load the ship
+        const maskGltf = await maskLoader.loadAsync(maskUrl);
+        mask = maskGltf.scene; // save a reference to this object in the "ship" variable
+        mask.scale.multiplyScalar(.7); // make this particular ship a bit larger
+        mask.visible = false; // set the ship to false
+        //mask.material.color.set( 0x0000ff );
+        //mask.material.colorWrite = true;
+        scene.add(mask); // so ship is in the scene but invisible
+        setMaterialsOnGLTF(mask);
+        console.log(mask);
+      }
+
+      async function setMaterialsOnGLTF(mask) {
+        console.log("updating material");
+        if (mask.material) {
+          const newMaterial = new THREE.MeshBasicMaterial({colorWrite: false});
+          mask.material = newMaterial;
+        }
+        if (!mask.children) {
+          return;
+        }
+        for (let i = 0; i < mask.children.length; i++) {
+          setMaterialsOnGLTF(mask.children[i]);
+        }
       }
 
 
@@ -83,12 +125,16 @@
 
       function onSelect() {
         console.log("tap");
-        if (reticle.visible && model) {
-          model.visible = true; // make sure we set the model to visible
+        if (reticle.visible && ship && mask) {
+          mask.visible = true;
+          ship.visible = true; // make sure we set the ship to visible
           // just update its position, not necessarily to create a new one
-          model.position.setFromMatrixPosition(reticle.matrix); 
-          model.quaternion.setFromRotationMatrix(reticle.matrix);
-          model.translateY(-.4); 
+          ship.position.setFromMatrixPosition(reticle.matrix); 
+          ship.quaternion.setFromRotationMatrix(reticle.matrix);
+          ship.translateY(-.4); 
+          mask.position.setFromMatrixPosition(reticle.matrix); 
+          mask.quaternion.setFromRotationMatrix(reticle.matrix);
+          mask.translateY(-.4);
           spawned = true;
         }
       }
