@@ -54,7 +54,7 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
 				container.appendChild(renderer.domElement);
 	
 				//light
-				var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+				var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 7);
 				light.position.set(0.5, 1, 0.25);
 				scene.add(light);
 	
@@ -140,7 +140,7 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
           }
         );
         ship = gltf.scene;
-        ship.scale.multiplyScalar(.3);
+        ship.scale.multiplyScalar(.2);
         ship.visible = false; 
         scene.add(ship);
       }
