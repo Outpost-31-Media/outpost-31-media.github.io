@@ -140,7 +140,7 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
           }
         );
         ship = gltf.scene;
-        ship.scale.multiplyScalar(.5);
+        ship.scale.multiplyScalar(.3);
         ship.visible = false; 
         scene.add(ship);
       }
