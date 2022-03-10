@@ -7,10 +7,13 @@
 		<link type="text/css" rel="stylesheet" href="style.css">
   	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js"></script>
+    <!-- <script src='https://unpkg.com/three-mesh-ui@6.3.1/src/three-mesh-ui.js'></script> -->
 	</head>
 
 	<body>
 		<script type="module">
+      import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
       import { ARButton } from 'https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js';
 
 
@@ -20,14 +23,34 @@
       let controller;
       let ship;
       let mask;
+      let pane;
+      let loadingPane;
+      let uiContainer;
+      let uiText;
       var object3D = null;
+      let uiMoved = 0;
+
+      const PARAMS = {
+       loaded: '0'
+
+      }
 
 
-
-
-
+      setupGui();
       init();
 			animate();
+
+
+      function setupGui() {
+        pane = new Tweakpane.Pane({
+          title: 'AR @ Outpost31',
+        });
+        pane.containerElem_.style.zIndex = "10";
+        loadingPane = pane.addMonitor(PARAMS, 'loaded', {
+          label: 'Model',
+          multiline: false
+        });
+      }
 
 			function init() {
 				const container = document.createElement('div');
@@ -51,11 +74,13 @@
         controller = renderer.xr.getController(0);
         controller.addEventListener('select', onSelect);
         scene.add(controller);
-	 
+	       
+         
 				addReticleToScene();
+        
         addMaskToScene();
         addShipToScene();
-
+        addUiToScene();
         
 
         const button = ARButton.createButton(renderer, {requiredFeatures: ["hit-test"]});
@@ -63,8 +88,52 @@
 
         window.addEventListener('resize', onWindowResize, false);
 			}
+      function addUiToScene() {
+        console.log('setting up ui');
+        uiContainer = new ThreeMeshUI.Block({
+         width: .7,
+         height: 0.4,
+         padding: 0.01,
+         fontFamily: './assets/Roboto-msdf.json',
+         fontTexture: './assets/Roboto-msdf.png',
+        });
+        
+        
+        
+        uiText = new ThreeMeshUI.Text({
+         content: "Move your phone to let it find the floor."
+        });
 
+        
+        uiContainer.position.set( 0, 0, -1 );
+        uiContainer.rotation.x = -0.3;
+        scene.add( uiContainer );
+        uiContainer.add( uiText );
+        console.log( uiContainer );
+        // scene is a THREE.Scene (see three.js)
 
+      }
+
+      function reticleUi () {
+        uiMoved = 1;
+        uiContainer.position.setFromMatrixPosition(reticle.matrix); 
+        uiContainer.quaternion.setFromRotationMatrix(reticle.matrix);
+        uiContainer.translateZ(-1);
+        uiContainer.translateY(.4);
+        uiText.set({ 
+          content: 'Line up your reticle with the marker on the floor and tap your screen to continue.'
+        });
+      }
+
+      function modelUi() {
+        uiMoved = 2;
+        uiContainer.position.setFromMatrixPosition(reticle.matrix); 
+        uiContainer.quaternion.setFromRotationMatrix(reticle.matrix);
+        uiContainer.translateZ(-1);
+        uiContainer.translateY(1);
+        uiText.set({ content: 'this is a model'});
+
+      }
 
       async function addShipToScene() {
 
@@ -73,7 +142,18 @@
         const loader = new THREE.GLTFLoader();
 
         // load the ship
-        const gltf = await loader.loadAsync(shipUrl);
+        const gltf = await loader.loadAsync(shipUrl,
+          function (xhr) {
+            PARAMS['loaded']=((Math.round(xhr.loaded / xhr.total * 100)) + '% loaded' );
+            if ((xhr.loaded / xhr.total * 100) === 100) {
+              loadingPane.dispose();
+            }
+          },
+          // onError callback
+          function (error) {
+            console.error(error);
+          }
+        );
         ship = gltf.scene;
         ship.scale.multiplyScalar(.7);
         ship.visible = false; 
@@ -124,7 +204,7 @@
 
       function onSelect() {
         console.log("tap");
-        if (reticle.visible && ship && mask) {
+        if (reticle.visible && ship && mask && !spawned) {
           mask.visible = true;
           ship.visible = true;
           ship.position.setFromMatrixPosition(reticle.matrix); 
@@ -134,6 +214,7 @@
           mask.quaternion.setFromRotationMatrix(reticle.matrix);
           mask.translateY(-.4);
           spawned = true;
+          modelUi();
         }
       }
 
@@ -192,6 +273,9 @@
                 reticle.visible = true;
   
                 reticle.matrix.fromArray(pose.transform.matrix);
+                if (uiMoved === 0) {
+                  reticleUi();
+                }
               } else {
                 reticle.visible = false;
               }
@@ -199,6 +283,8 @@
           } else {
             reticle.visible = false;
           }
+          uiContainer.lookAt(camera.position);
+          ThreeMeshUI.update();
 				  renderer.render(scene, camera);
     		}
       }
