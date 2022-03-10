@@ -21,6 +21,8 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
       }
 
 
+
+
       setupGui();
       init();
 			animate();
@@ -62,8 +64,6 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
 	       
          
 				addReticleToScene();
-        
-        addMaskToScene();
         addShipToScene();
         addUiToScene();
         
@@ -106,7 +106,7 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
         uiContainer.translateZ(-1);
         uiContainer.translateY(.4);
         uiText.set({ 
-          content: 'Line up your reticle with the marker on the floor and tap your screen to continue.'
+          content: 'Line up your reticle where you want to place a tree and tap your screen to continue.'
         });
       }
 
@@ -116,13 +116,13 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
         uiContainer.quaternion.setFromRotationMatrix(reticle.matrix);
         uiContainer.translateZ(-1);
         uiContainer.translateY(1);
-        uiText.set({ content: 'this is a model'});
+        uiText.set({ content: 'this is a tree'});
 
       }
 
       async function addShipToScene() {
 
-        const shipUrl = "xrship3.glb";
+        const shipUrl = "tree.glb";
 
         const loader = new THREE.GLTFLoader();
 
@@ -144,36 +144,6 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
         ship.visible = false; 
         scene.add(ship);
       }
-      async function addMaskToScene() {
-
-        const maskUrl = "mask.glb";
-
-        const maskLoader = new THREE.GLTFLoader();
-
-      
-        const maskGltf = await maskLoader.loadAsync(maskUrl);
-        mask = maskGltf.scene; 
-        mask.scale.multiplyScalar(.7); 
-        mask.visible = false; 
-       
-        scene.add(mask);
-        setMaterialsOnGLTF(mask);
-        console.log(mask);
-      }
-
-      async function setMaterialsOnGLTF(mask) {
-        console.log("updating material");
-        if (mask.material) {
-          const newMaterial = new THREE.MeshBasicMaterial({colorWrite: false});
-          mask.material = newMaterial;
-        }
-        if (!mask.children) {
-          return;
-        }
-        for (let i = 0; i < mask.children.length; i++) {
-          setMaterialsOnGLTF(mask.children[i]);
-        }
-      }
 
 
       function addReticleToScene() {
@@ -189,16 +159,14 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
 
       function onSelect() {
         console.log("tap");
-        if (reticle.visible && ship && mask && !spawned) {
-          mask.visible = true;
-          ship.visible = true;
-          ship.position.setFromMatrixPosition(reticle.matrix); 
-          ship.quaternion.setFromRotationMatrix(reticle.matrix);
-          ship.translateY(-.4); 
-          mask.position.setFromMatrixPosition(reticle.matrix); 
-          mask.quaternion.setFromRotationMatrix(reticle.matrix);
-          mask.translateY(-.4);
-          spawned = true;
+        if (reticle.visible) {
+          const clone = ship.clone();
+          clone.position.setFromMatrixPosition(reticle.matrix); 
+          clone.quaternion.setFromRotationMatrix(reticle.matrix);
+          clone.translateY(-.4); 
+          clone.visible = true;
+          scene.add(clone);
+          
           modelUi();
         }
       }
@@ -242,32 +210,28 @@ import ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
 
 			function render(timestamp, frame) {
         if (frame) {
-          if (!spawned){
-            if(!hitTestSourceInitialized){
-              initializeHitTestSource();
-            }
-            
-            if(hitTestSourceInitialized){
-              const hitTestResults = frame.getHitTestResults(hitTestSource);
-              //console.log(hitTestResults); 
-  
-              if (hitTestResults.length > 0) {
-                const hit = hitTestResults[0];
-  
-                const pose = hit.getPose(localSpace);
-                reticle.visible = true;
-  
-                reticle.matrix.fromArray(pose.transform.matrix);
-                if (uiMoved === 0) {
-                  reticleUi();
-                }
-              } else {
-                reticle.visible = false;
-              }
-            }          
-          } else {
-            reticle.visible = false;
+          if(!hitTestSourceInitialized){
+            initializeHitTestSource();
           }
+          
+          if(hitTestSourceInitialized){
+            const hitTestResults = frame.getHitTestResults(hitTestSource);
+            //console.log(hitTestResults); 
+  
+            if (hitTestResults.length > 0) {
+              const hit = hitTestResults[0];
+  
+              const pose = hit.getPose(localSpace);
+              reticle.visible = true;
+  
+              reticle.matrix.fromArray(pose.transform.matrix);
+              if (uiMoved === 0) {
+                reticleUi();
+              }
+            } else {
+              reticle.visible = false;
+            }
+          }          
           uiContainer.lookAt(camera.position);
           ThreeMeshUI.update();
 				  renderer.render(scene, camera);
