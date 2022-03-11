@@ -118,7 +118,7 @@
           uiContainer.translateZ(-1);
           uiContainer.translateY(.4);
           uiText.set({
-              content: 'Line up your reticle with the marker on the floor and tap your screen to continue.'
+              content: 'Line up your reticle where you want to spawn a zeppelin and tap your screen to continue.'
           });
       }
 
@@ -155,13 +155,13 @@
           );
           clips = gltf.animations;
           mixer = new THREE.AnimationMixer(gltf.scene);
-          console.log(clips);
+          // console.log(clips);
           ship = gltf.scene;
           ship.visible = false;
           scene.add(ship);
           action = mixer.clipAction(clips[0]);
           action2 = mixer.clipAction(clips[1]);
-          console.log(action);
+          // console.log(action);
 
 
       }
