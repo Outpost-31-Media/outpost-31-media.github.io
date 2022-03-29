@@ -36,7 +36,7 @@ async function init () {
 	const url = "./assets/spiny_bush_viper.jpg";
   const imgBitmap = await getImageBitmap(url);
   const button = ARButton.createButton(renderer, {
-    requiredFeatures: ["image-tracking"], // notice a new required feature
+    requiredFeatures: ["image-tracking"],
     trackedImages: [
       {
         image: imgBitmap, // tell webxr this is the image target we want to track
