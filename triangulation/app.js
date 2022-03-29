@@ -19,7 +19,9 @@ let point0;
 let point1;
 let mixer;
 let clips, action, action2;
+let directionalLight;
 let clock = new THREE.Clock();
+let mixerBuilt = false;
 
 init();
 animate();
@@ -34,13 +36,17 @@ async function init () {
 	//config renderer
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	renderer.xr.enabled = true;
 	container.appendChild(renderer.domElement);
 
 	// add light
-	var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 4);
-	light.position.set(0.5, 1, 0.25);
-	scene.add(light);
+	// var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 4);
+	// light.position.set(0.5, 1, 0.25);
+	// scene.add(light);
+
+
 
 	//config tap controller
 	controller = renderer.xr.getController(0);
@@ -56,6 +62,12 @@ async function init () {
 
 	//window resize listener
 	window.addEventListener('resize', onWindowResize, false);
+	
+
+	const light = new THREE.DirectionalLight( 0xffffff, 4 );
+	light.castShadow = true;
+	scene.add( light );
+
 	addGeometry();
 }
 
@@ -69,12 +81,16 @@ async function addGeometry() {
 	foxArr = await loadGltf('./gltf/plane.glb');
 	fox = foxArr[0];
 	clips = foxArr[1];
+	fox.castShadow = true;
+	fox.recieveShadow = true;
 	console.log(clips);
-	mixer = new THREE.AnimationMixer(fox);
-	fox.visible = false;
-	scene.add(fox);
+	await buildMixer(fox);
 	action = mixer.clipAction(clips[0]);
   action2 = mixer.clipAction(clips[1]);
+	console.log(mixer);
+	fox.visible = false;
+	scene.add(fox);
+
 
 	pin0 = await loadGltf('./gltf/pin0.glb');
 	pin0.visible = false;
@@ -160,10 +176,17 @@ function locateOrgin() {
   lineB.visible = false;
 }
 
+async function buildMixer(object) {
+	mixer = new THREE.AnimationMixer(object);
+	mixerBuilt = true;
+}
 
 
 function animate () {
+	
 	renderer.setAnimationLoop(render);
+
+
 }
 
 
@@ -207,6 +230,8 @@ function render (timestamp, frame) {
     
   }
   const delta = clock.getDelta();
-  mixer.update(delta);
+  if (mixerBuilt) {
+  	mixer.update(delta);
+	}
 	renderer.render(scene, camera);
 }
