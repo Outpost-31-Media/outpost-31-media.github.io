@@ -129,7 +129,7 @@ function init () {
   document.body.appendChild(button)
 
   const muteButton = document.getElementById('mute-button');
-  muteButton.addEventListener('beforexrselect', ev => ev.preventDefault());
+  muteButton.addEventListener('beforexrselect', ev => ev.preventDefault()); //this stops people tapping the mute button from tapping the ar experience behind at the same time
   muteButton.addEventListener('click', toggleMute, false);
 
   window.addEventListener('resize', onWindowResize, false);
