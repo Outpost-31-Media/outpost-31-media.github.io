@@ -343,13 +343,13 @@ function updateDom () {
     document.getElementById("overlay").innerHTML = '<h3>look around the map and to let your phone calculate the space</h3>';
   } else if (pinned == 0) {
     document.getElementById("overlay").innerHTML = '<p>In the summer of 1943 somebody bought four Fairchild model 71 airplanes and brought them to Carcross. </br><strong> Place a pin at Carcross by lining up your reticle and tapping your screen.</strong></p>';
-    if (!muted && soundsplayed == 0) {
+    if (soundsplayed == 0) {
       sound1.play();
       soundsplayed = 1;
     };
   } else if (pinned == 1) {
     document.getElementById("overlay").innerHTML = '<p>These airplanes made some trips between atlin and carcross carying all sorts of things </br><strong> Place a pin at Atlin.</strong></p>';
-    if (!muted && soundsplayed <= 1) {
+    if (soundsplayed <= 1) {
       sound1.stop();
       sound2.play();
       soundsplayed = 2;
