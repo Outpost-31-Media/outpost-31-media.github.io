@@ -45,6 +45,11 @@ const PARAMS = {
 let flightStarted = false;
 let landingMixer;
 let landingMixerBuilt = false;
+let listener;
+let sound1;
+let sound2;
+let muted = false;
+let soundsplayed = 0;
 
 init();
 animate();
@@ -77,7 +82,7 @@ function init () {
 	controller.addEventListener('select', onSelect);
 	scene.add(controller);
 
-  //shadown light
+  //shadow light
   directionalLight = new THREE.DirectionalLight();
   directionalLight.castShadow = true;
   directionalLight.shadow.mapSize.width = 2048*2;
@@ -86,8 +91,25 @@ function init () {
   directionalLight.shadow.camera.far = 50;
   scene.add(directionalLight);
 
+  //audio stuff
+  listener = new THREE.AudioListener();
+  camera.add(listener);
+  sound1 = new THREE.Audio( listener );
+  sound2 = new THREE.Audio( listener );
 
 
+  const audioLoader = new THREE.AudioLoader();
+  audioLoader.load('./sounds/sound1.ogg', function( buffer ) {
+    sound1.setBuffer( buffer );
+    sound1.setLoop( false );
+    sound1.setVolume( 1 );
+  });
+
+  audioLoader.load('./sounds/sound2.ogg', function( buffer ) {
+    sound2.setBuffer( buffer );
+    sound2.setLoop( false );
+    sound2.setVolume( 1 );
+  });
 
   loadReticle();
   loadPins();
@@ -106,11 +128,26 @@ function init () {
   });
   document.body.appendChild(button)
 
-
+  const muteButton = document.getElementById('mute-button');
+  muteButton.addEventListener('beforexrselect', ev => ev.preventDefault());
+  muteButton.addEventListener('click', toggleMute, false);
 
   window.addEventListener('resize', onWindowResize, false);
 }
 
+function toggleMute() {
+  if (!muted) {
+    document.getElementById('mute-button').innerHTML = 'Unmute';
+    muted = true;
+    sound1.setVolume(0);
+    sound2.setVolume(0);
+  } else if (muted) {
+    document.getElementById('mute-button').innerHTML = 'Mute';
+    muted = false;
+    sound1.setVolume(1);
+    sound2.setVolume(1);
+  };
+}
 
 //handles window resizing from init()
 function onWindowResize() {
@@ -306,8 +343,17 @@ function updateDom () {
     document.getElementById("overlay").innerHTML = '<h3>look around the map and to let your phone calculate the space</h3>';
   } else if (pinned == 0) {
     document.getElementById("overlay").innerHTML = '<p>In the summer of 1943 somebody bought four Fairchild model 71 airplanes and brought them to Carcross. </br><strong> Place a pin at Carcross by lining up your reticle and tapping your screen.</strong></p>';
+    if (!muted && soundsplayed == 0) {
+      sound1.play();
+      soundsplayed = 1;
+    };
   } else if (pinned == 1) {
     document.getElementById("overlay").innerHTML = '<p>These airplanes made some trips between atlin and carcross carying all sorts of things </br><strong> Place a pin at Atlin.</strong></p>';
+    if (!muted && soundsplayed <= 1) {
+      sound1.stop();
+      sound2.play();
+      soundsplayed = 2;
+    };
   } else {
     document.getElementById("overlay").innerHTML = '';
   };
