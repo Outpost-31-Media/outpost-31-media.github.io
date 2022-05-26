@@ -184,7 +184,7 @@ async function loadPins () {
 }
 
 async function loadFlightGltf () {
-  flightArr = await loadGltf('./gltf/otter1.glb');
+  flightArr = await loadGltf('./gltf/otter2.glb');
   flight = flightArr[0];
   flightClips = flightArr[1];
   // console.log(clips);
@@ -226,7 +226,7 @@ async function loadTitles () {
 }
 
 async function loadPlaneLanding () {
-  landingArr = await loadGltf('./gltf/planelanding.glb');
+  landingArr = await loadGltf('./gltf/planelanding1.glb');
   landing =  landingArr[0];
   landingClips = landingArr[1];
   // console.log(clips);
@@ -308,8 +308,15 @@ function locateFlight () {
   flightAction0.play();
   flightAction1.play(); //prop
 
-  landing.position.setFromMatrixPosition(flight.matrix);
-  landing.quaternion.setFromRotationMatrix(flight.matrix);
+
+  landing.position.set(point0.x, point0.y, point0.z);
+
+  rotateAroundPoint(pin0.position, landing, 0, -.3176499, 0);
+  landing.lookAt(pin0.position);
+  landing.rotateY(-0.3560472);
+  landing.rotateY(3.14159);
+  // landing.position.setFromMatrixPosition(flight.matrix);
+  // landing.quaternion.setFromRotationMatrix(flight.matrix);
 
   // flightStarted = true;
   mixer.addEventListener( 'finished', (e) => {
@@ -335,6 +342,7 @@ async function buildMixer(object) {
   mixer = new THREE.AnimationMixer(object);
   mixerBuilt = true;
 }
+
 
 function updateDom () {
   if (!hitTestSourceInitialized) {
