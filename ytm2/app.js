@@ -48,8 +48,11 @@ let landingMixerBuilt = false;
 let listener;
 let sound1;
 let sound2;
+let sound3;
+let sound4; //plane sound
 let muted = false;
 let soundsplayed = 0;
+let sounds = [];
 
 init();
 animate();
@@ -96,6 +99,8 @@ function init () {
   camera.add(listener);
   sound1 = new THREE.Audio( listener );
   sound2 = new THREE.Audio( listener );
+  sound3 = new THREE.Audio( listener );
+  sound4 = new THREE.PositionalAudio( listener );
 
 
   const audioLoader = new THREE.AudioLoader();
@@ -111,6 +116,17 @@ function init () {
     sound2.setVolume( 1 );
   });
 
+  audioLoader.load('./sounds/sound3.ogg', function( buffer ) {
+    sound3.setBuffer( buffer );
+    sound3.setLoop( false );
+    sound3.setVolume( 1 );
+  });
+  audioLoader.load('./sounds/plane.ogg', function( buffer ) {
+    sound4.setBuffer( buffer );
+    sound4.setLoop( true );
+    sound4.setVolume( 1 );
+  });
+  sounds = [sound1, sound2, sound3, sound4];
   loadReticle();
   loadPins();
   loadFlightGltf();
@@ -139,13 +155,15 @@ function toggleMute() {
   if (!muted) {
     document.getElementById('mute-button').innerHTML = 'Unmute';
     muted = true;
-    sound1.setVolume(0);
-    sound2.setVolume(0);
+    for (const sound of sounds) {
+      sound.setVolume(0);
+    };
   } else if (muted) {
     document.getElementById('mute-button').innerHTML = 'Mute';
     muted = false;
-    sound1.setVolume(1);
-    sound2.setVolume(1);
+    for (const sound of sounds) {
+      sound.setVolume(1);
+    };
   };
 }
 
@@ -194,6 +212,7 @@ async function loadFlightGltf () {
   // console.log(mixer);
   flight.visible = false;
   scene.add(flight);
+  flight.add( sound4 );
 
   //goes through every mesh and child and sets to cast shadow
   flight.traverse((node) => {
@@ -307,6 +326,7 @@ function locateFlight () {
   flightAction0.clampWhenFinished = true;
   flightAction0.play();
   flightAction1.play(); //prop
+  sound4.play();
 
 
   landing.position.set(point0.x, point0.y, point0.z);
@@ -327,6 +347,7 @@ function locateFlight () {
 }
 //future sam this is why things arent working
 function startSecondAnimation() {
+  sound4.stop();
   console.log('thisran');
   landing.visible = true;
   landingAction0.setLoop( THREE.LoopOnce );
@@ -336,6 +357,7 @@ function startSecondAnimation() {
   landingAction1.clampWhenFinished = true;
   landingAction1.play();
   flightStarted = false
+  sound3.play();
 }
 //mixer is for handeling animations
 async function buildMixer(object) {
