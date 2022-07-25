@@ -51,7 +51,7 @@ class Forest {
         //     burning: await loader.loadAsync('./gltf/burningtree.glb'),
         //     burnt: await loader.loadAsync('./gltf/burnttree.glb')
         // }
-        return await loader.loadAsync('./gltf/tree.glb')
+        return await loader.loadAsync('./gltf/tile1.glb')
     }
     build() {
         this.trees = []
@@ -135,29 +135,37 @@ class Tree {
         this.models = models;
         this.scene = scene;
         this.timeBurning = 0;
+        this.wetness = 0;
         this.maxBurnTime = Math.floor(Math.random() * (6 - 3) ) + 3;
         this.object3D = this.build();
     }
     build() {
         this.geometry = this.models.scene;
-        const tileSize = this.geometry.children[0].scale.x;
+        const tileSize = this.geometry.getObjectByName('ground').scale.x*2;
         this.pos = [((this.cor[0]-this.radius[0])*tileSize)+this.orgin[0], this.orgin[1], ((this.cor[1]-this.radius[1])*tileSize)+this.orgin[2]];
         const clone = this.geometry.clone();
+        clone.rotation.y = ((Math.floor(Math.random() * (1 - 3) ) + 1)*90) * (Math.PI / 180.0);
         this.scene.add(clone);
         clone.getObjectByName('burntTree').visible = false;
         clone.getObjectByName('fire').visible = false;
+        clone.getObjectByName('burnedGround').visible = false;
         clone.position.set(this.pos[0],this.pos[1],this.pos[2]);
         // console.log(`pos ${pos}`) //this assumes that all tiles for forest fire are square
         return clone;
     }
     light() {
-        if (this.state == 0) {
+        if (this.state == 0 && this.wetness == 0) {
             this.state = 1;
             this.object3D.getObjectByName('burntTree').visible = true;
             this.object3D.getObjectByName('fire').visible = true;
             this.object3D.getObjectByName('greenTree').visible = false;
+            this.object3D.getObjectByName('flower').visible = false;
+            this.object3D.getObjectByName('burnedGround').visible = true;
+            this.object3D.getObjectByName('ground').visible = false;
             this.timeBurning = 1;
             // console.log(`tree ${this.cor} lit`)
+        } else if (this.state == 0 && this.wetness != 0) {
+            this.wetness -= 1;
         };
         
     }
@@ -170,9 +178,14 @@ class Tree {
         }
 
     }
-    extinguish() {
-        this.state = 2;
-        this.object3D.getObjectByName('fire').visible = false;
+    water() {
+        if (this.state == 1){
+            this.state = 2;
+            this.object3D.getObjectByName('fire').visible = false; 
+        } else if (this.state == 0 && this.wetness < 3) {
+            this.wetness+=1;
+        }
+
     }
 
 }
@@ -212,7 +225,7 @@ function init() {
     controller.addEventListener('select', onSelect);
     scene.add(controller);
 
-    var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 3);
+    var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
     light.position.set(0.5, 1, 0.25);
     scene.add(light);
 
