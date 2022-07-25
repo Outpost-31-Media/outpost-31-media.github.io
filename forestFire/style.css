@@ -259,7 +259,7 @@ div {
     z-index: 100;
     display: block;
     color: black;
-    font-size: 70px;
+    font-size: 55px;
 }
 
 #warning {
@@ -270,5 +270,5 @@ div {
     z-index: 100;
     display: block;
     color: black;
-    font-size: 70px;
+    font-size: 55px;
 }
