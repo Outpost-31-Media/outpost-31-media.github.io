@@ -1,0 +1,134 @@
+body {
+	margin: 0;
+	
+	color: #fff;
+	font-family: Monospace;
+	font-size: 16px;
+	line-height: 24px;
+	overscroll-behavior: none;
+}
+
+a {
+	color: #ff0;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+button {
+	cursor: pointer;
+	text-transform: uppercase;
+}
+
+canvas {
+	display: block;
+}
+
+a, button, input, select {
+	pointer-events: auto;
+}
+
+.overlayText {
+    position: absolute;
+    top: 50px;
+    width: 100%;
+    text-align: center;
+
+
+    display:block; 
+}
+#overlay {
+	position: absolute;
+	top: 50px;
+	width: 100%;
+	text-align: center;
+	z-index: 100;
+	display:block;
+}
+
+.gui-button {
+    right: 20px;
+    position: absolute;
+    bottom: 20px;
+    padding: 12px 6px;
+    border: 1px solid rgb(255, 255, 255);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    color: rgb(255, 255, 255);
+    font: 13px sans-serif;
+    text-align: center;
+    opacity: 0.5;
+    outline: none;
+    z-index: 999;
+    cursor: pointer;
+    left: calc(80% - 50px);
+    width: 100px;
+    user-select: none; /* supported by Chrome and Opera */
+   -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+   -moz-user-select: none; /* Firefox */
+   -ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+.gui-button-left {
+    left: 20px;
+    position: absolute;
+    bottom: 20px;
+    padding: 12px 6px;
+    border: 1px solid rgb(255, 255, 255);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    color: rgb(255, 255, 255);
+    font: 13px sans-serif;
+    text-align: center;
+    opacity: 0.5;
+    outline: none;
+    z-index: 999;
+    cursor: pointer;
+    right: calc(80% - 50px);
+    width: 100px;
+    user-select: none; /* supported by Chrome and Opera */
+   -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+   -moz-user-select: none; /* Firefox */
+   -ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+.wrapper { 
+  height: 100%;
+  width: 100%;
+  left:0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  position: absolute;
+background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+background-size: 1800% 1800%;
+
+-webkit-animation: rainbow 18s ease infinite;
+-z-animation: rainbow 18s ease infinite;
+-o-animation: rainbow 18s ease infinite;
+  animation: rainbow 18s ease infinite;}
+
+@-webkit-keyframes rainbow {
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
+@-moz-keyframes rainbow {
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
+@-o-keyframes rainbow {
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
+@keyframes rainbow { 
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
