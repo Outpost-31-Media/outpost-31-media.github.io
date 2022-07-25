@@ -22,7 +22,7 @@ let rigidBodies = [],
   directionalLight;
 let clock = new THREE.Clock();
 let forest;
-let orgin = [0, -.5, -1];
+let orgin = [0, -1.8, -1];
 let iterateTime = Infinity;
 let iterateStep = 2000;
 let time;
@@ -34,6 +34,7 @@ let controller;
 let reticle;
 let loader;
 let gltf;
+let mixer; 
 let plane;
 let timeout;
 
@@ -248,6 +249,11 @@ async function init() {
 
   // loading the model 
   await loadModel();
+  mixer = new THREE.AnimationMixer(model);
+  let propellerLeft =  mixer.clipAction(gltf.animations[12]); 
+  let propellerRight =  mixer.clipAction(gltf.animations[13]); 
+  propellerLeft.play(); 
+  propellerRight.play(); 
 
   // adding the bounding boxes to the scene
   addBoundingBoxesToModels();
@@ -324,15 +330,19 @@ async function init() {
     // handlers if directional buttons are released
     document.querySelector("#up").addEventListener("touchend", () => {
       clearTimeout(timeout);
+      straightenUp(); 
     });
     document.querySelector("#down").addEventListener("touchend", () => {
       clearTimeout(timeout);
+      straightenDown(); 
     });
     document.querySelector("#left").addEventListener("touchend", () => {
       clearTimeout(timeout);
+      straightenLeft(); 
     });
     document.querySelector("#right").addEventListener("touchend", () => {
       clearTimeout(timeout);
+      straightenRight(); 
     });
 
   }
@@ -416,7 +426,7 @@ function addReticleToScene() {
 */
 async function loadModel() {
   loader = new THREE.GLTFLoader();
-  gltf = await loader.loadAsync("./gltf/newbird.glb");
+  gltf = await loader.loadAsync("./gltf/a52.glb");
   model = gltf.scene;
   model.traverse((node) => {
     if (node.isMesh) {
@@ -424,10 +434,7 @@ async function loadModel() {
       node.receiveShadow = true;
     }
   });
-  //model.scale.set(0.001, 0.001, 0.001); 
-
-  model.scale.set(0.0025, 0.0025, 0.0025);
-  model.position.set(0, 0, 0);
+  model.scale.set(0.025, 0.025, 0.025); 
   model.visible = false;
 }
 
@@ -470,7 +477,7 @@ function addBoundingBoxesToModels() {
 
   wallBBGround = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshGround = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshGround.position.set(0, -1.75, 0);
+  meshGround.position.set(0, -1.8, 0);
   meshGround.rotation.x = Math.PI / 2;
   //scene.add(meshGround); 
   wallBBGround.setFromObject(meshGround);
@@ -517,7 +524,7 @@ function onSelect() {
   // placing the model at the location of the reticle
   model.position.setFromMatrixPosition(reticle.matrix);
   model.quaternion.setFromRotationMatrix(reticle.matrix);
-  model.rotation.y = Math.PI;
+  model.rotation.y = Math.PI; 
   model.visible = true;
   scene.add(model);
 
@@ -743,6 +750,7 @@ async function initializeHitTestSource() {
 }
 
 function render(timestamp, frame) {
+  deltaTime = clock.getDelta();
   if (frame) {
 
     if (!hitTestSourceInitialized) {
@@ -787,6 +795,10 @@ function render(timestamp, frame) {
       checkCollisions();
     }
     updatePhysics(deltaTime);
+
+    if (mixer) {
+      mixer.update(deltaTime); 
+    }
 
     renderer.render(scene, camera);
   }
@@ -850,8 +862,6 @@ function updatePhysics(deltaTime) {
   if (physicsDebug) {
     physics.updateDebugger()
   }
-
-
 }
 
 /*
