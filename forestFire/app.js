@@ -26,7 +26,7 @@ let clock = new THREE.Clock();
 let forest;
 let orgin = [0, -.5, -1];
 let iterateTime = Infinity;
-let iterateStep = 5000;
+let iterateStep = 2000;
 let time;
 
 
