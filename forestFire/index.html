@@ -1,36 +1,41 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>Forest Fire</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-		<link type="text/css" rel="stylesheet" href="./style.css">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js" crossorigin="anonymous"></script>
-		
-		<!-- <script src="https://cdn.jsdelivr.net/npm/tweakpane@3.0.5/dist/tweakpane.min.js"></script> -->
-		<!-- mobile debug tools -->
-		<!-- <script src="//cdn.jsdelivr.net/npm/eruda"></script> -->
-		<script src="lib/enable3d.ammoPhysics.0.25.2.min.js"></script>
-		<!-- <script src="./js/enable3d.framework.0.25.2.min.js"></script> -->
-		<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
-		<!-- <script>eruda.init();</script> -->
-	</head>
-	<body >
-		<div class="wrapper">
-		</div>
-		<h1 class="overlayText">Forest Fighting AR Experience</h1>
-		<div  id="overlay"></div>
-		<!-- <button id="forwardBtn" class="gui-button">Forward</button>
-		<button id="backBtn" class="gui-button" style="bottom: 70px;">Back</button>
-		<button id="leftBtn" class="gui-button"style="bottom: 120px;">Left</button>
-		<button id="rightBtn" class="gui-button"style="bottom: 170px;">Right</button>
-		<button id="functionBtn" class="gui-button-left">Start Race</button>
-		<button id="functionBtn1" class="gui-button-left" style="bottom: 70px;">Next Obstacle</button>
-		<button id="functionBtn2" class="gui-button-left" style="bottom: 140px;">Previous Obstacle</button>
-		<button id="restartBtn" class="gui-button-left">Restart</button> -->
-		<!-- <script src="js/ammo/ammo.wasm.js"></script> -->
-		<script src="./app.js" type="module"></script>
-	</body>
-</html>
+<html lang="en">
 
-<!-- style="background-color:#9e9e9e" -->
+<head>
+  <meta charset="utf-8">
+  <title>Forest Fire</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link type="text/css" rel="stylesheet" href="./style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js" crossorigin="anonymous"></script>
+  <script src="lib/enable3d.ammoPhysics.0.25.2.min.js"></script>
+
+  <!-- <script src="https://unpkg.com/three@0.133.0/build/three.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+  <script src="https://unpkg.com/three@0.133.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
+  <script src = "../libs/ammo.wasm.js"></script> -->
+
+
+  <script src="./lib/tween.umd.js"></script>
+  <script src="./lib/GLTFLoader.js"></script>
+  <script src="./lib/tweakpane-3.1.0.min.js"> </script>
+
+</head>
+
+<body>
+  <div class="wrapper"></div>
+  <h1 class="overlayText">Forest Fighting AR Experience</h1>
+  <div id="overlay"></div>
+
+  <button id="up">Up</button>
+  <button id="down">Down</button>
+  <button id="left">Left</button>
+  <button id="right">Right</button>
+
+  <div id="instructions"></div>
+  <div id="warning"></div>
+
+  <script src='./app.js' type="module"> </script>
+</body>
+
+</html>
