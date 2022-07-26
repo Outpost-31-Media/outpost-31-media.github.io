@@ -287,13 +287,13 @@ async function init() {
 
       let backRightDown = mixer.clipAction(gltf.animations[14]); 
       backRightDown.clampWhenFinished = true; 
-      backRightDown.timeScale = 0.5; 
+      backRightDown.timeScale =4; 
       backRightDown.setLoop(THREE.LoopOnce); 
       backRightDown.play(); 
 
       let backLeftDown = mixer.clipAction(gltf.animations[18]); 
       backLeftDown.clampWhenFinished = true; 
-      backLeftDown.timeScale = 0.5; 
+      backLeftDown.timeScale =4; 
       backLeftDown.setLoop(THREE.LoopOnce); 
       backLeftDown.play(); 
 
@@ -303,13 +303,13 @@ async function init() {
 
       let backRightUp = mixer.clipAction(gltf.animations[16]); 
       backRightUp.clampWhenFinished = true; 
-      backRightUp.timeScale = 0.5; 
+      backRightUp.timeScale = 4; 
       backRightUp.setLoop(THREE.LoopOnce); 
       backRightUp.play(); 
 
       let backLeftUp = mixer.clipAction(gltf.animations[20]); 
       backLeftUp.clampWhenFinished = true; 
-      backLeftUp.timeScale = 0.5; 
+      backLeftUp.timeScale = 4; 
       backLeftUp.setLoop(THREE.LoopOnce); 
       backLeftUp.play(); 
 
@@ -319,13 +319,13 @@ async function init() {
 
       let frontRightUp = mixer.clipAction(gltf.animations[2]); 
       frontRightUp.clampWhenFinished = true; 
-      frontRightUp.timeScale = 0.5; 
+      frontRightUp.timeScale = 4; 
       frontRightUp.setLoop(THREE.LoopOnce); 
       frontRightUp.play(); 
 
       let frontLeftDown = mixer.clipAction(gltf.animations[4]); 
       frontLeftDown.clampWhenFinished = true; 
-      frontLeftDown.timeScale = 0.5; 
+      frontLeftDown.timeScale = 4; 
       frontLeftDown.setLoop(THREE.LoopOnce); 
       frontLeftDown.play(); 
     });
@@ -334,13 +334,13 @@ async function init() {
 
       let frontRightDown = mixer.clipAction(gltf.animations[0]); 
       frontRightDown.clampWhenFinished = true; 
-      frontRightDown.timeScale = 0.5; 
+      frontRightDown.timeScale = 4; 
       frontRightDown.setLoop(THREE.LoopOnce); 
       frontRightDown.play(); 
 
       let frontLeftUp = mixer.clipAction(gltf.animations[6]); 
       frontLeftUp.clampWhenFinished = true; 
-      frontLeftUp.timeScale = 0.5; 
+      frontLeftUp.timeScale = 4; 
       frontLeftUp.setLoop(THREE.LoopOnce); 
       frontLeftUp.play(); 
     });
@@ -352,13 +352,13 @@ async function init() {
 
       let backRightDownReturn = mixer.clipAction(gltf.animations[15]); 
       backRightDownReturn.clampWhenFinished = true; 
-      backRightDownReturn.timeScale = 0.5; 
+      backRightDownReturn.timeScale = 4; 
       backRightDownReturn.setLoop(THREE.LoopOnce); 
       backRightDownReturn.play(); 
 
       let backLeftDownReturn = mixer.clipAction(gltf.animations[19]); 
       backLeftDownReturn.clampWhenFinished = true; 
-      backLeftDownReturn.timeScale = 0.5; 
+      backLeftDownReturn.timeScale = 4; 
       backLeftDownReturn.setLoop(THREE.LoopOnce); 
       backLeftDownReturn.play(); 
     });
@@ -368,13 +368,13 @@ async function init() {
 
       let backRightUpReturn = mixer.clipAction(gltf.animations[17]); 
       backRightUpReturn.clampWhenFinished = true; 
-      backRightUpReturn.timeScale = 0.5; 
+      backRightUpReturn.timeScale = 4; 
       backRightUpReturn.setLoop(THREE.LoopOnce); 
       backRightUpReturn.play(); 
 
       let backLeftUpReturn = mixer.clipAction(gltf.animations[21]); 
       backLeftUpReturn.clampWhenFinished = true; 
-      backLeftUpReturn.timeScale = 0.5; 
+      backLeftUpReturn.timeScale = 4; 
       backLeftUpReturn.setLoop(THREE.LoopOnce); 
       backLeftUpReturn.play(); 
     });
@@ -384,13 +384,13 @@ async function init() {
 
       let frontRightUpReturn = mixer.clipAction(gltf.animations[3]); 
       frontRightUpReturn.clampWhenFinished = true; 
-      frontRightUpReturn.timeScale = 0.5; 
+      frontRightUpReturn.timeScale = 4; 
       frontRightUpReturn.setLoop(THREE.LoopOnce); 
       frontRightUpReturn.play(); 
 
       let frontLeftDownReturn = mixer.clipAction(gltf.animations[5]); 
       frontLeftDownReturn.clampWhenFinished = true; 
-      frontLeftDownReturn.timeScale = 0.5; 
+      frontLeftDownReturn.timeScale =4; 
       frontLeftDownReturn.setLoop(THREE.LoopOnce); 
       frontLeftDownReturn.play(); 
     });
@@ -400,13 +400,13 @@ async function init() {
 
       let frontRightDownReturn = mixer.clipAction(gltf.animations[1]); 
       frontRightDownReturn.clampWhenFinished = true; 
-      frontRightDownReturn.timeScale = 0.5; 
+      frontRightDownReturn.timeScale = 4; 
       frontRightDownReturn.setLoop(THREE.LoopOnce); 
       frontRightDownReturn.play(); 
 
       let frontLeftUpReturn = mixer.clipAction(gltf.animations[7]); 
       frontLeftUpReturn.clampWhenFinished = true; 
-      frontLeftUpReturn.timeScale = 0.5; 
+      frontLeftUpReturn.timeScale = 4; 
       frontLeftUpReturn.setLoop(THREE.LoopOnce); 
       frontLeftUpReturn.play(); 
 
@@ -418,22 +418,28 @@ async function init() {
 
       let backRightDown = mixer.clipAction(gltf.animations[14]); 
       backRightDown.clampWhenFinished = true; 
-      backRightDown.timeScale = 0.5; 
+      backRightDown.timeScale =4; 
       backRightDown.setLoop(THREE.LoopOnce); 
       backRightDown.play(); 
+
+      let backLeftDown = mixer.clipAction(gltf.animations[18]); 
+      backLeftDown.clampWhenFinished = true; 
+      backLeftDown.timeScale =4; 
+      backLeftDown.setLoop(THREE.LoopOnce); 
+      backLeftDown.play(); 
     });
     document.querySelector("#down").addEventListener("touchstart", () => {
       timeout = setTimeout(moveDown, 100);
 
       let backRightUp = mixer.clipAction(gltf.animations[16]); 
       backRightUp.clampWhenFinished = true; 
-      backRightUp.timeScale = 0.5; 
+      backRightUp.timeScale = 4; 
       backRightUpn.setLoop(THREE.LoopOnce); 
       backRightUp.play(); 
 
       let backLeftUp = mixer.clipAction(gltf.animations[20]); 
       backLeftUp.clampWhenFinished = true; 
-      backLeftUp.timeScale = 0.5; 
+      backLeftUp.timeScale = 4; 
       backLeftUp.setLoop(THREE.LoopOnce); 
       backLeftUp.play(); 
     });
@@ -442,13 +448,13 @@ async function init() {
 
       let frontRightUp = mixer.clipAction(gltf.animations[2]); 
       frontRightUp.clampWhenFinished = true; 
-      frontRightUp.timeScale = 0.5; 
+      frontRightUp.timeScale = 4; 
       frontRightUp.setLoop(THREE.LoopOnce); 
       frontRightUp.play(); 
 
       let frontLeftDown = mixer.clipAction(gltf.animations[5]); 
       frontLeftDown.clampWhenFinished = true; 
-      frontLeftDown.timeScale = 0.5; 
+      frontLeftDown.timeScale = 4; 
       frontLeftDown.setLoop(THREE.LoopOnce); 
       frontLeftDown.play(); 
     });
@@ -457,13 +463,13 @@ async function init() {
 
       let frontRightDown = mixer.clipAction(gltf.animations[0]); 
       frontRightDown.clampWhenFinished = true; 
-      frontRightDown.timeScale = 0.5; 
+      frontRightDown.timeScale = 4; 
       frontRightDown.setLoop(THREE.LoopOnce); 
       frontRightDown.play(); 
 
       let frontLeftUp = mixer.clipAction(gltf.animations[6]); 
       frontLeftUp.clampWhenFinished = true; 
-      frontLeftUp.timeScale = 0.5; 
+      frontLeftUp.timeScale = 4; 
       frontLeftUp.setLoop(THREE.LoopOnce); 
       frontLeftUp.play(); 
     });
@@ -475,13 +481,13 @@ async function init() {
 
       let backRightDownReturn = mixer.clipAction(gltf.animations[15]); 
       backRightDownReturn.clampWhenFinished = true; 
-      backRightDownReturn.timeScale = 0.5; 
+      backRightDownReturn.timeScale = 4; 
       backRightDownReturn.setLoop(THREE.LoopOnce); 
       backRightDownReturn.play(); 
 
       let backLeftDownReturn = mixer.clipAction(gltf.animations[19]); 
       backLeftDownReturn.clampWhenFinished = true; 
-      backLeftDownReturn.timeScale = 0.5; 
+      backLeftDownReturn.timeScale = 4; 
       backLeftDownReturn.setLoop(THREE.LoopOnce); 
       backLeftDownReturn.play(); 
     });
@@ -491,13 +497,13 @@ async function init() {
 
       let backRightUpReturn = mixer.clipAction(gltf.animations[17]); 
       backRightUpReturn.clampWhenFinished = true; 
-      backRightUpReturn.timeScale = 0.5; 
+      backRightUpReturn.timeScale = 4; 
       backRightUpReturn.setLoop(THREE.LoopOnce); 
       backRightUpReturn.play(); 
 
       let backLeftUpReturn = mixer.clipAction(gltf.animations[21]); 
       backLeftUpReturn.clampWhenFinished = true; 
-      backLeftUpReturn.timeScale = 0.5; 
+      backLeftUpReturn.timeScale = 4; 
       backLeftUpReturn.setLoop(THREE.LoopOnce); 
       backLeftUpReturn.play(); 
       
@@ -508,13 +514,13 @@ async function init() {
 
       let frontRightUpReturn = mixer.clipAction(gltf.animations[3]); 
       frontRightUpReturn.clampWhenFinished = true; 
-      frontRightUpReturn.timeScale = 0.5; 
+      frontRightUpReturn.timeScale = 4; 
       frontRightUpReturn.setLoop(THREE.LoopOnce); 
       frontRightUpReturn.play(); 
 
       let frontLeftDownReturn = mixer.clipAction(gltf.animations[5]); 
       frontLeftDownReturn.clampWhenFinished = true; 
-      frontLeftDownReturn.timeScale = 0.5; 
+      frontLeftDownReturn.timeScale = 4; 
       frontLeftDownReturn.setLoop(THREE.LoopOnce); 
       frontLeftDownReturn.play(); 
     });
@@ -524,13 +530,13 @@ async function init() {
 
       let frontRightDownReturn = mixer.clipAction(gltf.animations[1]); 
       frontRightDownReturn.clampWhenFinished = true; 
-      frontRightDownReturn.timeScale = 0.5; 
+      frontRightDownReturn.timeScale = 4; 
       frontRightDownReturn.setLoop(THREE.LoopOnce); 
       frontRightDownReturn.play(); 
 
       let frontLeftUpReturn = mixer.clipAction(gltf.animations[7]); 
       frontLeftUpReturn.clampWhenFinished = true; 
-      frontLeftUpReturn.timeScale = 0.5; 
+      frontLeftUpReturn.timeScale = 4; 
       frontLeftUpReturn.setLoop(THREE.LoopOnce); 
       frontLeftUpReturn.play(); 
     });
