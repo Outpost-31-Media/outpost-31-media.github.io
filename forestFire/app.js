@@ -284,65 +284,255 @@ async function init() {
     // handlers if directional buttons are pushed
     document.querySelector("#up").addEventListener("mousedown", () => {
       timeout = setTimeout(moveUp, 100);
+
+      let backRightDown = mixer.clipAction(gltf.animations[14]); 
+      backRightDown.clampWhenFinished = true; 
+      backRightDown.timeScale = 0.5; 
+      backRightDown.setLoop(THREE.LoopOnce); 
+      backRightDown.play(); 
+
+      let backLeftDown = mixer.clipAction(gltf.animations[18]); 
+      backLeftDown.clampWhenFinished = true; 
+      backLeftDown.timeScale = 0.5; 
+      backLeftDown.setLoop(THREE.LoopOnce); 
+      backLeftDown.play(); 
+
     });
     document.querySelector("#down").addEventListener("mousedown", () => {
       timeout = setTimeout(moveDown, 100);
+
+      let backRightUp = mixer.clipAction(gltf.animations[16]); 
+      backRightUp.clampWhenFinished = true; 
+      backRightUp.timeScale = 0.5; 
+      backRightUp.setLoop(THREE.LoopOnce); 
+      backRightUp.play(); 
+
+      let backLeftUp = mixer.clipAction(gltf.animations[20]); 
+      backLeftUp.clampWhenFinished = true; 
+      backLeftUp.timeScale = 0.5; 
+      backLeftUp.setLoop(THREE.LoopOnce); 
+      backLeftUp.play(); 
+
     });
     document.querySelector("#left").addEventListener("mousedown", () => {
       timeout = setTimeout(moveLeft, 100);
+
+      let frontRightUp = mixer.clipAction(gltf.animations[2]); 
+      frontRightUp.clampWhenFinished = true; 
+      frontRightUp.timeScale = 0.5; 
+      frontRightUp.setLoop(THREE.LoopOnce); 
+      frontRightUp.play(); 
+
+      let frontLeftDown = mixer.clipAction(gltf.animations[4]); 
+      frontLeftDown.clampWhenFinished = true; 
+      frontLeftDown.timeScale = 0.5; 
+      frontLeftDown.setLoop(THREE.LoopOnce); 
+      frontLeftDown.play(); 
     });
     document.querySelector("#right").addEventListener("mousedown", () => {
       timeout = setTimeout(moveRight, 100);
+
+      let frontRightDown = mixer.clipAction(gltf.animations[0]); 
+      frontRightDown.clampWhenFinished = true; 
+      frontRightDown.timeScale = 0.5; 
+      frontRightDown.setLoop(THREE.LoopOnce); 
+      frontRightDown.play(); 
+
+      let frontLeftUp = mixer.clipAction(gltf.animations[6]); 
+      frontLeftUp.clampWhenFinished = true; 
+      frontLeftUp.timeScale = 0.5; 
+      frontLeftUp.setLoop(THREE.LoopOnce); 
+      frontLeftUp.play(); 
     });
 
     // handlers if directional buttons are released
     document.querySelector("#up").addEventListener("mouseup", () => {
       clearTimeout(timeout);
       straightenUp(); 
+
+      let backRightDownReturn = mixer.clipAction(gltf.animations[15]); 
+      backRightDownReturn.clampWhenFinished = true; 
+      backRightDownReturn.timeScale = 0.5; 
+      backRightDownReturn.setLoop(THREE.LoopOnce); 
+      backRightDownReturn.play(); 
+
+      let backLeftDownReturn = mixer.clipAction(gltf.animations[19]); 
+      backLeftDownReturn.clampWhenFinished = true; 
+      backLeftDownReturn.timeScale = 0.5; 
+      backLeftDownReturn.setLoop(THREE.LoopOnce); 
+      backLeftDownReturn.play(); 
     });
     document.querySelector("#down").addEventListener("mouseup", () => {
       clearTimeout(timeout);
       straightenDown(); 
+
+      let backRightUpReturn = mixer.clipAction(gltf.animations[17]); 
+      backRightUpReturn.clampWhenFinished = true; 
+      backRightUpReturn.timeScale = 0.5; 
+      backRightUpReturn.setLoop(THREE.LoopOnce); 
+      backRightUpReturn.play(); 
+
+      let backLeftUpReturn = mixer.clipAction(gltf.animations[21]); 
+      backLeftUpReturn.clampWhenFinished = true; 
+      backLeftUpReturn.timeScale = 0.5; 
+      backLeftUpReturn.setLoop(THREE.LoopOnce); 
+      backLeftUpReturn.play(); 
     });
     document.querySelector("#left").addEventListener("mouseup", () => {
       clearTimeout(timeout);
       straightenLeft(); 
+
+      let frontRightUpReturn = mixer.clipAction(gltf.animations[3]); 
+      frontRightUpReturn.clampWhenFinished = true; 
+      frontRightUpReturn.timeScale = 0.5; 
+      frontRightUpReturn.setLoop(THREE.LoopOnce); 
+      frontRightUpReturn.play(); 
+
+      let frontLeftDownReturn = mixer.clipAction(gltf.animations[5]); 
+      frontLeftDownReturn.clampWhenFinished = true; 
+      frontLeftDownReturn.timeScale = 0.5; 
+      frontLeftDownReturn.setLoop(THREE.LoopOnce); 
+      frontLeftDownReturn.play(); 
     });
     document.querySelector("#right").addEventListener("mouseup", () => {
       clearTimeout(timeout);
       straightenRight(); 
+
+      let frontRightDownReturn = mixer.clipAction(gltf.animations[1]); 
+      frontRightDownReturn.clampWhenFinished = true; 
+      frontRightDownReturn.timeScale = 0.5; 
+      frontRightDownReturn.setLoop(THREE.LoopOnce); 
+      frontRightDownReturn.play(); 
+
+      let frontLeftUpReturn = mixer.clipAction(gltf.animations[7]); 
+      frontLeftUpReturn.clampWhenFinished = true; 
+      frontLeftUpReturn.timeScale = 0.5; 
+      frontLeftUpReturn.setLoop(THREE.LoopOnce); 
+      frontLeftUpReturn.play(); 
+
     });
   } else {
     // handlers if directional buttons are pushed
     document.querySelector("#up").addEventListener("touchstart", () => {
       timeout = setTimeout(moveUp, 100);
+
+      let backRightDown = mixer.clipAction(gltf.animations[14]); 
+      backRightDown.clampWhenFinished = true; 
+      backRightDown.timeScale = 0.5; 
+      backRightDown.setLoop(THREE.LoopOnce); 
+      backRightDown.play(); 
     });
     document.querySelector("#down").addEventListener("touchstart", () => {
       timeout = setTimeout(moveDown, 100);
+
+      let backRightUp = mixer.clipAction(gltf.animations[16]); 
+      backRightUp.clampWhenFinished = true; 
+      backRightUp.timeScale = 0.5; 
+      backRightUpn.setLoop(THREE.LoopOnce); 
+      backRightUp.play(); 
+
+      let backLeftUp = mixer.clipAction(gltf.animations[20]); 
+      backLeftUp.clampWhenFinished = true; 
+      backLeftUp.timeScale = 0.5; 
+      backLeftUp.setLoop(THREE.LoopOnce); 
+      backLeftUp.play(); 
     });
     document.querySelector("#left").addEventListener("touchstart", () => {
       timeout = setTimeout(moveLeft, 100);
+
+      let frontRightUp = mixer.clipAction(gltf.animations[2]); 
+      frontRightUp.clampWhenFinished = true; 
+      frontRightUp.timeScale = 0.5; 
+      frontRightUp.setLoop(THREE.LoopOnce); 
+      frontRightUp.play(); 
+
+      let frontLeftDown = mixer.clipAction(gltf.animations[5]); 
+      frontLeftDown.clampWhenFinished = true; 
+      frontLeftDown.timeScale = 0.5; 
+      frontLeftDown.setLoop(THREE.LoopOnce); 
+      frontLeftDown.play(); 
     });
     document.querySelector("#right").addEventListener("touchstart", () => {
       timeout = setTimeout(moveRight, 100);
+
+      let frontRightDown = mixer.clipAction(gltf.animations[0]); 
+      frontRightDown.clampWhenFinished = true; 
+      frontRightDown.timeScale = 0.5; 
+      frontRightDown.setLoop(THREE.LoopOnce); 
+      frontRightDown.play(); 
+
+      let frontLeftUp = mixer.clipAction(gltf.animations[6]); 
+      frontLeftUp.clampWhenFinished = true; 
+      frontLeftUp.timeScale = 0.5; 
+      frontLeftUp.setLoop(THREE.LoopOnce); 
+      frontLeftUp.play(); 
     });
 
     // handlers if directional buttons are released
     document.querySelector("#up").addEventListener("touchend", () => {
       clearTimeout(timeout);
       straightenUp(); 
+
+      let backRightDownReturn = mixer.clipAction(gltf.animations[15]); 
+      backRightDownReturn.clampWhenFinished = true; 
+      backRightDownReturn.timeScale = 0.5; 
+      backRightDownReturn.setLoop(THREE.LoopOnce); 
+      backRightDownReturn.play(); 
+
+      let backLeftDownReturn = mixer.clipAction(gltf.animations[19]); 
+      backLeftDownReturn.clampWhenFinished = true; 
+      backLeftDownReturn.timeScale = 0.5; 
+      backLeftDownReturn.setLoop(THREE.LoopOnce); 
+      backLeftDownReturn.play(); 
     });
     document.querySelector("#down").addEventListener("touchend", () => {
       clearTimeout(timeout);
       straightenDown(); 
+
+      let backRightUpReturn = mixer.clipAction(gltf.animations[17]); 
+      backRightUpReturn.clampWhenFinished = true; 
+      backRightUpReturn.timeScale = 0.5; 
+      backRightUpReturn.setLoop(THREE.LoopOnce); 
+      backRightUpReturn.play(); 
+
+      let backLeftUpReturn = mixer.clipAction(gltf.animations[21]); 
+      backLeftUpReturn.clampWhenFinished = true; 
+      backLeftUpReturn.timeScale = 0.5; 
+      backLeftUpReturn.setLoop(THREE.LoopOnce); 
+      backLeftUpReturn.play(); 
+      
     });
     document.querySelector("#left").addEventListener("touchend", () => {
       clearTimeout(timeout);
       straightenLeft(); 
+
+      let frontRightUpReturn = mixer.clipAction(gltf.animations[3]); 
+      frontRightUpReturn.clampWhenFinished = true; 
+      frontRightUpReturn.timeScale = 0.5; 
+      frontRightUpReturn.setLoop(THREE.LoopOnce); 
+      frontRightUpReturn.play(); 
+
+      let frontLeftDownReturn = mixer.clipAction(gltf.animations[5]); 
+      frontLeftDownReturn.clampWhenFinished = true; 
+      frontLeftDownReturn.timeScale = 0.5; 
+      frontLeftDownReturn.setLoop(THREE.LoopOnce); 
+      frontLeftDownReturn.play(); 
     });
     document.querySelector("#right").addEventListener("touchend", () => {
       clearTimeout(timeout);
       straightenRight(); 
+
+      let frontRightDownReturn = mixer.clipAction(gltf.animations[1]); 
+      frontRightDownReturn.clampWhenFinished = true; 
+      frontRightDownReturn.timeScale = 0.5; 
+      frontRightDownReturn.setLoop(THREE.LoopOnce); 
+      frontRightDownReturn.play(); 
+
+      let frontLeftUpReturn = mixer.clipAction(gltf.animations[7]); 
+      frontLeftUpReturn.clampWhenFinished = true; 
+      frontLeftUpReturn.timeScale = 0.5; 
+      frontLeftUpReturn.setLoop(THREE.LoopOnce); 
+      frontLeftUpReturn.play(); 
     });
 
   }
