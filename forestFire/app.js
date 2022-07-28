@@ -272,7 +272,7 @@ async function init() {
 
   button.addEventListener("click", () => {
     document.getElementById("instructions").style.color = "white";
-    document.getElementById("instructions").textContent = "Find an open area. Tap your screen once a reticle appears on the ground."
+    document.getElementById("instructions").textContent = "Find an open area. Look around the room to calibrate the space. Tap your screen once a reticle appears on the ground."
   });
 
   setupGui();
@@ -652,8 +652,7 @@ function addBoundingBoxesToModels() {
 
   wallBBFront = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshFront = new THREE.Mesh(new THREE.BoxGeometry(40, 40), new THREE.MeshBasicMaterial());
-  meshFront.position.set(0, 0, -15);
-  //scene.add(meshFront); 
+  meshFront.position.set(0, 0, -7);
   wallBBFront.setFromObject(meshFront);
 
   wallBBBack = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
@@ -1089,7 +1088,7 @@ function checkBoxCollisions() {
 
     let movement = new THREE.Vector3();
     model.getWorldDirection(movement);
-    model.position.add(movement.multiplyScalar(-speed * 12));
+    model.position.add(movement.multiplyScalar(-speed * 20));
 
     let rotationX = model.rotation.x;
     let rotationY = model.rotation.y + Math.PI;
@@ -1098,7 +1097,7 @@ function checkBoxCollisions() {
 
     new TWEEN.Tween(model.rotation).to(direction, 500).start();
 
-    document.getElementById("warning").textContent = "We are too far away! I'm turning us back around!";
+    document.getElementById("instructions").textContent = "We are too far away! I'm turning us back around!";
     setTimeout(removeWarning, 5000);
 
   } else if (wallBBGround.intersectsBox(modelBB)) {
@@ -1110,7 +1109,7 @@ function checkBoxCollisions() {
     document.querySelector("#left").disabled = true;
     document.querySelector("#right").disabled = true;
 
-    document.getElementById("warning").textContent = "Oh no! We crashed!";
+    document.getElementById("instructions").textContent = "Oh no! We crashed!";
 
   } else if (wallBBCeiling.intersectsBox(modelBB)) {
     /* TODO 
@@ -1174,7 +1173,7 @@ function updatePhysics(deltaTime) {
   Parameters: None
 */
 function removeWarning() {
-  document.getElementById("warning").textContent = "";
+  document.getElementById("instructions").textContent = "";
 }
 
 PhysicsLoader('./lib/ammo', () => Start())
