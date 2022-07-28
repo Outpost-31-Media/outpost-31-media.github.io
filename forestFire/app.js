@@ -919,12 +919,20 @@ function dropWater() {
     waterParticles.push(cube); 
   }
 
-  setTimeout(5000, removeWater); 
+  //setTimeout(removeWater, 5000); 
 }
+
+/* 
+  Function: removeWater
+  Description: 
+    Runs five seconds after dropWater is called.
+    Destroys the water particles.
+  Parameters: None
+*/
 function removeWater() {
   for (let i =0; i< waterParticles.length; i++) {
     let water = waterParticles[i]; 
-    destroy(water); 
+    physics.destroy(water); 
   }
   waterParticles = []; 
 }
@@ -1116,20 +1124,15 @@ function checkBoxCollisions() {
 
 }
 
+/*
+  Function: checkWaterCollisions
+  Description: 
+    Iterates through the water particles and the trees. 
+    Determines if a water particles intersects a tree. 
+    If there is an intersection, the tree is watered. 
+  Parameters: None
+*/
 function checkWaterCollisions() {
-  /*
-  TODO
-    - Determine how to check for collisions with enable3D
-    - Maybe faster runtime
-  */
-
-    wallBBBack = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-    const meshBack = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-    meshBack.position.set(0, 0, 15);
-    //scene.add(meshBack); 
-    wallBBBack.setFromObject(meshBack);
-
-
   for (let i = 0; i < waterParticles.length; i++) {
 
     let water = waterParticles[i]; 
