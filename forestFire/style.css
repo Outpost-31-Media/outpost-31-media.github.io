@@ -266,17 +266,4 @@ div {
     text-align: center;
     z-index: 100;
     display: block;
-    color: black;
-    font-size: 55px;
-}
-
-#warning {
-    position: absolute;
-    top: 50px;
-    width: 100%;
-    text-align: center;
-    z-index: 100;
-    display: block;
-    color: black;
-    font-size: 55px;
 }
