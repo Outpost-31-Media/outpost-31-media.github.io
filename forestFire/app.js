@@ -38,7 +38,8 @@ let mixer;
 let plane;
 let timeout;
 
-let waterParticles;
+let waterParticles = [];
+let waterDropped = false; 
 
 // Bounding boxes Variables
 let modelBB, wallBBFront, wallBBLeft, wallBBRight, wallBBGround, wallBBCeiling, wallBBBack;
@@ -879,6 +880,18 @@ function straightenRight() {
 }
 
 /*
+  Function: randomNumber
+  Description: 
+    Returns a random number between the given min and max values. 
+  Parameters
+    - min: a float that represents the minimum value
+    - max: a float that represents the maximum value
+*/
+function randomNumber(min, max) {
+  return (Math.random() * (max - min) + min); 
+}
+
+/*
   Function: dropWater
   Description: 
     Function runs when the drop water button is clicked. 
@@ -886,6 +899,7 @@ function straightenRight() {
   Parameters: None
 */
 function dropWater() {
+
   let modelPosition = new THREE.Vector3(); 
   modelPosition.setFromMatrixPosition(model.matrixWorld); 
 
@@ -905,18 +919,14 @@ function dropWater() {
     waterParticles.push(cube); 
   }
 
+  setTimeout(5000, removeWater); 
 }
-
-/*
-  Function: randomNumber
-  Description: 
-    Returns a random number between the given min and max values. 
-  Parameters
-    - min: a float that represents the minimum value
-    - max: a float that represents the maximum value
-*/
-function randomNumber(min, max) {
-  return (Math.random() * (max - min) + min); 
+function removeWater() {
+  for (let i =0; i< waterParticles.length; i++) {
+    let water = waterParticles[i]; 
+    destroy(water); 
+  }
+  waterParticles = []; 
 }
 
 /**************************************************************************************************************/
@@ -1035,8 +1045,9 @@ function render(timestamp, frame) {
       // updates and handles the bounding box for the model
       modelBB.applyMatrix4(model.matrixWorld);
       checkBoxCollisions();
-      //checkWaterCollisions(); 
+      checkWaterCollisions(); 
     }
+
     updatePhysics(deltaTime * 1000);
 
     if (mixer) {
@@ -1111,14 +1122,34 @@ function checkWaterCollisions() {
     - Determine how to check for collisions with enable3D
     - Maybe faster runtime
   */
+
+    wallBBBack = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    const meshBack = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
+    meshBack.position.set(0, 0, 15);
+    //scene.add(meshBack); 
+    wallBBBack.setFromObject(meshBack);
+
+
   for (let i = 0; i < waterParticles.length; i++) {
-    water = waterParticles[i]; 
-    for (let j = 0; j < forest.length; j++) {
-      tree = forest[j]; 
-      water.body.on.collision((tree, event) => {
-        tree.water();
-        console.log("tree watered");
-      });
+
+    let water = waterParticles[i]; 
+    let waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    waterBB.setFromObject(water);
+
+    for (let j = 0; j < forest.trees.length; j++) {
+
+      let row = forest.trees[j]; 
+
+      for (let k = 0; k< row.length; k++) {
+
+        let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+        let tree = row[k];  
+        treeBB.setFromObject(tree.object3D); 
+
+        if (waterBB.intersectsBox(treeBB)) {
+          tree.water(); 
+        }
+      }
     } 
   }
 
