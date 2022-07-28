@@ -22,7 +22,7 @@ let rigidBodies = [],
   directionalLight;
 let clock = new THREE.Clock();
 let forest;
-let orgin = [0, -1.8, -1];
+let orgin = [0, -1.75, -1];
 let iterateTime = Infinity;
 let iterateStep = 2000;
 let time;
@@ -37,6 +37,8 @@ let gltf;
 let mixer; 
 let plane;
 let timeout;
+
+let waterParticles;
 
 // Bounding boxes Variables
 let modelBB, wallBBFront, wallBBLeft, wallBBRight, wallBBGround, wallBBCeiling, wallBBBack;
@@ -543,6 +545,8 @@ async function init() {
 
   }
 
+  document.querySelector("#water").addEventListener("click", dropWater); 
+
   window.addEventListener("resize", onWindowResize, false);
 
 }
@@ -729,6 +733,7 @@ function onSelect() {
   document.querySelector("#down").style.display = "block";
   document.querySelector("#left").style.display = "block";
   document.querySelector("#right").style.display = "block";
+  document.querySelector("#water").style.display = "block";
 
   // gui is created and added to the scene
   pane.disabled = false;
@@ -754,7 +759,7 @@ function removeInstructions() {
   document.getElementById("instructions").textContent = "";
 }
 
-/***************************************Functions For Directional Buttons***************************************/
+/*********************************************Functions For Buttons*********************************************/
 
 /*
   Function: moveUp
@@ -873,12 +878,51 @@ function straightenRight() {
 
 }
 
+/*
+  Function: dropWater
+  Description: 
+    Function runs when the drop water button is clicked. 
+    Create boxes with physics below the plane model an adds them to an array.
+  Parameters: None
+*/
+function dropWater() {
+  let modelPosition = new THREE.Vector3(); 
+  modelPosition.setFromMatrixPosition(model.matrixWorld); 
+
+  waterParticles = []; 
+  for ( let i = 0; i< 30; i++) {
+
+    let size = randomNumber(0.01, 0.02); 
+    let offset = randomNumber(-0.1, 0.1); 
+
+    let geometry = new THREE.BoxBufferGeometry(); 
+    let material = new THREE.MeshLambertMaterial({color: 'blue'}); 
+    let cube = new THREE.Mesh(geometry, material); 
+    cube.position.set( modelPosition.x - offset,  modelPosition.y, modelPosition.z - offset); 
+    cube.scale.set(size, size, size); 
+    scene.add(cube); 
+    physics.add.existing(cube); 
+    waterParticles.push(cube); 
+  }
+
+}
+
+/*
+  Function: randomNumber
+  Description: 
+    Returns a random number between the given min and max values. 
+  Parameters
+    - min: a float that represents the minimum value
+    - max: a float that represents the maximum value
+*/
+function randomNumber(min, max) {
+  return (Math.random() * (max - min) + min); 
+}
+
 /**************************************************************************************************************/
 
 function buildForest() {
   forest = new Forest(30, 30, scene, orgin);
-
-
 }
 
 function forestCallback() {
@@ -980,17 +1024,20 @@ function render(timestamp, frame) {
     // Start the tween animations
     TWEEN.update();
 
-    // if the model is visible, the model will move in the direction that it is facing at set speed
+    // runs if the model is visible
     if (model.visible) {
+
+      // moves the model in the direction it is facing 
       let direction = new THREE.Vector3();
       model.getWorldDirection(direction);
       model.position.add(direction.multiplyScalar(speed));
 
       // updates and handles the bounding box for the model
       modelBB.applyMatrix4(model.matrixWorld);
-      checkCollisions();
+      checkBoxCollisions();
+      //checkWaterCollisions(); 
     }
-    updatePhysics(deltaTime);
+    updatePhysics(deltaTime * 1000);
 
     if (mixer) {
       mixer.update(deltaTime); 
@@ -1017,7 +1064,7 @@ function render(timestamp, frame) {
     If there is an intersection, the model is turned 180 degrees. 
   Parameters: None
 */
-function checkCollisions() {
+function checkBoxCollisions() {
 
   if (wallBBFront.intersectsBox(modelBB) || wallBBLeft.intersectsBox(modelBB) || wallBBRight.intersectsBox(modelBB) || wallBBBack.intersectsBox(modelBB)) {
 
@@ -1035,9 +1082,7 @@ function checkCollisions() {
     document.getElementById("warning").textContent = "We are too far away! I'm turning us back around!";
     setTimeout(removeWarning, 5000);
 
-  }
-
-  if (wallBBGround.intersectsBox(modelBB)) {
+  } else if (wallBBGround.intersectsBox(modelBB)) {
     pane.disabled = true;
     speed = 0;
 
@@ -1048,7 +1093,35 @@ function checkCollisions() {
 
     document.getElementById("warning").textContent = "Oh no! We crashed!";
 
+  } else if (wallBBCeiling.intersectsBox(modelBB)) {
+    /* TODO 
+        Determine what to do when the model collides with the ceiling. 
+          - Force the model to move down a bit, keeping direction of movement? 
+          - Turn model completely around? 
+        Add a warning message saying that the model is too high
+    */
   }
+
+
+}
+
+function checkWaterCollisions() {
+  /*
+  TODO
+    - Determine how to check for collisions with enable3D
+    - Maybe faster runtime
+  */
+  for (let i = 0; i < waterParticles.length; i++) {
+    water = waterParticles[i]; 
+    for (let j = 0; j < forest.length; j++) {
+      tree = forest[j]; 
+      water.body.on.collision((tree, event) => {
+        tree.water();
+        console.log("tree watered");
+      });
+    } 
+  }
+
 }
 
 function updatePhysics(deltaTime) {

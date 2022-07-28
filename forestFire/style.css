@@ -209,7 +209,7 @@ button:active {
 }
 
 #up {
-    bottom: 16vh;
+    bottom: 18vh;
     left: 35%;
     display: none;
     user-select: none;
@@ -217,7 +217,7 @@ button:active {
 }
 
 #down {
-    bottom: 10vh;
+    bottom: 8vh;
     left: 35%;
     display: none;
     user-select: none;
@@ -238,6 +238,14 @@ button:active {
     display: none;
     user-select: none;
     font-size: 50px;
+}
+
+#water {
+    bottom: 13vh;
+    left: 35%;
+    display: none;
+    user-select: none;
+    font-size: 25px;
 }
 
 div {
