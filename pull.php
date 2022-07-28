@@ -1,0 +1,1 @@
+<?php if ( $_POST['payload'] ) {   shell_exec('cd ~/public_html/xr && git pull origin main');}
