@@ -720,7 +720,7 @@ function onSelect() {
   if (!reticle.visible || model.visible) {
     return;
   }
-
+  startBurning();
   // placing the model at the location of the reticle
   model.position.setFromMatrixPosition(reticle.matrix);
   model.quaternion.setFromRotationMatrix(reticle.matrix);
@@ -946,7 +946,7 @@ function forestCallback() {
   console.log(forest);
   const testtree = forest.findTree([3, 5]);
   testtree.light();
-  startBurning();
+
 }
 
 function iterateFire() {
