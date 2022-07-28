@@ -546,7 +546,7 @@ async function init() {
 
   }
 
-  document.querySelector("#water").addEventListener("click", dropWater); 
+  // document.querySelector("#water").addEventListener("click", dropWater); 
 
   window.addEventListener("resize", onWindowResize, false);
 
@@ -1052,7 +1052,7 @@ function render(timestamp, frame) {
       // updates and handles the bounding box for the model
       modelBB.applyMatrix4(model.matrixWorld);
       checkBoxCollisions();
-      checkWaterCollisions(); 
+      // checkWaterCollisions(); 
     }
 
     updatePhysics(deltaTime * 1000);
