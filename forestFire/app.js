@@ -545,7 +545,7 @@ async function init() {
 
   }
 
-  // document.querySelector("#water").addEventListener("click", dropWater); 
+  document.querySelector("#water").addEventListener("click", dropWater); 
 
   window.addEventListener("resize", onWindowResize, false);
 
@@ -917,7 +917,7 @@ function dropWater() {
     waterParticles.push(cube); 
   }
 
-  //setTimeout(removeWater, 5000); 
+  setTimeout(removeWater, 5000); 
 }
 
 /* 
@@ -1050,8 +1050,9 @@ function render(timestamp, frame) {
 
       // updates and handles the bounding box for the model
       modelBB.applyMatrix4(model.matrixWorld);
+
       checkBoxCollisions();
-      // checkWaterCollisions(); 
+      checkWaterCollisions(); 
     }
 
     updatePhysics(deltaTime * 1000);
