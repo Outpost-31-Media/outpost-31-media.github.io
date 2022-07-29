@@ -39,7 +39,6 @@ let plane;
 let timeout;
 
 let waterParticles = [];
-let waterDropped = false; 
 
 // Bounding boxes Variables
 let modelBB, wallBBFront, wallBBLeft, wallBBRight, wallBBGround, wallBBCeiling, wallBBBack;
@@ -917,7 +916,7 @@ function dropWater() {
     waterParticles.push(cube); 
   }
 
-  setTimeout(removeWater, 5000); 
+  //setTimeout(removeWater, 5000); 
 }
 
 /* 
