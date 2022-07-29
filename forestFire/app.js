@@ -51,7 +51,6 @@ const guiPARAM = {
   throttle: 0.1
 }
 
-let testingDesktop = true;
 
 /**************************************************************************************************************/
 
@@ -283,7 +282,7 @@ async function init() {
     speed = value * 0.004;
   });
 
-  if (testingDesktop === true) {
+  if (desktopTesting === true) {
     // handlers if directional buttons are pushed
     document.querySelector("#up").addEventListener("mousedown", () => {
       timeout = setTimeout(moveUp, 100);
