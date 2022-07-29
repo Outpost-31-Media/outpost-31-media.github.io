@@ -6,7 +6,7 @@ import {
   getPointInBetweenByPerc,
   rotateAroundPoint
 } from './utils.js'
-let desktopTesting = true;
+let desktopTesting = false;
 let physicsDebug = false;
 const {
   AmmoPhysics,
