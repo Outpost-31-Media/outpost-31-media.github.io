@@ -6,7 +6,7 @@ import {
   getPointInBetweenByPerc,
   rotateAroundPoint
 } from './utils.js'
-let desktopTesting = false;
+let desktopTesting = true;
 let physicsDebug = false;
 const {
   AmmoPhysics,
@@ -34,7 +34,7 @@ let controller;
 let reticle;
 let loader;
 let gltf;
-let mixer; 
+let mixer;
 let plane;
 let timeout;
 
@@ -251,10 +251,10 @@ async function init() {
   // loading the model 
   await loadModel();
   mixer = new THREE.AnimationMixer(model);
-  let propellerLeft =  mixer.clipAction(gltf.animations[12]); 
-  let propellerRight =  mixer.clipAction(gltf.animations[13]); 
-  propellerLeft.play(); 
-  propellerRight.play(); 
+  let propellerLeft = mixer.clipAction(gltf.animations[12]);
+  let propellerRight = mixer.clipAction(gltf.animations[13]);
+  propellerLeft.play();
+  propellerRight.play();
 
   // adding the bounding boxes to the scene
   addBoundingBoxesToModels();
@@ -286,130 +286,130 @@ async function init() {
     document.querySelector("#up").addEventListener("mousedown", () => {
       timeout = setTimeout(moveUp, 100);
 
-      let backRightDown = mixer.clipAction(gltf.animations[14]); 
-      backRightDown.clampWhenFinished = true; 
-      backRightDown.timeScale =4; 
-      backRightDown.setLoop(THREE.LoopOnce); 
-      backRightDown.play(); 
+      let backRightDown = mixer.clipAction(gltf.animations[14]);
+      backRightDown.clampWhenFinished = true;
+      backRightDown.timeScale = 4;
+      backRightDown.setLoop(THREE.LoopOnce);
+      backRightDown.play();
 
-      let backLeftDown = mixer.clipAction(gltf.animations[18]); 
-      backLeftDown.clampWhenFinished = true; 
-      backLeftDown.timeScale =4; 
-      backLeftDown.setLoop(THREE.LoopOnce); 
-      backLeftDown.play(); 
+      let backLeftDown = mixer.clipAction(gltf.animations[18]);
+      backLeftDown.clampWhenFinished = true;
+      backLeftDown.timeScale = 4;
+      backLeftDown.setLoop(THREE.LoopOnce);
+      backLeftDown.play();
 
     });
     document.querySelector("#down").addEventListener("mousedown", () => {
       timeout = setTimeout(moveDown, 100);
 
-      let backRightUp = mixer.clipAction(gltf.animations[16]); 
-      backRightUp.clampWhenFinished = true; 
-      backRightUp.timeScale = 4; 
-      backRightUp.setLoop(THREE.LoopOnce); 
-      backRightUp.play(); 
+      let backRightUp = mixer.clipAction(gltf.animations[16]);
+      backRightUp.clampWhenFinished = true;
+      backRightUp.timeScale = 4;
+      backRightUp.setLoop(THREE.LoopOnce);
+      backRightUp.play();
 
-      let backLeftUp = mixer.clipAction(gltf.animations[20]); 
-      backLeftUp.clampWhenFinished = true; 
-      backLeftUp.timeScale = 4; 
-      backLeftUp.setLoop(THREE.LoopOnce); 
-      backLeftUp.play(); 
+      let backLeftUp = mixer.clipAction(gltf.animations[20]);
+      backLeftUp.clampWhenFinished = true;
+      backLeftUp.timeScale = 4;
+      backLeftUp.setLoop(THREE.LoopOnce);
+      backLeftUp.play();
 
     });
     document.querySelector("#left").addEventListener("mousedown", () => {
       timeout = setTimeout(moveLeft, 100);
 
-      let frontRightUp = mixer.clipAction(gltf.animations[2]); 
-      frontRightUp.clampWhenFinished = true; 
-      frontRightUp.timeScale = 4; 
-      frontRightUp.setLoop(THREE.LoopOnce); 
-      frontRightUp.play(); 
+      let frontRightUp = mixer.clipAction(gltf.animations[2]);
+      frontRightUp.clampWhenFinished = true;
+      frontRightUp.timeScale = 4;
+      frontRightUp.setLoop(THREE.LoopOnce);
+      frontRightUp.play();
 
-      let frontLeftDown = mixer.clipAction(gltf.animations[4]); 
-      frontLeftDown.clampWhenFinished = true; 
-      frontLeftDown.timeScale = 4; 
-      frontLeftDown.setLoop(THREE.LoopOnce); 
-      frontLeftDown.play(); 
+      let frontLeftDown = mixer.clipAction(gltf.animations[4]);
+      frontLeftDown.clampWhenFinished = true;
+      frontLeftDown.timeScale = 4;
+      frontLeftDown.setLoop(THREE.LoopOnce);
+      frontLeftDown.play();
     });
     document.querySelector("#right").addEventListener("mousedown", () => {
       timeout = setTimeout(moveRight, 100);
 
-      let frontRightDown = mixer.clipAction(gltf.animations[0]); 
-      frontRightDown.clampWhenFinished = true; 
-      frontRightDown.timeScale = 4; 
-      frontRightDown.setLoop(THREE.LoopOnce); 
-      frontRightDown.play(); 
+      let frontRightDown = mixer.clipAction(gltf.animations[0]);
+      frontRightDown.clampWhenFinished = true;
+      frontRightDown.timeScale = 4;
+      frontRightDown.setLoop(THREE.LoopOnce);
+      frontRightDown.play();
 
-      let frontLeftUp = mixer.clipAction(gltf.animations[6]); 
-      frontLeftUp.clampWhenFinished = true; 
-      frontLeftUp.timeScale = 4; 
-      frontLeftUp.setLoop(THREE.LoopOnce); 
-      frontLeftUp.play(); 
+      let frontLeftUp = mixer.clipAction(gltf.animations[6]);
+      frontLeftUp.clampWhenFinished = true;
+      frontLeftUp.timeScale = 4;
+      frontLeftUp.setLoop(THREE.LoopOnce);
+      frontLeftUp.play();
     });
 
     // handlers if directional buttons are released
     document.querySelector("#up").addEventListener("mouseup", () => {
       clearTimeout(timeout);
-      straightenUp(); 
+      straightenUp();
 
-      let backRightDownReturn = mixer.clipAction(gltf.animations[15]); 
-      backRightDownReturn.clampWhenFinished = true; 
-      backRightDownReturn.timeScale = 4; 
-      backRightDownReturn.setLoop(THREE.LoopOnce); 
-      backRightDownReturn.play(); 
+      let backRightDownReturn = mixer.clipAction(gltf.animations[15]);
+      backRightDownReturn.clampWhenFinished = true;
+      backRightDownReturn.timeScale = 4;
+      backRightDownReturn.setLoop(THREE.LoopOnce);
+      backRightDownReturn.play();
 
-      let backLeftDownReturn = mixer.clipAction(gltf.animations[19]); 
-      backLeftDownReturn.clampWhenFinished = true; 
-      backLeftDownReturn.timeScale = 4; 
-      backLeftDownReturn.setLoop(THREE.LoopOnce); 
-      backLeftDownReturn.play(); 
+      let backLeftDownReturn = mixer.clipAction(gltf.animations[19]);
+      backLeftDownReturn.clampWhenFinished = true;
+      backLeftDownReturn.timeScale = 4;
+      backLeftDownReturn.setLoop(THREE.LoopOnce);
+      backLeftDownReturn.play();
     });
     document.querySelector("#down").addEventListener("mouseup", () => {
       clearTimeout(timeout);
-      straightenDown(); 
+      straightenDown();
 
-      let backRightUpReturn = mixer.clipAction(gltf.animations[17]); 
-      backRightUpReturn.clampWhenFinished = true; 
-      backRightUpReturn.timeScale = 4; 
-      backRightUpReturn.setLoop(THREE.LoopOnce); 
-      backRightUpReturn.play(); 
+      let backRightUpReturn = mixer.clipAction(gltf.animations[17]);
+      backRightUpReturn.clampWhenFinished = true;
+      backRightUpReturn.timeScale = 4;
+      backRightUpReturn.setLoop(THREE.LoopOnce);
+      backRightUpReturn.play();
 
-      let backLeftUpReturn = mixer.clipAction(gltf.animations[21]); 
-      backLeftUpReturn.clampWhenFinished = true; 
-      backLeftUpReturn.timeScale = 4; 
-      backLeftUpReturn.setLoop(THREE.LoopOnce); 
-      backLeftUpReturn.play(); 
+      let backLeftUpReturn = mixer.clipAction(gltf.animations[21]);
+      backLeftUpReturn.clampWhenFinished = true;
+      backLeftUpReturn.timeScale = 4;
+      backLeftUpReturn.setLoop(THREE.LoopOnce);
+      backLeftUpReturn.play();
     });
     document.querySelector("#left").addEventListener("mouseup", () => {
       clearTimeout(timeout);
-      straightenLeft(); 
+      straightenLeft();
 
-      let frontRightUpReturn = mixer.clipAction(gltf.animations[3]); 
-      frontRightUpReturn.clampWhenFinished = true; 
-      frontRightUpReturn.timeScale = 4; 
-      frontRightUpReturn.setLoop(THREE.LoopOnce); 
-      frontRightUpReturn.play(); 
+      let frontRightUpReturn = mixer.clipAction(gltf.animations[3]);
+      frontRightUpReturn.clampWhenFinished = true;
+      frontRightUpReturn.timeScale = 4;
+      frontRightUpReturn.setLoop(THREE.LoopOnce);
+      frontRightUpReturn.play();
 
-      let frontLeftDownReturn = mixer.clipAction(gltf.animations[5]); 
-      frontLeftDownReturn.clampWhenFinished = true; 
-      frontLeftDownReturn.timeScale =4; 
-      frontLeftDownReturn.setLoop(THREE.LoopOnce); 
-      frontLeftDownReturn.play(); 
+      let frontLeftDownReturn = mixer.clipAction(gltf.animations[5]);
+      frontLeftDownReturn.clampWhenFinished = true;
+      frontLeftDownReturn.timeScale = 4;
+      frontLeftDownReturn.setLoop(THREE.LoopOnce);
+      frontLeftDownReturn.play();
     });
     document.querySelector("#right").addEventListener("mouseup", () => {
       clearTimeout(timeout);
-      straightenRight(); 
+      straightenRight();
 
-      let frontRightDownReturn = mixer.clipAction(gltf.animations[1]); 
-      frontRightDownReturn.clampWhenFinished = true; 
-      frontRightDownReturn.timeScale = 4; 
-      frontRightDownReturn.setLoop(THREE.LoopOnce); 
-      frontRightDownReturn.play(); 
+      let frontRightDownReturn = mixer.clipAction(gltf.animations[1]);
+      frontRightDownReturn.clampWhenFinished = true;
+      frontRightDownReturn.timeScale = 4;
+      frontRightDownReturn.setLoop(THREE.LoopOnce);
+      frontRightDownReturn.play();
 
-      let frontLeftUpReturn = mixer.clipAction(gltf.animations[7]); 
-      frontLeftUpReturn.clampWhenFinished = true; 
-      frontLeftUpReturn.timeScale = 4; 
-      frontLeftUpReturn.setLoop(THREE.LoopOnce); 
-      frontLeftUpReturn.play(); 
+      let frontLeftUpReturn = mixer.clipAction(gltf.animations[7]);
+      frontLeftUpReturn.clampWhenFinished = true;
+      frontLeftUpReturn.timeScale = 4;
+      frontLeftUpReturn.setLoop(THREE.LoopOnce);
+      frontLeftUpReturn.play();
 
     });
   } else {
@@ -417,134 +417,134 @@ async function init() {
     document.querySelector("#up").addEventListener("touchstart", () => {
       timeout = setTimeout(moveUp, 100);
 
-      let backRightDown = mixer.clipAction(gltf.animations[14]); 
-      backRightDown.clampWhenFinished = true; 
-      backRightDown.timeScale =4; 
-      backRightDown.setLoop(THREE.LoopOnce); 
-      backRightDown.play(); 
+      let backRightDown = mixer.clipAction(gltf.animations[14]);
+      backRightDown.clampWhenFinished = true;
+      backRightDown.timeScale = 4;
+      backRightDown.setLoop(THREE.LoopOnce);
+      backRightDown.play();
 
-      let backLeftDown = mixer.clipAction(gltf.animations[18]); 
-      backLeftDown.clampWhenFinished = true; 
-      backLeftDown.timeScale =4; 
-      backLeftDown.setLoop(THREE.LoopOnce); 
-      backLeftDown.play(); 
+      let backLeftDown = mixer.clipAction(gltf.animations[18]);
+      backLeftDown.clampWhenFinished = true;
+      backLeftDown.timeScale = 4;
+      backLeftDown.setLoop(THREE.LoopOnce);
+      backLeftDown.play();
     });
     document.querySelector("#down").addEventListener("touchstart", () => {
       timeout = setTimeout(moveDown, 100);
 
-      let backRightUp = mixer.clipAction(gltf.animations[16]); 
-      backRightUp.clampWhenFinished = true; 
-      backRightUp.timeScale = 4; 
-      backRightUpn.setLoop(THREE.LoopOnce); 
-      backRightUp.play(); 
+      let backRightUp = mixer.clipAction(gltf.animations[16]);
+      backRightUp.clampWhenFinished = true;
+      backRightUp.timeScale = 4;
+      backRightUpn.setLoop(THREE.LoopOnce);
+      backRightUp.play();
 
-      let backLeftUp = mixer.clipAction(gltf.animations[20]); 
-      backLeftUp.clampWhenFinished = true; 
-      backLeftUp.timeScale = 4; 
-      backLeftUp.setLoop(THREE.LoopOnce); 
-      backLeftUp.play(); 
+      let backLeftUp = mixer.clipAction(gltf.animations[20]);
+      backLeftUp.clampWhenFinished = true;
+      backLeftUp.timeScale = 4;
+      backLeftUp.setLoop(THREE.LoopOnce);
+      backLeftUp.play();
     });
     document.querySelector("#left").addEventListener("touchstart", () => {
       timeout = setTimeout(moveLeft, 100);
 
-      let frontRightUp = mixer.clipAction(gltf.animations[2]); 
-      frontRightUp.clampWhenFinished = true; 
-      frontRightUp.timeScale = 4; 
-      frontRightUp.setLoop(THREE.LoopOnce); 
-      frontRightUp.play(); 
+      let frontRightUp = mixer.clipAction(gltf.animations[2]);
+      frontRightUp.clampWhenFinished = true;
+      frontRightUp.timeScale = 4;
+      frontRightUp.setLoop(THREE.LoopOnce);
+      frontRightUp.play();
 
-      let frontLeftDown = mixer.clipAction(gltf.animations[5]); 
-      frontLeftDown.clampWhenFinished = true; 
-      frontLeftDown.timeScale = 4; 
-      frontLeftDown.setLoop(THREE.LoopOnce); 
-      frontLeftDown.play(); 
+      let frontLeftDown = mixer.clipAction(gltf.animations[5]);
+      frontLeftDown.clampWhenFinished = true;
+      frontLeftDown.timeScale = 4;
+      frontLeftDown.setLoop(THREE.LoopOnce);
+      frontLeftDown.play();
     });
     document.querySelector("#right").addEventListener("touchstart", () => {
       timeout = setTimeout(moveRight, 100);
 
-      let frontRightDown = mixer.clipAction(gltf.animations[0]); 
-      frontRightDown.clampWhenFinished = true; 
-      frontRightDown.timeScale = 4; 
-      frontRightDown.setLoop(THREE.LoopOnce); 
-      frontRightDown.play(); 
+      let frontRightDown = mixer.clipAction(gltf.animations[0]);
+      frontRightDown.clampWhenFinished = true;
+      frontRightDown.timeScale = 4;
+      frontRightDown.setLoop(THREE.LoopOnce);
+      frontRightDown.play();
 
-      let frontLeftUp = mixer.clipAction(gltf.animations[6]); 
-      frontLeftUp.clampWhenFinished = true; 
-      frontLeftUp.timeScale = 4; 
-      frontLeftUp.setLoop(THREE.LoopOnce); 
-      frontLeftUp.play(); 
+      let frontLeftUp = mixer.clipAction(gltf.animations[6]);
+      frontLeftUp.clampWhenFinished = true;
+      frontLeftUp.timeScale = 4;
+      frontLeftUp.setLoop(THREE.LoopOnce);
+      frontLeftUp.play();
     });
 
     // handlers if directional buttons are released
     document.querySelector("#up").addEventListener("touchend", () => {
       clearTimeout(timeout);
-      straightenUp(); 
+      straightenUp();
 
-      let backRightDownReturn = mixer.clipAction(gltf.animations[15]); 
-      backRightDownReturn.clampWhenFinished = true; 
-      backRightDownReturn.timeScale = 4; 
-      backRightDownReturn.setLoop(THREE.LoopOnce); 
-      backRightDownReturn.play(); 
+      let backRightDownReturn = mixer.clipAction(gltf.animations[15]);
+      backRightDownReturn.clampWhenFinished = true;
+      backRightDownReturn.timeScale = 4;
+      backRightDownReturn.setLoop(THREE.LoopOnce);
+      backRightDownReturn.play();
 
-      let backLeftDownReturn = mixer.clipAction(gltf.animations[19]); 
-      backLeftDownReturn.clampWhenFinished = true; 
-      backLeftDownReturn.timeScale = 4; 
-      backLeftDownReturn.setLoop(THREE.LoopOnce); 
-      backLeftDownReturn.play(); 
+      let backLeftDownReturn = mixer.clipAction(gltf.animations[19]);
+      backLeftDownReturn.clampWhenFinished = true;
+      backLeftDownReturn.timeScale = 4;
+      backLeftDownReturn.setLoop(THREE.LoopOnce);
+      backLeftDownReturn.play();
     });
     document.querySelector("#down").addEventListener("touchend", () => {
       clearTimeout(timeout);
-      straightenDown(); 
+      straightenDown();
 
-      let backRightUpReturn = mixer.clipAction(gltf.animations[17]); 
-      backRightUpReturn.clampWhenFinished = true; 
-      backRightUpReturn.timeScale = 4; 
-      backRightUpReturn.setLoop(THREE.LoopOnce); 
-      backRightUpReturn.play(); 
+      let backRightUpReturn = mixer.clipAction(gltf.animations[17]);
+      backRightUpReturn.clampWhenFinished = true;
+      backRightUpReturn.timeScale = 4;
+      backRightUpReturn.setLoop(THREE.LoopOnce);
+      backRightUpReturn.play();
 
-      let backLeftUpReturn = mixer.clipAction(gltf.animations[21]); 
-      backLeftUpReturn.clampWhenFinished = true; 
-      backLeftUpReturn.timeScale = 4; 
-      backLeftUpReturn.setLoop(THREE.LoopOnce); 
-      backLeftUpReturn.play(); 
-      
+      let backLeftUpReturn = mixer.clipAction(gltf.animations[21]);
+      backLeftUpReturn.clampWhenFinished = true;
+      backLeftUpReturn.timeScale = 4;
+      backLeftUpReturn.setLoop(THREE.LoopOnce);
+      backLeftUpReturn.play();
+
     });
     document.querySelector("#left").addEventListener("touchend", () => {
       clearTimeout(timeout);
-      straightenLeft(); 
+      straightenLeft();
 
-      let frontRightUpReturn = mixer.clipAction(gltf.animations[3]); 
-      frontRightUpReturn.clampWhenFinished = true; 
-      frontRightUpReturn.timeScale = 4; 
-      frontRightUpReturn.setLoop(THREE.LoopOnce); 
-      frontRightUpReturn.play(); 
+      let frontRightUpReturn = mixer.clipAction(gltf.animations[3]);
+      frontRightUpReturn.clampWhenFinished = true;
+      frontRightUpReturn.timeScale = 4;
+      frontRightUpReturn.setLoop(THREE.LoopOnce);
+      frontRightUpReturn.play();
 
-      let frontLeftDownReturn = mixer.clipAction(gltf.animations[5]); 
-      frontLeftDownReturn.clampWhenFinished = true; 
-      frontLeftDownReturn.timeScale = 4; 
-      frontLeftDownReturn.setLoop(THREE.LoopOnce); 
-      frontLeftDownReturn.play(); 
+      let frontLeftDownReturn = mixer.clipAction(gltf.animations[5]);
+      frontLeftDownReturn.clampWhenFinished = true;
+      frontLeftDownReturn.timeScale = 4;
+      frontLeftDownReturn.setLoop(THREE.LoopOnce);
+      frontLeftDownReturn.play();
     });
     document.querySelector("#right").addEventListener("touchend", () => {
       clearTimeout(timeout);
-      straightenRight(); 
+      straightenRight();
 
-      let frontRightDownReturn = mixer.clipAction(gltf.animations[1]); 
-      frontRightDownReturn.clampWhenFinished = true; 
-      frontRightDownReturn.timeScale = 4; 
-      frontRightDownReturn.setLoop(THREE.LoopOnce); 
-      frontRightDownReturn.play(); 
+      let frontRightDownReturn = mixer.clipAction(gltf.animations[1]);
+      frontRightDownReturn.clampWhenFinished = true;
+      frontRightDownReturn.timeScale = 4;
+      frontRightDownReturn.setLoop(THREE.LoopOnce);
+      frontRightDownReturn.play();
 
-      let frontLeftUpReturn = mixer.clipAction(gltf.animations[7]); 
-      frontLeftUpReturn.clampWhenFinished = true; 
-      frontLeftUpReturn.timeScale = 4; 
-      frontLeftUpReturn.setLoop(THREE.LoopOnce); 
-      frontLeftUpReturn.play(); 
+      let frontLeftUpReturn = mixer.clipAction(gltf.animations[7]);
+      frontLeftUpReturn.clampWhenFinished = true;
+      frontLeftUpReturn.timeScale = 4;
+      frontLeftUpReturn.setLoop(THREE.LoopOnce);
+      frontLeftUpReturn.play();
     });
 
   }
 
-  document.querySelector("#water").addEventListener("click", dropWater); 
+  document.querySelector("#water").addEventListener("click", dropWater);
 
   window.addEventListener("resize", onWindowResize, false);
 
@@ -633,7 +633,7 @@ async function loadModel() {
       node.receiveShadow = true;
     }
   });
-  model.scale.set(0.025, 0.025, 0.025); 
+  model.scale.set(0.025, 0.025, 0.025);
   model.visible = false;
 }
 
@@ -722,7 +722,7 @@ function onSelect() {
   // placing the model at the location of the reticle
   model.position.setFromMatrixPosition(reticle.matrix);
   model.quaternion.setFromRotationMatrix(reticle.matrix);
-  model.rotation.y = Math.PI; 
+  model.rotation.y = Math.PI;
   model.visible = true;
   scene.add(model);
 
@@ -885,7 +885,7 @@ function straightenRight() {
     - max: a float that represents the maximum value
 */
 function randomNumber(min, max) {
-  return (Math.random() * (max - min) + min); 
+  return (Math.random() * (max - min) + min);
 }
 
 /*
@@ -897,26 +897,48 @@ function randomNumber(min, max) {
 */
 function dropWater() {
 
-  let modelPosition = new THREE.Vector3(); 
-  modelPosition.setFromMatrixPosition(model.matrixWorld); 
+  // let modelPosition = new THREE.Vector3();
+  // modelPosition.setFromMatrixPosition(model.matrixWorld);
 
-  waterParticles = []; 
-  for ( let i = 0; i< 30; i++) {
+  // waterParticles = [];
+  // for (let i = 0; i < 30; i++) {
 
-    let size = randomNumber(0.01, 0.02); 
-    let offset = randomNumber(-0.1, 0.1); 
+  //   let size = randomNumber(0.01, 0.02);
+  //   let offset = randomNumber(-0.1, 0.1);
 
-    let geometry = new THREE.BoxBufferGeometry(); 
-    let material = new THREE.MeshLambertMaterial({color: 'blue'}); 
-    let cube = new THREE.Mesh(geometry, material); 
-    cube.position.set( modelPosition.x - offset,  modelPosition.y, modelPosition.z - offset); 
-    cube.scale.set(size, size, size); 
-    scene.add(cube); 
-    physics.add.existing(cube); 
-    waterParticles.push(cube); 
+  //   let geometry = new THREE.BoxBufferGeometry();
+  //   let material = new THREE.MeshLambertMaterial({ color: 'blue' });
+  //   let cube = new THREE.Mesh(geometry, material);
+  //   cube.position.set(modelPosition.x - offset, modelPosition.y, modelPosition.z - offset);
+  //   cube.scale.set(size, size, size);
+  //   scene.add(cube);
+  //   physics.add.existing(cube);
+  //   waterParticles.push(cube);
+  // }
+
+  // setTimeout(removeWater, 5000); 
+
+  let waterRadius = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 0.5), new THREE.MeshBasicMaterial());
+  waterRadius.position.setFromMatrixPosition(model.matrix);
+
+  let waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  waterBB.setFromObject(waterRadius);
+
+  for (let i = 0; i < forest.trees.length; i++) {
+
+    let row = forest.trees[i];
+
+    for (let j = 0; j < row.length; j++) {
+
+      let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+      let tree = row[j];
+      treeBB.setFromObject(tree.object3D);
+
+      if (waterBB.intersectsBox(treeBB)) {
+        tree.water();
+      }
+    }
   }
-
-  setTimeout(removeWater, 5000); 
 }
 
 /* 
@@ -927,11 +949,11 @@ function dropWater() {
   Parameters: None
 */
 function removeWater() {
-  for (let i =0; i< waterParticles.length; i++) {
-    let water = waterParticles[i]; 
-    physics.destroy(water); 
+  for (let i = 0; i < waterParticles.length; i++) {
+    let water = waterParticles[i];
+    physics.destroy(water);
   }
-  waterParticles = []; 
+  waterParticles = [];
 }
 
 /**************************************************************************************************************/
@@ -1051,13 +1073,13 @@ function render(timestamp, frame) {
       modelBB.applyMatrix4(model.matrixWorld);
 
       checkBoxCollisions();
-      checkWaterCollisions(); 
+      //checkWaterCollisions(); 
     }
 
     updatePhysics(deltaTime * 1000);
 
     if (mixer) {
-      mixer.update(deltaTime); 
+      mixer.update(deltaTime);
     }
 
     renderer.render(scene, camera);
@@ -1087,7 +1109,7 @@ function checkBoxCollisions() {
 
     let movement = new THREE.Vector3();
     model.getWorldDirection(movement);
-    model.position.add(movement.multiplyScalar(-speed * 20));
+    model.position.add(movement.multiplyScalar(-speed * 25));
 
     let rotationX = model.rotation.x;
     let rotationY = model.rotation.y + Math.PI;
@@ -1133,25 +1155,25 @@ function checkBoxCollisions() {
 function checkWaterCollisions() {
   for (let i = 0; i < waterParticles.length; i++) {
 
-    let water = waterParticles[i]; 
+    let water = waterParticles[i];
     let waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
     waterBB.setFromObject(water);
 
     for (let j = 0; j < forest.trees.length; j++) {
 
-      let row = forest.trees[j]; 
+      let row = forest.trees[j];
 
-      for (let k = 0; k< row.length; k++) {
+      for (let k = 0; k < row.length; k++) {
 
         let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-        let tree = row[k];  
-        treeBB.setFromObject(tree.object3D); 
+        let tree = row[k];
+        treeBB.setFromObject(tree.object3D);
 
         if (waterBB.intersectsBox(treeBB)) {
-          tree.water(); 
+          tree.water();
         }
       }
-    } 
+    }
   }
 
 }
