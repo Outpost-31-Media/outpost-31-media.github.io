@@ -278,7 +278,7 @@ async function init() {
   // handler if throttle is changed
   pane.on('change', (ev) => {
     const value = ev.value;
-    speed = value * 0.004;
+    speed = value;
   });
 
   if (desktopTesting === true) {
@@ -1067,7 +1067,7 @@ function render(timestamp, frame) {
       // moves the model in the direction it is facing 
       let direction = new THREE.Vector3();
       model.getWorldDirection(direction);
-      model.position.add(direction.multiplyScalar(speed));
+      model.position.add(direction.multiplyScalar(speed* 0.004));
 
       // updates and handles the bounding box for the model
       modelBB.applyMatrix4(model.matrixWorld);
@@ -1109,7 +1109,7 @@ function checkBoxCollisions() {
 
     let movement = new THREE.Vector3();
     model.getWorldDirection(movement);
-    model.position.add(movement.multiplyScalar(-speed * 25));
+    model.position.add(movement.multiplyScalar(-1));
 
     let rotationX = model.rotation.x;
     let rotationY = model.rotation.y + Math.PI;
