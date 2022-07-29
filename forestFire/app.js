@@ -545,7 +545,6 @@ async function init() {
 
   }
 
-
   document.querySelector("#water").addEventListener("click", dropWater); 
 
   window.addEventListener("resize", onWindowResize, false);
@@ -720,7 +719,7 @@ function onSelect() {
   if (!reticle.visible || model.visible) {
     return;
   }
-
+  startBurning();
   // placing the model at the location of the reticle
   model.position.setFromMatrixPosition(reticle.matrix);
   model.quaternion.setFromRotationMatrix(reticle.matrix);
@@ -946,7 +945,7 @@ function forestCallback() {
   console.log(forest);
   const testtree = forest.findTree([3, 5]);
   testtree.light();
-  startBurning();
+
 }
 
 function iterateFire() {
@@ -1051,8 +1050,9 @@ function render(timestamp, frame) {
 
       // updates and handles the bounding box for the model
       modelBB.applyMatrix4(model.matrixWorld);
-      checkWaterCollisions(); 
+
       checkBoxCollisions();
+      checkWaterCollisions(); 
     }
 
     updatePhysics(deltaTime * 1000);
