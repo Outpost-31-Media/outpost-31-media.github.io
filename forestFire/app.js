@@ -566,7 +566,7 @@ function addLightToScene() {
   light.position.set(0.5, 1, 0.25);
   scene.add(light);
 
-  // creating a spotlight to have shadows
+  //creating a spotlight to have shadows
   let directionalLight = new THREE.DirectionalLight();
   directionalLight.castShadow = true;
   directionalLight.shadow.mapSize.width = 2048 * 2;
@@ -916,7 +916,7 @@ function dropWater() {
     waterParticles.push(cube); 
   }
 
-  //setTimeout(removeWater, 5000); 
+  setTimeout(removeWater, 5000); 
 }
 
 /* 
