@@ -37,6 +37,7 @@ let gltf;
 let mixer;
 let plane;
 let timeout;
+let terrainScene, decoScene;
 
 let waterParticles = [];
 
@@ -54,7 +55,8 @@ const guiPARAM = {
 /**************************************************************************************************************/
 
 class Forest {
-  constructor(height, width, scene, orgin) {
+  constructor(height, width, scene, orgin, terrain) {
+    this.terrain = terrain;
     this.height = height;
     this.width = width;
     this.scene = scene;
@@ -64,7 +66,7 @@ class Forest {
   }
   async init() {
     this.models = await this.loadModels();
-    this.trees = this.build();
+    this.trees = [];
     forestCallback();
   }
   async loadModels() {
@@ -74,30 +76,116 @@ class Forest {
     //     burning: await loader.loadAsync('./gltf/burningtree.glb'),
     //     burnt: await loader.loadAsync('./gltf/burnttree.glb')
     // }
-    return await loader.loadAsync('./gltf/tile1.glb')
+    return await loader.loadAsync('./gltf/tree.glb')
   }
-  build() {
-    this.trees = []
-    for (let h = 0; h < this.height; h++) {
-      this.trees.push([]);
-      for (let w = 0; w < this.width; w++) {
-        this.trees[h][w] = new Tree([h, w], scene, this.models, orgin, this.radius);
-      }
+
+  scatterTrees(geometry, options) {
+    if (!options.scene) {
+        options.scene = new THREE.Object3D();
     }
-    return this.trees;
+    var defaultOptions = {
+        spread: 0.025,
+        smoothSpread: 0,
+        sizeVariance: 0.1,
+        randomness: Math.random,
+        maxSlope: 0.6283185307179586, // 36deg or 36 / 180 * Math.PI, about the angle of repose of earth
+        maxTilt: Infinity,
+        w: 0,
+        h: 0,
+    };
+    for (var opt in defaultOptions) {
+        if (defaultOptions.hasOwnProperty(opt)) {
+            options[opt] = typeof options[opt] === 'undefined' ? defaultOptions[opt] : options[opt];
+        }
+    }
+
+    var spreadIsNumber = typeof options.spread === 'number',
+        randomHeightmap,
+        randomness,
+        spreadRange = 1 / options.smoothSpread,
+        doubleSizeVariance = options.sizeVariance * 2,
+        vertex1 = new THREE.Vector3(),
+        vertex2 = new THREE.Vector3(),
+        vertex3 = new THREE.Vector3(),
+        faceNormal = new THREE.Vector3(),
+        up = new THREE.Vector3(0,1,0).clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), 0.5*Math.PI);
+    if (spreadIsNumber) {
+        randomHeightmap = options.randomness();
+        randomness = typeof randomHeightmap === 'number' ? Math.random : function(k) { return randomHeightmap[k]; };
+    }
+
+    geometry = geometry.toNonIndexed();
+    var gArray = geometry.attributes.position.array;
+    for (var i = 0; i < geometry.attributes.position.array.length; i += 9) {
+        vertex1.set(gArray[i + 0], gArray[i + 1], gArray[i + 2]);
+        vertex2.set(gArray[i + 3], gArray[i + 4], gArray[i + 5]);
+        vertex3.set(gArray[i + 6], gArray[i + 7], gArray[i + 8]);
+        THREE.Triangle.getNormal(vertex1, vertex2, vertex3, faceNormal);
+
+        var place = false;
+        if (spreadIsNumber) {
+            var rv = randomness(i/9);
+            if (rv < options.spread) {
+                place = true;
+            }
+            else if (rv < options.spread + options.smoothSpread) {
+                // Interpolate rv between spread and spread + smoothSpread,
+                // then multiply that "easing" value by the probability
+                // that a mesh would get placed on a given face.
+                place = THREE.Terrain.EaseInOut((rv - options.spread) * spreadRange) * options.spread > Math.random();
+            }
+        }
+        else {
+            place = options.spread(vertex1, i / 9, faceNormal, i);
+        }
+        if (place) {
+            // Don't place a mesh if the angle is too steep.
+            if (faceNormal.angleTo(up) > options.maxSlope) {
+                continue;
+            }
+            var tree = new Tree(this.models);
+            this.trees.push(tree);
+            var mesh = tree.object3D;
+            mesh.position.addVectors(vertex1, vertex2).add(vertex3).divideScalar(3);
+            if (options.maxTilt > 0) {
+                var normal = mesh.position.clone().add(faceNormal);
+                mesh.lookAt(normal);
+                var tiltAngle = faceNormal.angleTo(up);
+                if (tiltAngle > options.maxTilt) {
+                    var ratio = options.maxTilt / tiltAngle;
+                    mesh.rotation.x *= ratio;
+                    mesh.rotation.y *= ratio;
+                    mesh.rotation.z *= ratio;
+                }
+            }
+            mesh.rotation.x += 90 / 180 * Math.PI;
+            mesh.rotateY(Math.random() * 2 * Math.PI);
+            if (options.sizeVariance) {
+                var variance = Math.random() * doubleSizeVariance - options.sizeVariance;
+                mesh.scale.x = mesh.scale.z = 1 + variance;
+                mesh.scale.y += variance;
+            }
+
+            mesh.updateMatrix();
+            options.scene.add(mesh);
+        }
+    }
+
+    return options.scene;
   }
+
   iterateFire() {
     const lastBurn = this.getTreesByState(1);
     // console.log(`${lastBurn.length} trees burning`)
     const treesToLight = [];
     lastBurn.forEach(burningTree => {
-      this.getNeibours(burningTree).forEach(treeToLight => {
+      this.getNeibours(burningTree, .1).forEach(treeToLight => {
         const randomFac = Math.random();
         if (randomFac <= .33) {
           treeToLight.light();
         } else if (randomFac >= .66) {
           treeToLight.light();
-          this.getNeibours(treeToLight).forEach(anotherTreeToLight => {
+          this.getNeibours(treeToLight, .12).forEach(anotherTreeToLight => {
             const newRandomFac = Math.random();
             if (newRandomFac <= .5) {
               anotherTreeToLight.light();
@@ -110,35 +198,23 @@ class Forest {
     });
 
   }
-  getNeibours(tree) {
-    const neiCors = [];
+  getNeibours(tree, maxDistance) {
     const neiTrees = [];
-    const treeCor = tree.cor;
-    if (treeCor[0] != 0) {
-      neiCors.push([(treeCor[0] - 1), treeCor[1]]);
-    }
-    if (treeCor[1] != 0) {
-      neiCors.push([treeCor[0], (treeCor[1] - 1)]);
-    }
-    if (treeCor[0] != this.height - 1) {
-      neiCors.push([(treeCor[0] + 1), treeCor[1]]);
-    }
-    if (treeCor[1] != this.width - 1) {
-      neiCors.push([treeCor[0], (treeCor[1] + 1)]);
-    }
-    neiCors.forEach(neiCor => {
-      neiTrees.push(this.findTree(neiCor));
-    });
+    const treePos = tree.object3D.position;
+    this.trees.forEach(compTree => {
+      if (treePos.distanceTo(compTree.object3D.position) < maxDistance) {
+        neiTrees.push(compTree);
+      }
+    })
+
     return neiTrees;
   }
   getTreesByState(state) {
     let treesByState = [];
-    this.trees.forEach(row => {
-      row.forEach(tree => {
+    this.trees.forEach(tree => {
         if (tree.state == state) {
           treesByState.push(tree);
         }
-      });
     });
     return treesByState;
   }
@@ -149,14 +225,11 @@ class Forest {
 }
 
 class Tree {
-  constructor(cor, scene, models, orgin, radius) {
+  constructor(models) {
 
-    this.cor = cor;
+    // this.cor = cor;
     this.state = 0;
-    this.orgin = orgin;
-    this.radius = radius;
     this.models = models;
-    this.scene = scene;
     this.timeBurning = 0;
     this.wetness = 0;
     this.maxBurnTime = Math.floor(Math.random() * (6 - 3)) + 3;
@@ -164,15 +237,13 @@ class Tree {
   }
   build() {
     this.geometry = this.models.scene;
-    const tileSize = this.geometry.getObjectByName('ground').scale.x * 2;
-    this.pos = [((this.cor[0] - this.radius[0]) * tileSize) + this.orgin[0], this.orgin[1], ((this.cor[1] - this.radius[1]) * tileSize) + this.orgin[2]];
+    // this.pos = [this.cor[0],this.cor[1],this.cor[2]];
     const clone = this.geometry.clone();
-    clone.rotation.y = ((Math.floor(Math.random() * (1 - 3)) + 1) * 90) * (Math.PI / 180.0);
-    this.scene.add(clone);
+    // clone.rotation.y = ((Math.floor(Math.random() * (1 - 3)) + 1) * 90) * (Math.PI / 180.0);
+    // this.scene.add(clone);
     clone.getObjectByName('burntTree').visible = false;
     clone.getObjectByName('fire').visible = false;
-    clone.getObjectByName('burnedGround').visible = false;
-    clone.position.set(this.pos[0], this.pos[1], this.pos[2]);
+    // clone.position.set(this.pos[0], this.pos[1], this.pos[2]);
     // console.log(`pos ${pos}`) //this assumes that all tiles for forest fire are square
     return clone;
   }
@@ -182,9 +253,6 @@ class Tree {
       this.object3D.getObjectByName('burntTree').visible = true;
       this.object3D.getObjectByName('fire').visible = true;
       this.object3D.getObjectByName('greenTree').visible = false;
-      this.object3D.getObjectByName('flower').visible = false;
-      this.object3D.getObjectByName('burnedGround').visible = true;
-      this.object3D.getObjectByName('ground').visible = false;
       this.timeBurning = 1;
       // console.log(`tree ${this.cor} lit`)
     } else if (this.state == 0 && this.wetness != 0) {
@@ -220,6 +288,7 @@ const Start = () => {
   setupPhysicsWorld();
   animate();
   buildForest();
+  
 };
 
 async function init() {
@@ -562,7 +631,7 @@ async function init() {
 function addLightToScene() {
 
   // creating the hemisphere light 
-  var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+  var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
   light.position.set(0.5, 1, 0.25);
   scene.add(light);
 
@@ -964,9 +1033,57 @@ function buildForest() {
 
 function forestCallback() {
   console.log(forest);
-  const testtree = forest.findTree([3, 5]);
+  buildTerrain();
+  const testtree = forest.trees[26];
   testtree.light();
 
+}
+
+function buildTerrain() {
+  const matLoader = new THREE.TextureLoader();
+  const t1 = matLoader.load('./img/sand.jpg');
+  const t2 = matLoader.load('./img/grass.jpg');
+  const t3 = matLoader.load('./img/stone.jpg');
+  const t4 = matLoader.load('./img/snow.jpg');
+  const material = THREE.Terrain.generateBlendedMaterial([
+    // The first texture is the base; other textures are blended in on top.
+    { texture: t1 },
+    // Start blending in at height -80; opaque between -35 and 20; blend out by 50
+    { texture: t2, levels: [.05, .16, .3, .375] },
+    { texture: t3, levels: [.3, .375, .4, .46] },
+    // How quickly this texture is blended in depends on its x-position.
+    { texture: t4, glsl: '1.0 - smoothstep(65.0 + smoothstep(-256.0, 256.0, vPosition.x) * 10.0, 80.0, vPosition.z)' },
+    // Use this texture if the slope is between 27 and 45 degrees
+    { texture: t3, glsl: 'slope > 0.7853981633974483 ? 0.2 : 1.0 - smoothstep(0.47123889803846897, 0.7853981633974483, slope) + 0.2' },
+  ]);
+
+  var xS = 63, yS = 63;
+  terrainScene = THREE.Terrain({
+      easing: THREE.Terrain.Linear,
+      frequency: 2.5,
+      heightmap: THREE.Terrain.DiamondSquare,
+      material: material,
+      maxHeight: .5,
+      minHeight: 0,
+      steps: 1,
+      xSegments: xS,
+      xSize: 3,
+      ySegments: yS,
+      ySize: 3,
+  });
+  terrainScene.position.set(orgin[0],orgin[1],orgin[2]);
+  scene.add(terrainScene);
+
+  var geo = terrainScene.children[0].geometry;
+  var decoScene = forest.scatterTrees(geo, {
+    w: xS,
+    h: yS,
+    spread: 0.2,
+    randomness: Math.random,
+});
+terrainScene.add(decoScene);
+  // buildForest();
+  
 }
 
 function iterateFire() {
