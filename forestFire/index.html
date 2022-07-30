@@ -17,15 +17,23 @@
 </head>
 
 <body>
-  <!-- <div class="wrapper"></div>
-  <h1 class="overlayText">Forest Fighting AR Experience</h1> -->
+  <div id="welcome" class="wrapper">
+    <h1 class="overlayText">Forest Fighting AR Experience</h1>
+  </div>
   <div id="overlay"></div>
 
-  <button id="up">Up</button>
-  <button id="down">Down</button>
-  <button id="left">Left</button>
-  <button id="right">Right</button>
-  <button id = "water">Drop Water</button>
+  <button class='gui-button' id="up">Up</button>
+  <button class='gui-button' id="down">Down</button>
+  <button class='gui-button' id="left">Left</button>
+  <button class='gui-button' id="right">Right</button>
+  <button class='gui-button' id ="water">Drop Water</button>
+
+
+
+  <input orient="vertical" type="range" min="1" max="100" value="50" class="slider" id="throttleSlider">
+
+
+
 
   <div id="instructions"></div>
   <div id="warning"></div>

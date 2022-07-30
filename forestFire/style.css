@@ -53,10 +53,11 @@ select {
 }
 
 .gui-button {
-    right: 20px;
     position: absolute;
-    bottom: 20px;
-    padding: 12px 6px;
+    padding-top: 6px;
+    padding-right: 6px;
+    padding-bottom: 6px;
+    padding-left: 6px;
     border: 1px solid rgb(255, 255, 255);
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.1);
@@ -67,8 +68,7 @@ select {
     outline: none;
     z-index: 999;
     cursor: pointer;
-    left: calc(80% - 50px);
-    width: 100px;
+    width: 25%;
     user-select: none;
     /* supported by Chrome and Opera */
     -webkit-user-select: none;
@@ -210,42 +210,42 @@ button:active {
 
 #up {
     bottom: 18vh;
-    left: 35%;
+    left: 37.5%;
     display: none;
     user-select: none;
-    font-size: 50px;
+    /*font-size: 50px;*/
 }
 
 #down {
     bottom: 8vh;
-    left: 35%;
+    left: 37.5%;
     display: none;
     user-select: none;
-    font-size: 50px;
+    /*font-size: 50px;*/
 }
 
 #left {
     bottom: 13vh;
-    left: 5%;
+    left: 6.25%;
     display: none;
     user-select: none;
-    font-size: 50px;
+    /*font-size: 50px;*/
 }
 
 #right {
     bottom: 13vh;
-    left: 65%;
+    right: 6.25%;
     display: none;
     user-select: none;
-    font-size: 50px;
+/*    font-size: 50px;*/
 }
 
 #water {
     bottom: 13vh;
-    left: 35%;
+    left: 37.5%;
     display: none;
     user-select: none;
-    font-size: 25px;
+    /*font-size: 25px;*/
 }
 
 div {
@@ -266,4 +266,44 @@ div {
     text-align: center;
     z-index: 100;
     display: block;
+}
+
+
+
+.slider {
+    position: absolute;
+    right:  6.25%;
+    bottom: 23vh;
+    z-index: 9999;
+
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 25px; /* Full-width */
+  height: 20%; /* Specified height */
+  border: 1px solid rgb(255, 255, 255);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+  outline: none; /* Remove outline */
+  opacity: 0.5; 
+}
+
+
+
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; 
+  appearance: none;
+  width: 25px; 
+  height: 25px; 
+  background: rgb(255, 255, 255);
+  opacity: 0.5;  
+  cursor: pointer; 
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; 
+  height: 25px; 
+  background: rgb(255, 255, 255);
+  opacity: 0.5;  
+  cursor: pointer; 
 }

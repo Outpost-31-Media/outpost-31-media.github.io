@@ -338,6 +338,7 @@ async function init() {
   renderer.domElement.style.display = "none";
 
   button.addEventListener("click", () => {
+    document.getElementById("welcome").style.display = 'none';
     document.getElementById("instructions").style.color = "white";
     document.getElementById("instructions").textContent = "Find an open area. Look around the room to calibrate the space. Tap your screen once a reticle appears on the ground."
   });
