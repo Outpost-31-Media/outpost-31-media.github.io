@@ -68,7 +68,7 @@ class Forest {
   }
   async init() {
     this.models = await this.loadModels();
-    this.trees = this.build();
+    this.trees = [];
     forestCallback();
   }
   async loadModels() {
@@ -80,20 +80,26 @@ class Forest {
     // }
     return await loader.loadAsync('./gltf/tree.glb')
   }
-  build() {
-    this.trees = []
 
-    var options = {
+  scatterTrees(geometry, options) {
+    if (!options.scene) {
+        options.scene = new THREE.Object3D();
+    }
+    var defaultOptions = {
         spread: 0.025,
         smoothSpread: 0,
         sizeVariance: 0.1,
         randomness: Math.random,
         maxSlope: 0.6283185307179586, // 36deg or 36 / 180 * Math.PI, about the angle of repose of earth
         maxTilt: Infinity,
-        w: 63,
-        h: 63,
+        w: 0,
+        h: 0,
     };
-
+    for (var opt in defaultOptions) {
+        if (defaultOptions.hasOwnProperty(opt)) {
+            options[opt] = typeof options[opt] === 'undefined' ? defaultOptions[opt] : options[opt];
+        }
+    }
 
     var spreadIsNumber = typeof options.spread === 'number',
         randomHeightmap,
@@ -104,13 +110,13 @@ class Forest {
         vertex2 = new THREE.Vector3(),
         vertex3 = new THREE.Vector3(),
         faceNormal = new THREE.Vector3(),
-        up = new THREE.Vector3(0,1,0).clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), 0.5*Math.PI); //fix this
+        up = new THREE.Vector3(0,1,0).clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), 0.5*Math.PI);
     if (spreadIsNumber) {
         randomHeightmap = options.randomness();
         randomness = typeof randomHeightmap === 'number' ? Math.random : function(k) { return randomHeightmap[k]; };
     }
 
-    var geometry = this.terrain.children[0].geometry.toNonIndexed();
+    geometry = geometry.toNonIndexed();
     var gArray = geometry.attributes.position.array;
     for (var i = 0; i < geometry.attributes.position.array.length; i += 9) {
         vertex1.set(gArray[i + 0], gArray[i + 1], gArray[i + 2]);
@@ -139,9 +145,9 @@ class Forest {
             if (faceNormal.angleTo(up) > options.maxSlope) {
                 continue;
             }
-            var newTree = new Tree(this.scene, this.models);
-            this.trees.push(newTree);
-            var mesh = newTree.object3D;
+            var tree = new Tree(this.models);
+            this.trees.push(tree);
+            var mesh = tree.object3D;
             mesh.position.addVectors(vertex1, vertex2).add(vertex3).divideScalar(3);
             if (options.maxTilt > 0) {
                 var normal = mesh.position.clone().add(faceNormal);
@@ -154,37 +160,22 @@ class Forest {
                     mesh.rotation.z *= ratio;
                 }
             }
-            // mesh.rotation.x += 90 / 180 * Math.PI;
+            mesh.rotation.x += 90 / 180 * Math.PI;
             mesh.rotateY(Math.random() * 2 * Math.PI);
             if (options.sizeVariance) {
                 var variance = Math.random() * doubleSizeVariance - options.sizeVariance;
                 mesh.scale.x = mesh.scale.z = 1 + variance;
                 mesh.scale.y += variance;
             }
-            const oldX = mesh.position.x;
-            const oldY = mesh.position.y;
-            const oldZ = mesh.position.z;
 
             mesh.updateMatrix();
-            mesh.position.set(oldX,oldZ-1.75,oldY);
-            this.scene.add(mesh);
+            options.scene.add(mesh);
         }
     }
 
-    
-
-
-
-
-
-
-
-
-
-
-
-    return this.trees;
+    return options.scene;
   }
+
   iterateFire() {
     const lastBurn = this.getTreesByState(1);
     // console.log(`${lastBurn.length} trees burning`)
@@ -248,16 +239,18 @@ class Forest {
 }
 
 class Tree {
-  constructor(scene, models) {
+  constructor(models) {
 
     // this.cor = cor;
     this.state = 0;
     this.models = models;
-    this.scene = scene;
     this.timeBurning = 0;
     this.wetness = 0;
     this.maxBurnTime = Math.floor(Math.random() * (6 - 3)) + 3;
     this.object3D = this.build();
+  }
+  addBoundingBox() {
+    
   }
   build() {
     this.geometry = this.models.scene;
@@ -311,8 +304,8 @@ const Start = () => {
   init();
   setupPhysicsWorld();
   animate();
-  buildTerrain();
-  // buildForest();
+  buildForest();
+  
 };
 
 async function init() {
@@ -1030,11 +1023,12 @@ function removeWater() {
 /**************************************************************************************************************/
 
 function buildForest() {
-  forest = new Forest(30, 30, scene, orgin, terrainScene);
+  forest = new Forest(30, 30, scene, orgin);
 }
 
 function forestCallback() {
   console.log(forest);
+  buildTerrain();
   // const testtree = forest.findTree([3, 5]);
   // testtree.light();
 
@@ -1074,7 +1068,16 @@ function buildTerrain() {
   });
   terrainScene.position.set(orgin[0],orgin[1],orgin[2]);
   scene.add(terrainScene);
-  buildForest();
+
+  var geo = terrainScene.children[0].geometry;
+  var decoScene = forest.scatterTrees(geo, {
+    w: xS,
+    h: yS,
+    spread: 0.2,
+    randomness: Math.random,
+});
+terrainScene.add(decoScene);
+  // buildForest();
   
 }
 
