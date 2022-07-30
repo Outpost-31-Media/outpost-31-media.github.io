@@ -181,13 +181,13 @@ class Forest {
     // console.log(`${lastBurn.length} trees burning`)
     const treesToLight = [];
     lastBurn.forEach(burningTree => {
-      this.getNeibours(burningTree).forEach(treeToLight => {
+      this.getNeibours(burningTree, .1).forEach(treeToLight => {
         const randomFac = Math.random();
         if (randomFac <= .33) {
           treeToLight.light();
         } else if (randomFac >= .66) {
           treeToLight.light();
-          this.getNeibours(treeToLight).forEach(anotherTreeToLight => {
+          this.getNeibours(treeToLight, .12).forEach(anotherTreeToLight => {
             const newRandomFac = Math.random();
             if (newRandomFac <= .5) {
               anotherTreeToLight.light();
@@ -200,35 +200,23 @@ class Forest {
     });
 
   }
-  getNeibours(tree) {
-    const neiCors = [];
+  getNeibours(tree, maxDistance) {
     const neiTrees = [];
-    const treeCor = tree.cor;
-    if (treeCor[0] != 0) {
-      neiCors.push([(treeCor[0] - 1), treeCor[1]]);
-    }
-    if (treeCor[1] != 0) {
-      neiCors.push([treeCor[0], (treeCor[1] - 1)]);
-    }
-    if (treeCor[0] != this.height - 1) {
-      neiCors.push([(treeCor[0] + 1), treeCor[1]]);
-    }
-    if (treeCor[1] != this.width - 1) {
-      neiCors.push([treeCor[0], (treeCor[1] + 1)]);
-    }
-    neiCors.forEach(neiCor => {
-      neiTrees.push(this.findTree(neiCor));
-    });
+    const treePos = tree.object3D.position;
+    this.trees.forEach(compTree => {
+      if (treePos.distanceTo(compTree.object3D.position) < maxDistance) {
+        neiTrees.push(compTree);
+      }
+    })
+
     return neiTrees;
   }
   getTreesByState(state) {
     let treesByState = [];
-    this.trees.forEach(row => {
-      row.forEach(tree => {
+    this.trees.forEach(tree => {
         if (tree.state == state) {
           treesByState.push(tree);
         }
-      });
     });
     return treesByState;
   }
@@ -248,9 +236,6 @@ class Tree {
     this.wetness = 0;
     this.maxBurnTime = Math.floor(Math.random() * (6 - 3)) + 3;
     this.object3D = this.build();
-  }
-  addBoundingBox() {
-    
   }
   build() {
     this.geometry = this.models.scene;
@@ -1029,8 +1014,8 @@ function buildForest() {
 function forestCallback() {
   console.log(forest);
   buildTerrain();
-  // const testtree = forest.findTree([3, 5]);
-  // testtree.light();
+  const testtree = forest.trees[26];
+  testtree.light();
 
 }
 
