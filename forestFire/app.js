@@ -22,7 +22,7 @@ let rigidBodies = [],
   directionalLight;
 let clock = new THREE.Clock();
 let forest;
-let orgin = [0, -1.75, -1];
+let orgin = [0, -1.8, -1];
 let iterateTime = Infinity;
 let iterateStep = 2000;
 let time;
@@ -967,27 +967,6 @@ function randomNumber(min, max) {
 */
 function dropWater() {
 
-  // let modelPosition = new THREE.Vector3();
-  // modelPosition.setFromMatrixPosition(model.matrixWorld);
-
-  // waterParticles = [];
-  // for (let i = 0; i < 30; i++) {
-
-  //   let size = randomNumber(0.01, 0.02);
-  //   let offset = randomNumber(-0.1, 0.1);
-
-  //   let geometry = new THREE.BoxBufferGeometry();
-  //   let material = new THREE.MeshLambertMaterial({ color: 'blue' });
-  //   let cube = new THREE.Mesh(geometry, material);
-  //   cube.position.set(modelPosition.x - offset, modelPosition.y, modelPosition.z - offset);
-  //   cube.scale.set(size, size, size);
-  //   scene.add(cube);
-  //   physics.add.existing(cube);
-  //   waterParticles.push(cube);
-  // }
-
-  // setTimeout(removeWater, 5000); 
-
   let waterRadius = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 0.5), new THREE.MeshBasicMaterial());
   waterRadius.position.setFromMatrixPosition(model.matrix);
 
@@ -996,34 +975,14 @@ function dropWater() {
 
   for (let i = 0; i < forest.trees.length; i++) {
 
-    let row = forest.trees[i];
+    let tree = forest.trees[i];
+    let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    treeBB.setFromObject(tree.object3D);
 
-    for (let j = 0; j < row.length; j++) {
-
-      let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-      let tree = row[j];
-      treeBB.setFromObject(tree.object3D);
-
-      if (waterBB.intersectsBox(treeBB)) {
-        tree.water();
-      }
+    if (waterBB.intersectsBox(treeBB)) {
+      tree.water();
     }
   }
-}
-
-/* 
-  Function: removeWater
-  Description: 
-    Runs five seconds after dropWater is called.
-    Destroys the water particles.
-  Parameters: None
-*/
-function removeWater() {
-  for (let i = 0; i < waterParticles.length; i++) {
-    let water = waterParticles[i];
-    physics.destroy(water);
-  }
-  waterParticles = [];
 }
 
 /**************************************************************************************************************/
@@ -1191,7 +1150,6 @@ function render(timestamp, frame) {
       modelBB.applyMatrix4(model.matrixWorld);
 
       checkBoxCollisions();
-      //checkWaterCollisions(); 
     }
 
     updatePhysics(deltaTime * 1000);
@@ -1259,40 +1217,6 @@ function checkBoxCollisions() {
     */
   }
 
-
-}
-
-/*
-  Function: checkWaterCollisions
-  Description: 
-    Iterates through the water particles and the trees. 
-    Determines if a water particles intersects a tree. 
-    If there is an intersection, the tree is watered. 
-  Parameters: None
-*/
-function checkWaterCollisions() {
-  for (let i = 0; i < waterParticles.length; i++) {
-
-    let water = waterParticles[i];
-    let waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-    waterBB.setFromObject(water);
-
-    for (let j = 0; j < forest.trees.length; j++) {
-
-      let row = forest.trees[j];
-
-      for (let k = 0; k < row.length; k++) {
-
-        let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-        let tree = row[k];
-        treeBB.setFromObject(tree.object3D);
-
-        if (waterBB.intersectsBox(treeBB)) {
-          tree.water();
-        }
-      }
-    }
-  }
 
 }
 
