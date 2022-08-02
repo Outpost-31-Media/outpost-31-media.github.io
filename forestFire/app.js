@@ -662,15 +662,13 @@ function addShadowPlaneToScene() {
   Paramaters: None
 */
 function addSquareReticleToScene() {
-  const geometry = new THREE.PlaneGeometry(3, 3).rotateX(-Math.PI / 2);
+  const geometry = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
   const material = new THREE.MeshBasicMaterial();
 
   reticle = new THREE.Mesh(geometry, material);
 
-  // we will calculate the position and rotation of this reticle every frame manually
-  // in the render() function so matrixAutoUpdate is set to false
   reticle.matrixAutoUpdate = false;
-  reticle.visible = false; // we start with the reticle not visible
+  reticle.visible = false; 
   scene.add(reticle);
 }
 
