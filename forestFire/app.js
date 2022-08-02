@@ -6,7 +6,7 @@ import {
   getPointInBetweenByPerc,
   rotateAroundPoint
 } from './utils.js'
-let desktopTesting = false;
+let desktopTesting = true;
 let physicsDebug = false;
 const {
   AmmoPhysics,
@@ -389,6 +389,13 @@ async function init() {
       frontLeftDown.timeScale = 4;
       frontLeftDown.setLoop(THREE.LoopOnce);
       frontLeftDown.play();
+
+      let backWingLeft = mixer.clipAction(gltf.animations[8]);
+      backWingLeft.clampWhenFinished = true;
+      backWingLeft.timeScale = 4;
+      backWingLeft.setLoop(THREE.LoopOnce);
+      backWingLeft.play();
+
     });
     document.querySelector("#right").addEventListener("mousedown", () => {
       timeout = setTimeout(moveRight, 100);
@@ -404,6 +411,12 @@ async function init() {
       frontLeftUp.timeScale = 4;
       frontLeftUp.setLoop(THREE.LoopOnce);
       frontLeftUp.play();
+
+      let backWingRight = mixer.clipAction(gltf.animations[10]);
+      backWingRight.clampWhenFinished = true;
+      backWingRight.timeScale = 4;
+      backWingRight.setLoop(THREE.LoopOnce);
+      backWingRight.play();
     });
 
     // handlers if directional buttons are released
@@ -454,6 +467,13 @@ async function init() {
       frontLeftDownReturn.timeScale = 4;
       frontLeftDownReturn.setLoop(THREE.LoopOnce);
       frontLeftDownReturn.play();
+
+      let backWingLeftReturn = mixer.clipAction(gltf.animations[9]);
+      backWingLeftReturn.clampWhenFinished = true;
+      backWingLeftReturn.timeScale = 4;
+      backWingLeftReturn.setLoop(THREE.LoopOnce);
+      backWingLeftReturn.play();
+
     });
     document.querySelector("#right").addEventListener("mouseup", () => {
       clearTimeout(timeout);
@@ -471,6 +491,11 @@ async function init() {
       frontLeftUpReturn.setLoop(THREE.LoopOnce);
       frontLeftUpReturn.play();
 
+      let backWingRightReturn = mixer.clipAction(gltf.animations[11]);
+      backWingRight.clampWhenFinished = true;
+      backWingRight.timeScale = 4;
+      backWingRight.setLoop(THREE.LoopOnce);
+      backWingRight.play();
     });
   } else {
     // handlers if directional buttons are pushed
@@ -513,11 +538,17 @@ async function init() {
       frontRightUp.setLoop(THREE.LoopOnce);
       frontRightUp.play();
 
-      let frontLeftDown = mixer.clipAction(gltf.animations[5]);
+      let frontLeftDown = mixer.clipAction(gltf.animations[4]);
       frontLeftDown.clampWhenFinished = true;
       frontLeftDown.timeScale = 4;
       frontLeftDown.setLoop(THREE.LoopOnce);
       frontLeftDown.play();
+
+      let backWingLeft = mixer.clipAction(gltf.animations[8]);
+      backWingLeft.clampWhenFinished = true;
+      backWingLeft.timeScale = 4;
+      backWingLeft.setLoop(THREE.LoopOnce);
+      backWingLeft.play();
     });
     document.querySelector("#right").addEventListener("touchstart", () => {
       timeout = setTimeout(moveRight, 100);
@@ -533,6 +564,12 @@ async function init() {
       frontLeftUp.timeScale = 4;
       frontLeftUp.setLoop(THREE.LoopOnce);
       frontLeftUp.play();
+
+      let backWingRight = mixer.clipAction(gltf.animations[10]);
+      backWingRight.clampWhenFinished = true;
+      backWingRight.timeScale = 4;
+      backWingRight.setLoop(THREE.LoopOnce);
+      backWingRight.play();
     });
 
     // handlers if directional buttons are released
@@ -584,6 +621,12 @@ async function init() {
       frontLeftDownReturn.timeScale = 4;
       frontLeftDownReturn.setLoop(THREE.LoopOnce);
       frontLeftDownReturn.play();
+
+      let backWingLeftReturn = mixer.clipAction(gltf.animations[9]);
+      backWingLeftReturn.clampWhenFinished = true;
+      backWingLeftReturn.timeScale = 4;
+      backWingLeftReturn.setLoop(THREE.LoopOnce);
+      backWingLeftReturn.play();
     });
     document.querySelector("#right").addEventListener("touchend", () => {
       clearTimeout(timeout);
@@ -600,6 +643,12 @@ async function init() {
       frontLeftUpReturn.timeScale = 4;
       frontLeftUpReturn.setLoop(THREE.LoopOnce);
       frontLeftUpReturn.play();
+
+      let backWingRightReturn = mixer.clipAction(gltf.animations[11]);
+      backWingRight.clampWhenFinished = true;
+      backWingRight.timeScale = 4;
+      backWingRight.setLoop(THREE.LoopOnce);
+      backWingRight.play();
     });
 
   }
