@@ -22,7 +22,7 @@ let rigidBodies = [],
   directionalLight;
 let clock = new THREE.Clock();
 let forest;
-let orgin = [0, -1.8, -1];
+let origin = [0, -1.8, -1];
 let iterateTime = Infinity;
 let iterateStep = 2000;
 let time;
@@ -38,6 +38,7 @@ let mixer;
 let plane;
 let timeout;
 let terrainScene, decoScene;
+let placedTerrain = false;
 
 let waterParticles = [];
 
@@ -77,94 +78,94 @@ class Forest {
 
   scatterTrees(geometry, options) {
     if (!options.scene) {
-        options.scene = new THREE.Object3D();
+      options.scene = new THREE.Object3D();
     }
     var defaultOptions = {
-        spread: 0.025,
-        smoothSpread: 0,
-        sizeVariance: 0.1,
-        randomness: Math.random,
-        maxSlope: 0.6283185307179586, // 36deg or 36 / 180 * Math.PI, about the angle of repose of earth
-        maxTilt: Infinity,
-        w: 0,
-        h: 0,
+      spread: 0.025,
+      smoothSpread: 0,
+      sizeVariance: 0.1,
+      randomness: Math.random,
+      maxSlope: 0.6283185307179586, // 36deg or 36 / 180 * Math.PI, about the angle of repose of earth
+      maxTilt: Infinity,
+      w: 0,
+      h: 0,
     };
     for (var opt in defaultOptions) {
-        if (defaultOptions.hasOwnProperty(opt)) {
-            options[opt] = typeof options[opt] === 'undefined' ? defaultOptions[opt] : options[opt];
-        }
+      if (defaultOptions.hasOwnProperty(opt)) {
+        options[opt] = typeof options[opt] === 'undefined' ? defaultOptions[opt] : options[opt];
+      }
     }
 
     var spreadIsNumber = typeof options.spread === 'number',
-        randomHeightmap,
-        randomness,
-        spreadRange = 1 / options.smoothSpread,
-        doubleSizeVariance = options.sizeVariance * 2,
-        vertex1 = new THREE.Vector3(),
-        vertex2 = new THREE.Vector3(),
-        vertex3 = new THREE.Vector3(),
-        faceNormal = new THREE.Vector3(),
-        up = new THREE.Vector3(0,1,0).clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), 0.5*Math.PI);
+      randomHeightmap,
+      randomness,
+      spreadRange = 1 / options.smoothSpread,
+      doubleSizeVariance = options.sizeVariance * 2,
+      vertex1 = new THREE.Vector3(),
+      vertex2 = new THREE.Vector3(),
+      vertex3 = new THREE.Vector3(),
+      faceNormal = new THREE.Vector3(),
+      up = new THREE.Vector3(0, 1, 0).clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), 0.5 * Math.PI);
     if (spreadIsNumber) {
-        randomHeightmap = options.randomness();
-        randomness = typeof randomHeightmap === 'number' ? Math.random : function(k) { return randomHeightmap[k]; };
+      randomHeightmap = options.randomness();
+      randomness = typeof randomHeightmap === 'number' ? Math.random : function (k) { return randomHeightmap[k]; };
     }
 
     geometry = geometry.toNonIndexed();
     var gArray = geometry.attributes.position.array;
     for (var i = 0; i < geometry.attributes.position.array.length; i += 9) {
-        vertex1.set(gArray[i + 0], gArray[i + 1], gArray[i + 2]);
-        vertex2.set(gArray[i + 3], gArray[i + 4], gArray[i + 5]);
-        vertex3.set(gArray[i + 6], gArray[i + 7], gArray[i + 8]);
-        THREE.Triangle.getNormal(vertex1, vertex2, vertex3, faceNormal);
+      vertex1.set(gArray[i + 0], gArray[i + 1], gArray[i + 2]);
+      vertex2.set(gArray[i + 3], gArray[i + 4], gArray[i + 5]);
+      vertex3.set(gArray[i + 6], gArray[i + 7], gArray[i + 8]);
+      THREE.Triangle.getNormal(vertex1, vertex2, vertex3, faceNormal);
 
-        var place = false;
-        if (spreadIsNumber) {
-            var rv = randomness(i/9);
-            if (rv < options.spread) {
-                place = true;
-            }
-            else if (rv < options.spread + options.smoothSpread) {
-                // Interpolate rv between spread and spread + smoothSpread,
-                // then multiply that "easing" value by the probability
-                // that a mesh would get placed on a given face.
-                place = THREE.Terrain.EaseInOut((rv - options.spread) * spreadRange) * options.spread > Math.random();
-            }
+      var place = false;
+      if (spreadIsNumber) {
+        var rv = randomness(i / 9);
+        if (rv < options.spread) {
+          place = true;
         }
-        else {
-            place = options.spread(vertex1, i / 9, faceNormal, i);
+        else if (rv < options.spread + options.smoothSpread) {
+          // Interpolate rv between spread and spread + smoothSpread,
+          // then multiply that "easing" value by the probability
+          // that a mesh would get placed on a given face.
+          place = THREE.Terrain.EaseInOut((rv - options.spread) * spreadRange) * options.spread > Math.random();
         }
-        if (place) {
-            // Don't place a mesh if the angle is too steep.
-            if (faceNormal.angleTo(up) > options.maxSlope) {
-                continue;
-            }
-            var tree = new Tree(this.models);
-            this.trees.push(tree);
-            var mesh = tree.object3D;
-            mesh.position.addVectors(vertex1, vertex2).add(vertex3).divideScalar(3);
-            if (options.maxTilt > 0) {
-                var normal = mesh.position.clone().add(faceNormal);
-                mesh.lookAt(normal);
-                var tiltAngle = faceNormal.angleTo(up);
-                if (tiltAngle > options.maxTilt) {
-                    var ratio = options.maxTilt / tiltAngle;
-                    mesh.rotation.x *= ratio;
-                    mesh.rotation.y *= ratio;
-                    mesh.rotation.z *= ratio;
-                }
-            }
-            mesh.rotation.x += 90 / 180 * Math.PI;
-            mesh.rotateY(Math.random() * 2 * Math.PI);
-            if (options.sizeVariance) {
-                var variance = Math.random() * doubleSizeVariance - options.sizeVariance;
-                mesh.scale.x = mesh.scale.z = 1 + variance;
-                mesh.scale.y += variance;
-            }
+      }
+      else {
+        place = options.spread(vertex1, i / 9, faceNormal, i);
+      }
+      if (place) {
+        // Don't place a mesh if the angle is too steep.
+        if (faceNormal.angleTo(up) > options.maxSlope) {
+          continue;
+        }
+        var tree = new Tree(this.models);
+        this.trees.push(tree);
+        var mesh = tree.object3D;
+        mesh.position.addVectors(vertex1, vertex2).add(vertex3).divideScalar(3);
+        if (options.maxTilt > 0) {
+          var normal = mesh.position.clone().add(faceNormal);
+          mesh.lookAt(normal);
+          var tiltAngle = faceNormal.angleTo(up);
+          if (tiltAngle > options.maxTilt) {
+            var ratio = options.maxTilt / tiltAngle;
+            mesh.rotation.x *= ratio;
+            mesh.rotation.y *= ratio;
+            mesh.rotation.z *= ratio;
+          }
+        }
+        mesh.rotation.x += 90 / 180 * Math.PI;
+        mesh.rotateY(Math.random() * 2 * Math.PI);
+        if (options.sizeVariance) {
+          var variance = Math.random() * doubleSizeVariance - options.sizeVariance;
+          mesh.scale.x = mesh.scale.z = 1 + variance;
+          mesh.scale.y += variance;
+        }
 
-            mesh.updateMatrix();
-            options.scene.add(mesh);
-        }
+        mesh.updateMatrix();
+        options.scene.add(mesh);
+      }
     }
 
     return options.scene;
@@ -208,9 +209,9 @@ class Forest {
   getTreesByState(state) {
     let treesByState = [];
     this.trees.forEach(tree => {
-        if (tree.state == state) {
-          treesByState.push(tree);
-        }
+      if (tree.state == state) {
+        treesByState.push(tree);
+      }
     });
     return treesByState;
   }
@@ -283,8 +284,6 @@ const Start = () => {
   init();
   setupPhysicsWorld();
   animate();
-  buildForest();
-  
 };
 
 async function init() {
@@ -311,7 +310,7 @@ async function init() {
   scene.add(controller);
 
   // adding the reticle to the scene
-  addReticleToScene();
+  addSquareReticleToScene();
 
   // loading the model 
   await loadModel();
@@ -322,7 +321,7 @@ async function init() {
   propellerRight.play();
 
   // adding the bounding boxes to the scene
-  addBoundingBoxesToModels();
+  //addBoundingBoxesToModels();
 
   // Add the AR button to the body of the DOM
   const button = ARButton.createButton(renderer, {
@@ -340,9 +339,9 @@ async function init() {
   });
 
   // handler if throttle is changed
-  let slider = document.getElementById("throttleSlider"); 
-  slider.oninput = function() {
-    speed = this.value; 
+  let slider = document.getElementById("throttleSlider");
+  slider.oninput = function () {
+    speed = this.value;
   }
 
   if (desktopTesting === true) {
@@ -665,10 +664,8 @@ function addShadowPlaneToScene() {
     Creates a reticle of a holographic plane. 
   Paramaters: None
 */
-function addReticleToScene() {
-  const geometry = new THREE.RingBufferGeometry(0.15, 0.2, 32).rotateX(
-    -Math.PI / 2
-  );
+function addSquareReticleToScene() {
+  const geometry = new THREE.PlaneGeometry(3, 3).rotateX(-Math.PI / 2);
   const material = new THREE.MeshBasicMaterial();
 
   reticle = new THREE.Mesh(geometry, material);
@@ -701,59 +698,8 @@ async function loadModel() {
   model.visible = false;
 }
 
-/*
-  Function: addBoundingBoxesToModels
-  Description: 
-    Creates a bounding box for the waypoint and the model. 
-    Creates bounding boxes for the out of bound areas. 
-  Parameters: None
-*/
-function addBoundingBoxesToModels() {
-  modelBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  modelBB.setFromObject(model);
 
-  wallBBFront = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  const meshFront = new THREE.Mesh(new THREE.BoxGeometry(40, 40), new THREE.MeshBasicMaterial());
-  meshFront.position.set(0, 0, -7);
-  wallBBFront.setFromObject(meshFront);
-
-  wallBBBack = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  const meshBack = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshBack.position.set(0, 0, 15);
-  //scene.add(meshBack); 
-  wallBBBack.setFromObject(meshBack);
-
-  wallBBLeft = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  const meshLeft = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshLeft.position.set(-15, 0, 0);
-  meshLeft.rotation.y = Math.PI / 2;
-  //scene.add(meshLeft); 
-  wallBBLeft.setFromObject(meshLeft);
-
-  wallBBRight = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  const meshRight = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshRight.position.set(15, 0, 0);
-  meshRight.rotation.y = Math.PI / 2;
-  //scene.add(meshRight); 
-  wallBBRight.setFromObject(meshRight);
-
-  wallBBGround = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  const meshGround = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshGround.position.set(0, -1.8, 0);
-  meshGround.rotation.x = Math.PI / 2;
-  //scene.add(meshGround); 
-  wallBBGround.setFromObject(meshGround);
-
-  wallBBCeiling = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  const meshCeiling = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshCeiling.position.set(0, 20, 0);
-  meshCeiling.rotation.x = Math.PI / 2;
-  //scene.add(meshCeiling); 
-  wallBBCeiling.setFromObject(meshCeiling);
-}
-
-
-/**************************************************************************************************************/
+/****************************************Functions Called with onSelect*********************************************/
 
 /*
   Function: onSelect
@@ -768,30 +714,50 @@ function onSelect() {
   // returns null if the reticle is not visible
   if (!reticle.visible || model.visible) {
     return;
+  } else if (!model.visible && placedTerrain === true) {
+    startBurning();
+    // placing the model at the location of the reticle
+    model.position.setFromMatrixPosition(reticle.matrix);
+    model.quaternion.setFromRotationMatrix(reticle.matrix);
+    model.rotation.y = Math.PI;
+    model.visible = true;
+    scene.add(model);
+
+    // directional buttons become visible
+    document.querySelector("#up").style.display = "block";
+    document.querySelector("#down").style.display = "block";
+    document.querySelector("#left").style.display = "block";
+    document.querySelector("#right").style.display = "block";
+    document.querySelector("#water").style.display = "block";
+
+    // reticle is removed from the scene
+    reticle.visible = false;
+    scene.remove(reticle);
+
+    addModelBoundingBox(); 
+
+    document.getElementById("instructions").textContent = "Tap the directional buttons at the bottom of the screen to move the bird and the throttle to control the speed of the bird."
+
+    setTimeout(removeInstructions, 15000);
+  } else if (!model.visible && placedTerrain === false) {
+
+    let reticlePosition = new THREE.Vector3();
+    reticlePosition.setFromMatrixPosition(reticle.matrixWorld);
+    let x = reticlePosition.x;
+    let y = reticlePosition.y;
+    let z = reticlePosition.z;
+    console.log(z);
+    origin = [x, y, z];
+
+    buildForest();
+
+    placedTerrain = true;
+
+    addCircleReticleToScene(); 
+
+    addWallBoundingBoxes(x, y, z); 
+
   }
-  startBurning();
-  // placing the model at the location of the reticle
-  model.position.setFromMatrixPosition(reticle.matrix);
-  model.quaternion.setFromRotationMatrix(reticle.matrix);
-  model.rotation.y = Math.PI;
-  model.visible = true;
-  scene.add(model);
-
-  // directional buttons become visible
-  document.querySelector("#up").style.display = "block";
-  document.querySelector("#down").style.display = "block";
-  document.querySelector("#left").style.display = "block";
-  document.querySelector("#right").style.display = "block";
-  document.querySelector("#water").style.display = "block";
-
-  // reticle is removed from the scene
-  reticle.visible = false;
-  scene.remove(reticle);
-
-
-  document.getElementById("instructions").textContent = "Tap the directional buttons at the bottom of the screen to move the bird and the throttle to control the speed of the bird."
-
-  setTimeout(removeInstructions, 15000);
 }
 
 /*
@@ -805,6 +771,71 @@ function removeInstructions() {
   document.getElementById("instructions").textContent = "";
 }
 
+function addCircleReticleToScene() {
+  scene.remove(reticle); 
+  const geometry = new THREE.RingBufferGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2);
+  const material = new THREE.MeshBasicMaterial();
+  reticle = new THREE.Mesh(geometry, material);
+
+  reticle.matrixAutoUpdate = false;
+  reticle.visible = false; // we start with the reticle not visible
+  scene.add(reticle);
+}
+
+/*
+  Function: addBoundingBoxesToModels
+  Description: 
+    Creates a bounding box for the waypoint and the model. 
+    Creates bounding boxes for the out of bound areas. 
+  Parameters: None
+*/
+function addWallBoundingBoxes(x, y, z) {
+  wallBBFront = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  const meshFront = new THREE.Mesh(new THREE.BoxGeometry(40, 40), new THREE.MeshBasicMaterial());
+  meshFront.position.set(x, y, z-15);
+  //scene.add(meshFront); 
+  wallBBFront.setFromObject(meshFront);
+
+  wallBBBack = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  const meshBack = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
+  meshBack.position.set(x, y, z+15);
+  //scene.add(meshBack); 
+  wallBBBack.setFromObject(meshBack);
+
+  wallBBLeft = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  const meshLeft = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
+  meshLeft.position.set(x-15, y, x);
+  meshLeft.rotation.y = Math.PI / 2;
+  //scene.add(meshLeft); 
+  wallBBLeft.setFromObject(meshLeft);
+
+  wallBBRight = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  const meshRight = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
+  meshRight.position.set(x+15, 0, 0);
+  meshRight.rotation.y = Math.PI / 2;
+  //scene.add(meshRight); 
+  wallBBRight.setFromObject(meshRight);
+
+  wallBBGround = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  const meshGround = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
+  meshGround.position.set(z, y-1.8, x);
+  meshGround.rotation.x = Math.PI / 2;
+  //scene.add(meshGround); 
+  wallBBGround.setFromObject(meshGround);
+
+  wallBBCeiling = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  const meshCeiling = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
+  meshCeiling.position.set(x, y+20, z);
+  meshCeiling.rotation.x = Math.PI / 2;
+  //scene.add(meshCeiling); 
+  wallBBCeiling.setFromObject(meshCeiling);
+}
+
+function addModelBoundingBox() {
+  modelBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  modelBB.setFromObject(model);
+
+}
 /*********************************************Functions For Buttons*********************************************/
 
 /*
@@ -966,7 +997,7 @@ function dropWater() {
 /**************************************************************************************************************/
 
 function buildForest() {
-  forest = new Forest(30, 30, scene, orgin);
+  forest = new Forest(30, 30, scene, origin);
 }
 
 function forestCallback() {
@@ -997,19 +1028,19 @@ function buildTerrain() {
 
   var xS = 63, yS = 63;
   terrainScene = THREE.Terrain({
-      easing: THREE.Terrain.Linear,
-      frequency: 2.5,
-      heightmap: THREE.Terrain.DiamondSquare,
-      material: material,
-      maxHeight: .5,
-      minHeight: 0,
-      steps: 1,
-      xSegments: xS,
-      xSize: 3,
-      ySegments: yS,
-      ySize: 3,
+    easing: THREE.Terrain.Linear,
+    frequency: 2.5,
+    heightmap: THREE.Terrain.DiamondSquare,
+    material: material,
+    maxHeight: .5,
+    minHeight: 0,
+    steps: 1,
+    xSegments: xS,
+    xSize: 3,
+    ySegments: yS,
+    ySize: 3,
   });
-  terrainScene.position.set(orgin[0],orgin[1],orgin[2]);
+  terrainScene.position.set(origin[0], origin[1], origin[2]);
   scene.add(terrainScene);
 
   var geo = terrainScene.children[0].geometry;
@@ -1018,10 +1049,10 @@ function buildTerrain() {
     h: yS,
     spread: 0.2,
     randomness: Math.random,
-});
-terrainScene.add(decoScene);
+  });
+  terrainScene.add(decoScene);
   // buildForest();
-  
+
 }
 
 function iterateFire() {
@@ -1122,7 +1153,7 @@ function render(timestamp, frame) {
       // moves the model in the direction it is facing 
       let direction = new THREE.Vector3();
       model.getWorldDirection(direction);
-      model.position.add(direction.multiplyScalar(speed* 0.004));
+      model.position.add(direction.multiplyScalar(speed * 0.004));
 
       // updates and handles the bounding box for the model
       modelBB.applyMatrix4(model.matrixWorld);
@@ -1176,13 +1207,13 @@ function checkBoxCollisions() {
     setTimeout(removeWarning, 5000);
 
   } else if (wallBBGround.intersectsBox(modelBB)) {
-    pane.disabled = true;
     speed = 0;
 
     document.querySelector("#up").disabled = true;
     document.querySelector("#down").disabled = true;
     document.querySelector("#left").disabled = true;
     document.querySelector("#right").disabled = true;
+    document.getElementById("throttleSlider").disabled = true;
 
     document.getElementById("instructions").textContent = "Oh no! We crashed!";
 
