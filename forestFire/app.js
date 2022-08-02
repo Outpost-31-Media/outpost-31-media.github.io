@@ -43,7 +43,7 @@ let placedTerrain = false;
 let waterParticles = [];
 
 // Bounding boxes Variables
-let modelBB, wallBBFront, wallBBLeft, wallBBRight, wallBBGround, wallBBCeiling, wallBBBack;
+let modelBB, wallBBFront, wallBBLeft, wallBBRight, wallBBGround, wallBBCeiling, wallBBBack, terrainBB;
 
 // Gui Variables
 let speed = 0.1 * 0.001;
@@ -789,8 +789,7 @@ function onSelect() {
     reticlePosition.setFromMatrixPosition(reticle.matrixWorld);
     let x = reticlePosition.x;
     let y = reticlePosition.y;
-    let z = reticlePosition.z;
-    console.log(z);
+    let z = reticlePosition.z;;
     origin = [x, y, z];
 
     buildForest();
@@ -802,6 +801,7 @@ function onSelect() {
     addWallBoundingBoxes(x, y, z); 
 
     document.getElementById("instructions").textContent = "Tap the screen when a circle reticle appears to place the plane."
+
   }
 }
 
@@ -883,6 +883,7 @@ function addWallBoundingBoxes(x, y, z) {
   meshCeiling.rotation.x = Math.PI / 2;
   //scene.add(meshCeiling); 
   wallBBCeiling.setFromObject(meshCeiling);
+
 }
 
 /*
@@ -1273,6 +1274,7 @@ function checkBoxCollisions() {
     document.querySelector("#down").disabled = true;
     document.querySelector("#left").disabled = true;
     document.querySelector("#right").disabled = true;
+    document.querySelector("#water").disabled = true;
     document.getElementById("throttleSlider").disabled = true;
 
     document.getElementById("instructions").textContent = "Oh no! We crashed!";
@@ -1284,8 +1286,27 @@ function checkBoxCollisions() {
           - Turn model completely around? 
         Add a warning message saying that the model is too high
     */
-  }
+  } 
 
+  for (let i = 0; i < forest.trees.length; i++) {
+
+    let tree = forest.trees[i];
+    let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    treeBB.setFromObject(tree.object3D);
+
+    if (treeBB.intersectsBox(modelBB)) {
+      speed = 0;
+
+      document.querySelector("#up").disabled = true;
+      document.querySelector("#down").disabled = true;
+      document.querySelector("#left").disabled = true;
+      document.querySelector("#right").disabled = true;
+      document.querySelector("#water").disabled = true;
+      document.getElementById("throttleSlider").disabled = true;
+  
+      document.getElementById("instructions").textContent = "Oh no! We crashed!";
+    }
+  }
 
 }
 
