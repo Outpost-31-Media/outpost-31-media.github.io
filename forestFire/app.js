@@ -320,9 +320,6 @@ async function init() {
   propellerLeft.play();
   propellerRight.play();
 
-  // adding the bounding boxes to the scene
-  //addBoundingBoxesToModels();
-
   // Add the AR button to the body of the DOM
   const button = ARButton.createButton(renderer, {
     optionalFeatures: ["dom-overlay"],
@@ -335,7 +332,7 @@ async function init() {
   button.addEventListener("click", () => {
     document.getElementById("welcome").style.display = 'none';
     document.getElementById("instructions").style.color = "white";
-    document.getElementById("instructions").textContent = "Find an open area. Look around the room to calibrate the space. Tap your screen once a reticle appears on the ground."
+    document.getElementById("instructions").textContent = "Find an open area. Look around the room to calibrate the space. Tap your screen once a reticle appears on the ground to place the terrain."
   });
 
   // handler if throttle is changed
@@ -736,7 +733,7 @@ function onSelect() {
 
     addModelBoundingBox(); 
 
-    document.getElementById("instructions").textContent = "Tap the directional buttons at the bottom of the screen to move the bird and the throttle to control the speed of the bird."
+    document.getElementById("instructions").textContent = "Press the directional buttons at the bottom of the screen to move the bird and the throttle to control the speed of the bird."
 
     setTimeout(removeInstructions, 15000);
   } else if (!model.visible && placedTerrain === false) {
@@ -757,6 +754,7 @@ function onSelect() {
 
     addWallBoundingBoxes(x, y, z); 
 
+    document.getElementById("instructions").textContent = "Tap the screen when a circle reticle appears to place the plane."
   }
 }
 
@@ -771,6 +769,12 @@ function removeInstructions() {
   document.getElementById("instructions").textContent = "";
 }
 
+/*
+  Function: addCircleReticleToScene
+  Description: 
+    Changes the reticle from a plane to a circle. 
+  Parameters: None
+*/
 function addCircleReticleToScene() {
   scene.remove(reticle); 
   const geometry = new THREE.RingBufferGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2);
@@ -783,11 +787,14 @@ function addCircleReticleToScene() {
 }
 
 /*
-  Function: addBoundingBoxesToModels
+  Function: addWallBoundingBoxes
   Description: 
-    Creates a bounding box for the waypoint and the model. 
+    Called from onSelect. 
     Creates bounding boxes for the out of bound areas. 
-  Parameters: None
+  Parameters: 
+    - x: the x coordinate of the reticle when onSelect is called
+    - y: the y coordinate of the reticle when onSelect is called
+    - z: the z coordinate of the reticle when onSelect is called
 */
 function addWallBoundingBoxes(x, y, z) {
   wallBBFront = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
@@ -831,6 +838,12 @@ function addWallBoundingBoxes(x, y, z) {
   wallBBCeiling.setFromObject(meshCeiling);
 }
 
+/*
+  Function: addModelBoundingBox
+  Description: 
+    Creates a bounding box for the plane model. 
+  Parameters: None
+*/
 function addModelBoundingBox() {
   modelBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   modelBB.setFromObject(model);
