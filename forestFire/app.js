@@ -46,10 +46,6 @@ let modelBB, wallBBFront, wallBBLeft, wallBBRight, wallBBGround, wallBBCeiling, 
 
 // Gui Variables
 let speed = 0.1 * 0.001;
-let pane;
-const guiPARAM = {
-  throttle: 0.1
-}
 
 
 /**************************************************************************************************************/
@@ -343,13 +339,11 @@ async function init() {
     document.getElementById("instructions").textContent = "Find an open area. Look around the room to calibrate the space. Tap your screen once a reticle appears on the ground."
   });
 
-  setupGui();
-
   // handler if throttle is changed
-  pane.on('change', (ev) => {
-    const value = ev.value;
-    speed = value;
-  });
+  let slider = document.getElementById("throttleSlider"); 
+  slider.oninput = function() {
+    speed = this.value; 
+  }
 
   if (desktopTesting === true) {
     // handlers if directional buttons are pushed
@@ -758,19 +752,6 @@ function addBoundingBoxesToModels() {
   wallBBCeiling.setFromObject(meshCeiling);
 }
 
-/*
-  Function: setupGui
-  Description: 
-    Creates a gui to adjust the throttle of the plane between 1 and 10 with a step of 1.
-    Gui is disabled. 
-  Paramaters: None
-*/
-function setupGui() {
-  pane = new Tweakpane.Pane();
-  pane.containerElem_.style.zIndex = "10";
-  pane.addInput(guiPARAM, 'throttle', { min: 0.1, max: 10, step: 0.1 })
-  pane.disabled = true;
-}
 
 /**************************************************************************************************************/
 
@@ -802,9 +783,6 @@ function onSelect() {
   document.querySelector("#left").style.display = "block";
   document.querySelector("#right").style.display = "block";
   document.querySelector("#water").style.display = "block";
-
-  // gui is created and added to the scene
-  pane.disabled = false;
 
   // reticle is removed from the scene
   reticle.visible = false;
