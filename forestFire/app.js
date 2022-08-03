@@ -59,10 +59,12 @@ class Forest {
     this.scene = scene;
     this.radius = [this.height / 2, this.width / 2];
     this.orgin = orgin;
+    this.mixers = [];
     this.init();
   }
   async init() {
     this.models = await this.loadModels();
+    console.log(this.models);
     this.trees = [];
     forestCallback();
   }
@@ -73,7 +75,8 @@ class Forest {
     //     burning: await loader.loadAsync('./gltf/burningtree.glb'),
     //     burnt: await loader.loadAsync('./gltf/burnttree.glb')
     // }
-    return await loader.loadAsync('./gltf/tree.glb')
+    return await loader.loadAsync('./gltf/tree2.glb')
+
   }
 
   scatterTrees(geometry, options) {
@@ -142,6 +145,7 @@ class Forest {
         }
         var tree = new Tree(this.models);
         this.trees.push(tree);
+        this.mixers.push(tree.mixer);
         var mesh = tree.object3D;
         mesh.position.addVectors(vertex1, vertex2).add(vertex3).divideScalar(3);
         if (options.maxTilt > 0) {
@@ -233,12 +237,14 @@ class Tree {
     this.object3D = this.build();
   }
   build() {
-    this.geometry = this.models.scene;
+    this.model = this.models.scene.clone();
+    this.animations = this.models.animations;
+    this.mixer = new THREE.AnimationMixer(model);
     // this.pos = [this.cor[0],this.cor[1],this.cor[2]];
-    const clone = this.geometry.clone();
+    const clone = this.model;
     // clone.rotation.y = ((Math.floor(Math.random() * (1 - 3)) + 1) * 90) * (Math.PI / 180.0);
     // this.scene.add(clone);
-    clone.getObjectByName('burntTree').visible = false;
+    clone.getObjectByName('deadTree').visible = false;
     clone.getObjectByName('fire').visible = false;
     // clone.position.set(this.pos[0], this.pos[1], this.pos[2]);
     // console.log(`pos ${pos}`) //this assumes that all tiles for forest fire are square
@@ -246,8 +252,10 @@ class Tree {
   }
   light() {
     if (this.state == 0 && this.wetness == 0) {
+      const fireAnim = this.mixer.clipAction(this.animations[0]);
+      fireAnim.play();
       this.state = 1;
-      this.object3D.getObjectByName('burntTree').visible = true;
+      this.object3D.getObjectByName('deadTree').visible = true;
       this.object3D.getObjectByName('fire').visible = true;
       this.object3D.getObjectByName('greenTree').visible = false;
       this.timeBurning = 1;
@@ -1230,7 +1238,11 @@ function render(timestamp, frame) {
 
     renderer.render(scene, camera);
   }
-
+  if (forest && forest.mixers.length > 0) {
+    forest.mixers.forEach(mixer => {
+      mixer.update(deltaTime);
+    })
+  }
   if (timestamp >= iterateTime) {
     iterateTime += iterateStep;
     iterateFire();
