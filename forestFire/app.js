@@ -711,7 +711,7 @@ function addShadowPlaneToScene() {
 /*
   Function addReticleToScene
   Description: 
-    Creates a reticle of a holographic plane. 
+    Creates a square reticle to represent the terrain. 
   Paramaters: None
 */
 function addSquareReticleToScene() {
@@ -754,8 +754,10 @@ async function loadModel() {
   Function: onSelect
   Description: 
     Runs when the screen is tapped. 
-    If the reticle is not visible, function will return. 
-    If the reticle is visible, the directional buttons and the gui is enabled, the model is placed, and the reticle is hidden. 
+    If the reticle is not visible or the model is visible, function will return. 
+    If the model is not visible and placedTerrain is false, the terrain will be placed at the location of the reticle, the reticle will change to a circle,
+    out of bounds bounding boxes will be built, and the trees will be set to have shadows. 
+    If the terrain has been placed and the model is not visible, the directional buttons will be displayed. the model will be placed and the reticle will be removed from the scene. 
   Parameters: None
 */
 function onSelect() {
@@ -763,6 +765,26 @@ function onSelect() {
   // returns null if the reticle is not visible
   if (!reticle.visible || model.visible) {
     return;
+
+  } else if (!model.visible && placedTerrain === false) {
+
+    let reticlePosition = new THREE.Vector3();
+    reticlePosition.setFromMatrixPosition(reticle.matrixWorld);
+    let x = reticlePosition.x;
+    let y = reticlePosition.y;
+    let z = reticlePosition.z;;
+    origin = [x, -1.9, z];
+
+    buildForest();
+
+    addCircleReticleToScene(); 
+
+    addWallBoundingBoxes(x, y, z); 
+
+    document.getElementById("instructions").textContent = "Take a couple of steps away fromt terrain. Tap the screen when a circle reticle appears to place the plane."
+
+    placedTerrain = true;
+
   } else if (!model.visible && placedTerrain === true) {
     startBurning();
     // placing the model at the location of the reticle
@@ -785,40 +807,12 @@ function onSelect() {
 
     addModelBoundingBox(); 
 
+    treesToCastShadows(); 
+
     document.getElementById("instructions").textContent = "Press the directional buttons at the bottom of the screen to move the bird and the throttle to control the speed of the bird."
 
     setTimeout(removeInstructions, 15000);
-  } else if (!model.visible && placedTerrain === false) {
-
-    let reticlePosition = new THREE.Vector3();
-    reticlePosition.setFromMatrixPosition(reticle.matrixWorld);
-    let x = reticlePosition.x;
-    let y = reticlePosition.y;
-    let z = reticlePosition.z;;
-    origin = [x, y, z];
-
-    buildForest();
-
-    placedTerrain = true;
-
-    addCircleReticleToScene(); 
-
-    addWallBoundingBoxes(x, y, z); 
-
-    document.getElementById("instructions").textContent = "Tap the screen when a circle reticle appears to place the plane."
-
   }
-}
-
-/*
-  Function: removeInstructions
-  Description: 
-    Runs 15 seconds after onSelect is called. 
-    Sets the instuctions text to blank. 
-  Parameters: None
-*/
-function removeInstructions() {
-  document.getElementById("instructions").textContent = "";
 }
 
 /*
@@ -877,7 +871,7 @@ function addWallBoundingBoxes(x, y, z) {
 
   wallBBGround = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshGround = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshGround.position.set(z, y-1.8, x);
+  meshGround.position.set(x, -1.8, z);
   meshGround.rotation.x = Math.PI / 2;
   //scene.add(meshGround); 
   wallBBGround.setFromObject(meshGround);
@@ -901,6 +895,39 @@ function addModelBoundingBox() {
   modelBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   modelBB.setFromObject(model);
 
+}
+
+/*
+  Function: treesToCastShadows
+  Description: 
+    Iterates through all the trees. 
+    Sets the trees to cast and recieve shadows. 
+  Parameters: None
+*/
+function treesToCastShadows() {
+  let listOfTrees = forest.trees;  
+  for (let i = 0; i < forest.trees.length; i++) {
+    let tree = listOfTrees[i].object3D; 
+    tree.traverse((node) => {
+      if (node.isMesh) {
+        node.castShadow = true;
+        node.receiveShadow = true;
+        node.receiveShadow = true; 
+        if (node.material.map) node.material.map.anisotropy = 16; 
+      }
+    }); 
+  }
+}
+
+/*
+  Function: removeInstructions
+  Description: 
+    Runs 15 seconds after onSelect is called. 
+    Sets the instuctions text to blank. 
+  Parameters: None
+*/
+function removeInstructions() {
+  document.getElementById("instructions").textContent = "";
 }
 /*********************************************Functions For Buttons*********************************************/
 
