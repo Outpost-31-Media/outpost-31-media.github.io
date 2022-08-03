@@ -1,5 +1,6 @@
 import { ARButton } from './lib/ARButton.js';
 import {XREstimatedLight} from "./lib/XREstimatedLight.js";
+import {RGBELoader} from './lib/RGBELoader.js'; 
 import {
   makeGltfMask,
   loadGltf,
@@ -307,8 +308,6 @@ async function init() {
   renderer.xr.enabled = true; 
   container.appendChild(renderer.domElement);
 
-  addLightToScene();
-
   // adding estimated light to scene
   const defaultLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1); 
   defaultLight.position.set(0.5, 1, 0.25); 
@@ -328,7 +327,9 @@ async function init() {
     scene.add(defaultLight); 
     scene.remove(xrLight); 
     scene.environment = defaultEnvironment; 
-  })
+  });
+
+  addLightToScene();
   addShadowPlaneToScene();
 
   controller = renderer.xr.getController(0);
