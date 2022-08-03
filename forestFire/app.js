@@ -1,4 +1,5 @@
-import { ARButton } from 'https://unpkg.com/three@0.133.0/examples/jsm/webxr/ARButton.js';
+import { ARButton } from './lib/ARButton.js';
+import {XREstimatedLight} from "./lib/XREstimatedLight.js";
 import {
   makeGltfMask,
   loadGltf,
@@ -40,6 +41,7 @@ let timeout;
 let terrainScene, decoScene;
 let placedTerrain = false;
 let spotLight;
+let defaultEnvironment; 
 
 let waterParticles = [];
 
@@ -300,14 +302,33 @@ async function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.xr.enabled = true;
-
-  renderer.toneMapping = THREE.ReinhardToneMapping;
-  renderer.toneMappingExposure = 2.3;
-
+  renderer.outputEncoding = THREE.sRGBEncoding; 
+  renderer.physicallyCorrectLights = true; 
+  renderer.xr.enabled = true; 
   container.appendChild(renderer.domElement);
 
   addLightToScene();
+
+  // adding estimated light to scene
+  const defaultLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1); 
+  defaultLight.position.set(0.5, 1, 0.25); 
+  scene.add(defaultLight); 
+
+  const xrLight = new XREstimatedLight(renderer); 
+  xrLight.addEventListener("estimationstart", () => {
+    scene.add(xrLight); 
+    scene.remove(defaultLight); 
+
+    if (xrLight.environment) {
+      scene.environment= xrLight.environment;
+    }
+  }); 
+
+  xrLight.addEventListener('estimationend', () => {
+    scene.add(defaultLight); 
+    scene.remove(xrLight); 
+    scene.environment = defaultEnvironment; 
+  })
   addShadowPlaneToScene();
 
   controller = renderer.xr.getController(0);
@@ -327,7 +348,7 @@ async function init() {
 
   // Add the AR button to the body of the DOM
   const button = ARButton.createButton(renderer, {
-    optionalFeatures: ["dom-overlay"],
+    optionalFeatures: ["dom-overlay", 'light-estimation'],
     domOverlay: { root: document.body },
     requiredFeatures: ["hit-test"],
   });
@@ -497,10 +518,10 @@ async function init() {
       frontLeftUpReturn.play();
 
       let backWingRightReturn = mixer.clipAction(gltf.animations[11]);
-      backWingRight.clampWhenFinished = true;
-      backWingRight.timeScale = 4;
-      backWingRight.setLoop(THREE.LoopOnce);
-      backWingRight.play();
+      backWingRightReturn.clampWhenFinished = true;
+      backWingRightReturn.timeScale = 4;
+      backWingRightReturn.setLoop(THREE.LoopOnce);
+      backWingRightReturn.play();
     });
   } else {
     // handlers if directional buttons are pushed
@@ -650,10 +671,10 @@ async function init() {
       frontLeftUpReturn.play();
 
       let backWingRightReturn = mixer.clipAction(gltf.animations[11]);
-      backWingRight.clampWhenFinished = true;
-      backWingRight.timeScale = 4;
-      backWingRight.setLoop(THREE.LoopOnce);
-      backWingRight.play();
+      backWingRightReturn.clampWhenFinished = true;
+      backWingRightReturn.timeScale = 4;
+      backWingRightReturn.setLoop(THREE.LoopOnce);
+      backWingRightReturn.play();
     });
 
   }
@@ -675,10 +696,10 @@ async function init() {
 */
 function addLightToScene() {
 
-  // creating hemisphere light
-  var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
-  light.position.set(0.5, 1, 0.25);
-  scene.add(light);
+  // // creating hemisphere light
+  // var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
+  // light.position.set(0.5, 1, 0.25);
+  // scene.add(light);
 
   // creating a spotlight that casts shadows
   spotLight = new THREE.SpotLight(0xffa95c, 4);
@@ -773,7 +794,7 @@ function onSelect() {
     let x = reticlePosition.x;
     let y = reticlePosition.y;
     let z = reticlePosition.z;;
-    origin = [x, -1.9, z];
+    origin = [x, -1.95, z];
 
     buildForest();
 
