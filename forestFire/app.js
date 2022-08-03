@@ -39,6 +39,7 @@ let plane;
 let timeout;
 let terrainScene, decoScene;
 let placedTerrain = false;
+let spotLight; 
 
 let waterParticles = [];
 
@@ -300,6 +301,10 @@ async function init() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.xr.enabled = true;
+
+  renderer.toneMapping = THREE.ReinhardToneMapping;
+  renderer.toneMappingExposure = 2.3; 
+
   container.appendChild(renderer.domElement);
 
   addLightToScene();
@@ -670,19 +675,18 @@ async function init() {
 */
 function addLightToScene() {
 
-  // creating the hemisphere light 
+  // creating hemisphere light
   var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
   light.position.set(0.5, 1, 0.25);
   scene.add(light);
 
-  //creating a spotlight to have shadows
-  let directionalLight = new THREE.DirectionalLight();
-  directionalLight.castShadow = true;
-  directionalLight.shadow.mapSize.width = 2048 * 2;
-  directionalLight.shadow.mapSize.height = 2048 * 2;
-  directionalLight.shadow.camera.near = 0.05;
-  directionalLight.shadow.camera.far = 50;
-  scene.add(directionalLight);
+  // creating a spotlight that casts shadows
+  spotLight = new THREE.SpotLight(0xffa95c, 4); 
+  spotLight.castShadow = true; 
+  spotLight.shadow.bias = -0.0001; 
+  spotLight.shadow.mapSize.width = 1024 *4; 
+  spotLight.shadow.mapSize.height = 1024 *4; 
+  scene.add(spotLight); 
 }
 
 /*
@@ -736,6 +740,7 @@ async function loadModel() {
     if (node.isMesh) {
       node.castShadow = true;
       node.receiveShadow = true;
+      if (node.material.map) node.material.map.anisotropy = 16; 
     }
   });
   model.scale.set(0.025, 0.025, 0.025);
@@ -1218,12 +1223,12 @@ function render(timestamp, frame) {
 
       // updates and handles the bounding box for the model
       modelBB.applyMatrix4(model.matrixWorld);
-
       checkBoxCollisions();
     }
 
     updatePhysics(deltaTime * 1000);
 
+    // updating the mixer
     if (mixer) {
       mixer.update(deltaTime);
     }
@@ -1237,6 +1242,13 @@ function render(timestamp, frame) {
   }
 
   time = timestamp;
+
+  // moving the spotlight to mimic real lighting
+  spotLight.position.set(
+    camera.position.x + 10,  
+    camera.position.y + 10,
+    camera.position.z + 10
+  );
 }
 
 /* 
