@@ -39,7 +39,7 @@ let plane;
 let timeout;
 let terrainScene, decoScene;
 let placedTerrain = false;
-let spotLight; 
+let spotLight;
 
 let waterParticles = [];
 
@@ -303,7 +303,7 @@ async function init() {
   renderer.xr.enabled = true;
 
   renderer.toneMapping = THREE.ReinhardToneMapping;
-  renderer.toneMappingExposure = 2.3; 
+  renderer.toneMappingExposure = 2.3;
 
   container.appendChild(renderer.domElement);
 
@@ -681,12 +681,12 @@ function addLightToScene() {
   scene.add(light);
 
   // creating a spotlight that casts shadows
-  spotLight = new THREE.SpotLight(0xffa95c, 4); 
-  spotLight.castShadow = true; 
-  spotLight.shadow.bias = -0.0001; 
-  spotLight.shadow.mapSize.width = 1024 *4; 
-  spotLight.shadow.mapSize.height = 1024 *4; 
-  scene.add(spotLight); 
+  spotLight = new THREE.SpotLight(0xffa95c, 4);
+  spotLight.castShadow = true;
+  spotLight.shadow.bias = -0.0001;
+  spotLight.shadow.mapSize.width = 1024 * 4;
+  spotLight.shadow.mapSize.height = 1024 * 4;
+  scene.add(spotLight);
 }
 
 /*
@@ -721,7 +721,7 @@ function addSquareReticleToScene() {
   reticle = new THREE.Mesh(geometry, material);
 
   reticle.matrixAutoUpdate = false;
-  reticle.visible = false; 
+  reticle.visible = false;
   scene.add(reticle);
 }
 
@@ -740,7 +740,7 @@ async function loadModel() {
     if (node.isMesh) {
       node.castShadow = true;
       node.receiveShadow = true;
-      if (node.material.map) node.material.map.anisotropy = 16; 
+      if (node.material.map) node.material.map.anisotropy = 16;
     }
   });
   model.scale.set(0.025, 0.025, 0.025);
@@ -777,9 +777,9 @@ function onSelect() {
 
     buildForest();
 
-    addCircleReticleToScene(); 
+    addCircleReticleToScene();
 
-    addWallBoundingBoxes(x, y, z); 
+    addWallBoundingBoxes(x, y, z);
 
     document.getElementById("instructions").textContent = "Take a couple of steps away fromt terrain. Tap the screen when a circle reticle appears to place the plane."
 
@@ -805,9 +805,9 @@ function onSelect() {
     reticle.visible = false;
     scene.remove(reticle);
 
-    addModelBoundingBox(); 
+    addModelBoundingBox();
 
-    treesToCastShadows(); 
+    treesToCastShadows();
 
     document.getElementById("instructions").textContent = "Press the directional buttons at the bottom of the screen to move the bird and the throttle to control the speed of the bird."
 
@@ -822,7 +822,7 @@ function onSelect() {
   Parameters: None
 */
 function addCircleReticleToScene() {
-  scene.remove(reticle); 
+  scene.remove(reticle);
   const geometry = new THREE.RingBufferGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2);
   const material = new THREE.MeshBasicMaterial();
   reticle = new THREE.Mesh(geometry, material);
@@ -845,26 +845,26 @@ function addCircleReticleToScene() {
 function addWallBoundingBoxes(x, y, z) {
   wallBBFront = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshFront = new THREE.Mesh(new THREE.BoxGeometry(40, 40), new THREE.MeshBasicMaterial());
-  meshFront.position.set(x, y, z-15);
+  meshFront.position.set(x, y, z - 15);
   //scene.add(meshFront); 
   wallBBFront.setFromObject(meshFront);
 
   wallBBBack = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshBack = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshBack.position.set(x, y, z+15);
+  meshBack.position.set(x, y, z + 15);
   //scene.add(meshBack); 
   wallBBBack.setFromObject(meshBack);
 
   wallBBLeft = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshLeft = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshLeft.position.set(x-15, y, x);
+  meshLeft.position.set(x - 15, y, x);
   meshLeft.rotation.y = Math.PI / 2;
   //scene.add(meshLeft); 
   wallBBLeft.setFromObject(meshLeft);
 
   wallBBRight = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshRight = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshRight.position.set(x+15, 0, 0);
+  meshRight.position.set(x + 15, 0, 0);
   meshRight.rotation.y = Math.PI / 2;
   //scene.add(meshRight); 
   wallBBRight.setFromObject(meshRight);
@@ -878,7 +878,7 @@ function addWallBoundingBoxes(x, y, z) {
 
   wallBBCeiling = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshCeiling = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshCeiling.position.set(x, y+20, z);
+  meshCeiling.position.set(x, y + 20, z);
   meshCeiling.rotation.x = Math.PI / 2;
   //scene.add(meshCeiling); 
   wallBBCeiling.setFromObject(meshCeiling);
@@ -905,17 +905,17 @@ function addModelBoundingBox() {
   Parameters: None
 */
 function treesToCastShadows() {
-  let listOfTrees = forest.trees;  
+  let listOfTrees = forest.trees;
   for (let i = 0; i < forest.trees.length; i++) {
-    let tree = listOfTrees[i].object3D; 
+    let tree = listOfTrees[i].object3D;
     tree.traverse((node) => {
       if (node.isMesh) {
         node.castShadow = true;
         node.receiveShadow = true;
-        node.receiveShadow = true; 
-        if (node.material.map) node.material.map.anisotropy = 16; 
+        node.receiveShadow = true;
+        if (node.material.map) node.material.map.anisotropy = 16;
       }
-    }); 
+    });
   }
 }
 
@@ -1068,23 +1068,30 @@ function randomNumber(min, max) {
   Parameters: None
 */
 function dropWater() {
+  let waterAmount = document.getElementById("waterAmount").value;
+  if (waterAmount > 0) {
+    let waterRadius = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 0.5), new THREE.MeshBasicMaterial());
+    waterRadius.position.setFromMatrixPosition(model.matrix);
 
-  let waterRadius = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 0.5), new THREE.MeshBasicMaterial());
-  waterRadius.position.setFromMatrixPosition(model.matrix);
+    let waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    waterBB.setFromObject(waterRadius);
 
-  let waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  waterBB.setFromObject(waterRadius);
+    for (let i = 0; i < forest.trees.length; i++) {
 
-  for (let i = 0; i < forest.trees.length; i++) {
+      let tree = forest.trees[i];
+      let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+      treeBB.setFromObject(tree.object3D);
 
-    let tree = forest.trees[i];
-    let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-    treeBB.setFromObject(tree.object3D);
-
-    if (waterBB.intersectsBox(treeBB)) {
-      tree.water();
+      if (waterBB.intersectsBox(treeBB)) {
+        tree.water();
+      }
     }
+    
+    document.getElementById("waterAmount").value -= 33;
+  } else {
+    document.getElementById("instructions").textContent = "Fly over the lake to get more water."
   }
+
 }
 
 /**************************************************************************************************************/
@@ -1272,7 +1279,7 @@ function render(timestamp, frame) {
 
   // moving the spotlight to mimic real lighting
   spotLight.position.set(
-    camera.position.x + 10,  
+    camera.position.x + 10,
     camera.position.y + 10,
     camera.position.z + 10
   );
@@ -1325,7 +1332,7 @@ function checkBoxCollisions() {
           - Turn model completely around? 
         Add a warning message saying that the model is too high
     */
-  } 
+  }
 
   for (let i = 0; i < forest.trees.length; i++) {
 
@@ -1342,7 +1349,7 @@ function checkBoxCollisions() {
       document.querySelector("#right").disabled = true;
       document.querySelector("#water").disabled = true;
       document.getElementById("throttleSlider").disabled = true;
-  
+
       document.getElementById("instructions").textContent = "Oh no! We crashed!";
     }
   }
