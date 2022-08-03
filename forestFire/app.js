@@ -809,7 +809,7 @@ function onSelect() {
 
     treesToCastShadows();
 
-    document.getElementById("instructions").textContent = "Press the directional buttons at the bottom of the screen to move the bird and the throttle to control the speed of the bird."
+    document.getElementById("instructions").textContent = "Press the directional buttons at the bottom of the screen to fly the plane and the throttle to control the speed of the plane."
 
     setTimeout(removeInstructions, 15000);
   }
@@ -1086,10 +1086,11 @@ function dropWater() {
         tree.water();
       }
     }
-    
+
     document.getElementById("waterAmount").value -= 33;
   } else {
     document.getElementById("instructions").textContent = "Fly over the lake to get more water."
+    setTimeout(removeInstructions, 5000); 
   }
 
 }
