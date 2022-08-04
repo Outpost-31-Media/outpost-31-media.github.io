@@ -1,6 +1,4 @@
 import { ARButton } from './lib/ARButton.js';
-// import {XREstimatedLight} from "./lib/XREstimatedLight.js";
-// import {RGBELoader} from './lib/RGBELoader.js'; 
 import {
   makeGltfMask,
   loadGltf,
@@ -1062,6 +1060,7 @@ function randomNumber(min, max) {
 */
 function dropWater() {
   let waterAmount = document.getElementById("waterAmount").value;
+
   if (waterAmount > 0) {
     let waterRadius = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 0.5), new THREE.MeshBasicMaterial());
     waterRadius.position.setFromMatrixPosition(model.matrix);
@@ -1081,8 +1080,9 @@ function dropWater() {
     }
 
     document.getElementById("waterAmount").value -= 33;
+
   } else {
-    document.getElementById("instructions").textContent = "Fly over the lake to get more water."
+    document.getElementById("instructions").textContent = "Out of water! Fly over the lake to get more water."
     setTimeout(removeInstructions, 5000);
   }
 
@@ -1347,7 +1347,7 @@ function checkBoxCollisions() {
 
     let rotationX = model.rotation.x - Math.PI / 16;
     new TWEEN.Tween(model.rotation).to({ x: rotationX }, 500).start();
-    setTimeout(straightenDown, 1000); 
+    setTimeout(straightenDown, 1000);
     document.getElementById("instructions").textContent = "We've flown too high! I'm lowering the altitude!";
     setTimeout(removeInstructions, 5000);
   }
@@ -1382,7 +1382,8 @@ function checkBoxCollisions() {
   Parameters: None
 */
 function checkWaterCollision() {
-  if (waterBB.intersectsBox(modelBB)) {
+  let waterAmount = document.getElementById("waterAmount").value;
+  if (waterAmount < 99) {
     document.getElementById("waterAmount").value = 99;
     document.getElementById("instructions").textContent = "We re-filled our water tank!";
     setTimeout(removeInstructions, 5000);
