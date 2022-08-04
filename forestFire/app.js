@@ -910,7 +910,6 @@ function addWallBoundingBoxes(x, y, z) {
 function addModelBoundingBox() {
   modelBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   modelBB.setFromObject(model);
-
 }
 
 /*
@@ -1306,7 +1305,7 @@ function checkBoxCollisions() {
 
     let movement = new THREE.Vector3();
     model.getWorldDirection(movement);
-    model.position.add(movement.multiplyScalar(-1));
+    model.position.add(movement.multiplyScalar(-1.2));
 
     let rotationX = model.rotation.x;
     let rotationY = model.rotation.y + Math.PI;
@@ -1339,7 +1338,7 @@ function checkBoxCollisions() {
     */
     let movement = new THREE.Vector3();
     model.getWorldDirection(movement);
-    model.position.add(movement.multiplyScalar(-1));
+    model.position.add(movement.multiplyScalar(-1.2));
 
     let rotationX = model.rotation.x - Math.PI / 16;
     new TWEEN.Tween(model.rotation).to({ x: rotationX }, 500).start();
