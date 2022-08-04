@@ -272,7 +272,7 @@ div {
 .throttleContainer {
     z-index: 999;
     position: absolute;
-    right:  6.25%;
+    right:  5%;
     bottom: 23vh;
     padding: 0 5px;
     height: 25px;
@@ -327,11 +327,19 @@ div {
 progress {
     z-index: 999;
     position: absolute;
-    left:  6.25%;
+    left:  5%;
     bottom: 23vh;
     padding: 0 5px;
     height: 25px;
     width: 150px;
+
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 
     -webkit-transform:rotate(270deg);
 }
