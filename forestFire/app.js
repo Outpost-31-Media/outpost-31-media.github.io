@@ -1,6 +1,6 @@
 import { ARButton } from './lib/ARButton.js';
-import {XREstimatedLight} from "./lib/XREstimatedLight.js";
-import {RGBELoader} from './lib/RGBELoader.js'; 
+// import {XREstimatedLight} from "./lib/XREstimatedLight.js";
+// import {RGBELoader} from './lib/RGBELoader.js'; 
 import {
   makeGltfMask,
   loadGltf,
@@ -42,7 +42,6 @@ let timeout;
 let terrainScene, decoScene;
 let placedTerrain = false;
 let spotLight;
-let defaultEnvironment; 
 
 let waterParticles = [];
 
@@ -63,10 +62,12 @@ class Forest {
     this.scene = scene;
     this.radius = [this.height / 2, this.width / 2];
     this.orgin = orgin;
+    this.mixers = [];
     this.init();
   }
   async init() {
     this.models = await this.loadModels();
+    console.log(this.models);
     this.trees = [];
     forestCallback();
   }
@@ -77,7 +78,8 @@ class Forest {
     //     burning: await loader.loadAsync('./gltf/burningtree.glb'),
     //     burnt: await loader.loadAsync('./gltf/burnttree.glb')
     // }
-    return await loader.loadAsync('./gltf/tree.glb')
+    return await loader.loadAsync('./gltf/tree3.glb')
+
   }
 
   scatterTrees(geometry, options) {
@@ -146,6 +148,7 @@ class Forest {
         }
         var tree = new Tree(this.models);
         this.trees.push(tree);
+        this.mixers.push(tree.mixer);
         var mesh = tree.object3D;
         mesh.position.addVectors(vertex1, vertex2).add(vertex3).divideScalar(3);
         if (options.maxTilt > 0) {
@@ -237,21 +240,33 @@ class Tree {
     this.object3D = this.build();
   }
   build() {
-    this.geometry = this.models.scene;
+    this.model = this.models.scene.clone();
+    this.animations = this.models.animations;
+    this.mixer = new THREE.AnimationMixer(this.model);
     // this.pos = [this.cor[0],this.cor[1],this.cor[2]];
-    const clone = this.geometry.clone();
+    const clone = this.model;
     // clone.rotation.y = ((Math.floor(Math.random() * (1 - 3)) + 1) * 90) * (Math.PI / 180.0);
     // this.scene.add(clone);
-    clone.getObjectByName('burntTree').visible = false;
+    clone.getObjectByName('deadTree').visible = false;
     clone.getObjectByName('fire').visible = false;
     // clone.position.set(this.pos[0], this.pos[1], this.pos[2]);
     // console.log(`pos ${pos}`) //this assumes that all tiles for forest fire are square
+    clone.traverse((node) => {
+      if (node.isMesh) {
+        node.castShadow = true;
+        node.receiveShadow = true;
+        node.receiveShadow = true;
+        if (node.material.map) node.material.map.anisotropy = 16;
+      }
+    });
     return clone;
   }
   light() {
     if (this.state == 0 && this.wetness == 0) {
+      const fireAnim = this.mixer.clipAction(this.animations[0]);
+      fireAnim.play();
       this.state = 1;
-      this.object3D.getObjectByName('burntTree').visible = true;
+      this.object3D.getObjectByName('deadTree').visible = true;
       this.object3D.getObjectByName('fire').visible = true;
       this.object3D.getObjectByName('greenTree').visible = false;
       this.timeBurning = 1;
@@ -304,31 +319,13 @@ async function init() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputEncoding = THREE.sRGBEncoding; 
+  renderer.toneMapping = THREE.ReinhardToneMapping; 
+  renderer.toneMappingExposure = 1.5; 
+  renderer.toneMappingWhitePoint = 1.0; 
   renderer.physicallyCorrectLights = true; 
   renderer.xr.enabled = true; 
   container.appendChild(renderer.domElement);
-
-  // adding estimated light to scene
-  const defaultLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1); 
-  defaultLight.position.set(0.5, 1, 0.25); 
-  scene.add(defaultLight); 
-
-  const xrLight = new XREstimatedLight(renderer); 
-  xrLight.addEventListener("estimationstart", () => {
-    scene.add(xrLight); 
-    scene.remove(defaultLight); 
-
-    if (xrLight.environment) {
-      scene.environment= xrLight.environment;
-    }
-  }); 
-
-  xrLight.addEventListener('estimationend', () => {
-    scene.add(defaultLight); 
-    scene.remove(xrLight); 
-    scene.environment = defaultEnvironment; 
-  });
-
+ 
   addLightToScene();
   addShadowPlaneToScene();
 
@@ -358,7 +355,6 @@ async function init() {
 
   button.addEventListener("click", () => {
     document.getElementById("welcome").style.display = 'none';
-    document.getElementById("instructions").style.color = "white";
     document.getElementById("instructions").textContent = "Find an open area. Look around the room to calibrate the space. Tap your screen once a reticle appears on the ground to place the terrain."
   });
 
@@ -697,10 +693,10 @@ async function init() {
 */
 function addLightToScene() {
 
-  // // creating hemisphere light
-  // var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
-  // light.position.set(0.5, 1, 0.25);
-  // scene.add(light);
+  // creating hemisphere light
+  var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
+  light.position.set(0.5, 1, 0.25);
+  scene.add(light);
 
   // creating a spotlight that casts shadows
   spotLight = new THREE.SpotLight(0xffa95c, 4);
@@ -829,8 +825,6 @@ function onSelect() {
 
     addModelBoundingBox();
 
-    treesToCastShadows();
-
     document.getElementById("instructions").textContent = "Press the directional buttons at the bottom of the screen to fly the plane and the throttle to control the speed of the plane."
 
     setTimeout(removeInstructions, 15000);
@@ -917,28 +911,6 @@ function addModelBoundingBox() {
   modelBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   modelBB.setFromObject(model);
 
-}
-
-/*
-  Function: treesToCastShadows
-  Description: 
-    Iterates through all the trees. 
-    Sets the trees to cast and recieve shadows. 
-  Parameters: None
-*/
-function treesToCastShadows() {
-  let listOfTrees = forest.trees;
-  for (let i = 0; i < forest.trees.length; i++) {
-    let tree = listOfTrees[i].object3D;
-    tree.traverse((node) => {
-      if (node.isMesh) {
-        node.castShadow = true;
-        node.receiveShadow = true;
-        node.receiveShadow = true;
-        if (node.material.map) node.material.map.anisotropy = 16;
-      }
-    });
-  }
 }
 
 /*
@@ -1131,6 +1103,12 @@ function forestCallback() {
   buildTerrain();
   const testtree = forest.trees[26];
   testtree.light();
+  terrainScene.traverse((node) => {
+    if (node.isMesh) {
+      node.castShadow = true;
+      node.receiveShadow = true;
+    }
+  });
 
 }
 
@@ -1301,7 +1279,11 @@ function render(timestamp, frame) {
 
     renderer.render(scene, camera);
   }
-
+  if (forest && forest.mixers.length > 0) {
+    forest.mixers.forEach(mixer => {
+      mixer.update(deltaTime);
+    })
+  }
   if (timestamp >= iterateTime) {
     iterateTime += iterateStep;
     iterateFire();
