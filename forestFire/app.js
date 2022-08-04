@@ -50,7 +50,7 @@ let modelBB, wallBBFront, wallBBLeft, wallBBRight, wallBBGround, wallBBCeiling, 
 let speed = 0.1 * 0.001;
 
 
-/**************************************************************************************************************/
+/*****************************************Build Forest, Forest has many Trees**********************************/
 
 class Forest {
   constructor(height, width, scene, orgin, terrain) {
@@ -144,6 +144,9 @@ class Forest {
         if (faceNormal.angleTo(up) > options.maxSlope) {
           continue;
         }
+        if (new THREE.Vector3(0,0,0).addVectors(vertex1, vertex2).add(vertex3).divideScalar(3).z < .4) {
+          continue;
+        }
         var tree = new Tree(this.models);
         this.trees.push(tree);
         this.mixers.push(tree.mixer);
@@ -173,7 +176,7 @@ class Forest {
       }
     }
 
-    return options.scene;
+    return [options.scene, geometry];
   }
 
   iterateFire() {
@@ -1090,10 +1093,13 @@ function dropWater() {
 
 /**************************************************************************************************************/
 
+
 function buildForest() {
   forest = new Forest(30, 30, scene, origin);
 }
 
+//Runs after forest is finished loading all models and building
+//to avoid async conflics nothing should try and make calls on the forest until after this runs
 function forestCallback() {
   console.log(forest);
   buildTerrain();
@@ -1127,7 +1133,7 @@ function buildTerrain() {
   ]);
 
   var xS = 63, yS = 63;
-  terrainScene = THREE.Terrain({
+  let options = {
     easing: THREE.Terrain.Linear,
     frequency: 2.5,
     heightmap: THREE.Terrain.DiamondSquare,
@@ -1139,7 +1145,10 @@ function buildTerrain() {
     xSize: 3,
     ySegments: yS,
     ySize: 3,
-  });
+    samTesting: true
+  }
+  terrainScene = new THREE.Terrain(options);
+
   terrainScene.position.set(origin[0], origin[1], origin[2]);
   scene.add(terrainScene);
 
@@ -1150,15 +1159,17 @@ function buildTerrain() {
     spread: 0.2,
     randomness: Math.random,
   });
-  terrainScene.add(decoScene);
-  // buildForest();
-
+  terrainScene.add(decoScene[0]);
+  const g = new THREE.Vector3(0,0,0);
 }
 
+//called from render loop every $iterateStep in milliseconds
 function iterateFire() {
   forest.iterateFire();
 }
 
+//changes the time to next iterate fire from infinity to current time plus $iteratestep
+//this starts the loop of fire burning
 function startBurning() {
   iterateTime = iterateStep + time;
 }
