@@ -79,7 +79,7 @@ class Forest {
     //     burning: await loader.loadAsync('./gltf/burningtree.glb'),
     //     burnt: await loader.loadAsync('./gltf/burnttree.glb')
     // }
-    return await loader.loadAsync('./gltf/tree2.glb')
+    return await loader.loadAsync('./gltf/tree3.glb')
 
   }
 
@@ -243,7 +243,7 @@ class Tree {
   build() {
     this.model = this.models.scene.clone();
     this.animations = this.models.animations;
-    this.mixer = new THREE.AnimationMixer(model);
+    this.mixer = new THREE.AnimationMixer(this.model);
     // this.pos = [this.cor[0],this.cor[1],this.cor[2]];
     const clone = this.model;
     // clone.rotation.y = ((Math.floor(Math.random() * (1 - 3)) + 1) * 90) * (Math.PI / 180.0);
