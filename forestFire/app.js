@@ -1,4 +1,6 @@
-import { ARButton } from 'https://unpkg.com/three@0.133.0/examples/jsm/webxr/ARButton.js';
+import { ARButton } from './lib/ARButton.js';
+import {XREstimatedLight} from "./lib/XREstimatedLight.js";
+import {RGBELoader} from './lib/RGBELoader.js'; 
 import {
   makeGltfMask,
   loadGltf,
@@ -39,6 +41,8 @@ let plane;
 let timeout;
 let terrainScene, decoScene;
 let placedTerrain = false;
+let spotLight;
+let defaultEnvironment; 
 
 let waterParticles = [];
 
@@ -307,8 +311,31 @@ async function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.xr.enabled = true;
+  renderer.outputEncoding = THREE.sRGBEncoding; 
+  renderer.physicallyCorrectLights = true; 
+  renderer.xr.enabled = true; 
   container.appendChild(renderer.domElement);
+
+  // adding estimated light to scene
+  const defaultLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1); 
+  defaultLight.position.set(0.5, 1, 0.25); 
+  scene.add(defaultLight); 
+
+  const xrLight = new XREstimatedLight(renderer); 
+  xrLight.addEventListener("estimationstart", () => {
+    scene.add(xrLight); 
+    scene.remove(defaultLight); 
+
+    if (xrLight.environment) {
+      scene.environment= xrLight.environment;
+    }
+  }); 
+
+  xrLight.addEventListener('estimationend', () => {
+    scene.add(defaultLight); 
+    scene.remove(xrLight); 
+    scene.environment = defaultEnvironment; 
+  });
 
   addLightToScene();
   addShadowPlaneToScene();
@@ -330,7 +357,7 @@ async function init() {
 
   // Add the AR button to the body of the DOM
   const button = ARButton.createButton(renderer, {
-    optionalFeatures: ["dom-overlay"],
+    optionalFeatures: ["dom-overlay", 'light-estimation'],
     domOverlay: { root: document.body },
     requiredFeatures: ["hit-test"],
   });
@@ -500,10 +527,10 @@ async function init() {
       frontLeftUpReturn.play();
 
       let backWingRightReturn = mixer.clipAction(gltf.animations[11]);
-      backWingRight.clampWhenFinished = true;
-      backWingRight.timeScale = 4;
-      backWingRight.setLoop(THREE.LoopOnce);
-      backWingRight.play();
+      backWingRightReturn.clampWhenFinished = true;
+      backWingRightReturn.timeScale = 4;
+      backWingRightReturn.setLoop(THREE.LoopOnce);
+      backWingRightReturn.play();
     });
   } else {
     // handlers if directional buttons are pushed
@@ -653,10 +680,10 @@ async function init() {
       frontLeftUpReturn.play();
 
       let backWingRightReturn = mixer.clipAction(gltf.animations[11]);
-      backWingRight.clampWhenFinished = true;
-      backWingRight.timeScale = 4;
-      backWingRight.setLoop(THREE.LoopOnce);
-      backWingRight.play();
+      backWingRightReturn.clampWhenFinished = true;
+      backWingRightReturn.timeScale = 4;
+      backWingRightReturn.setLoop(THREE.LoopOnce);
+      backWingRightReturn.play();
     });
 
   }
@@ -678,19 +705,18 @@ async function init() {
 */
 function addLightToScene() {
 
-  // creating the hemisphere light 
-  var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
-  light.position.set(0.5, 1, 0.25);
-  scene.add(light);
+  // // creating hemisphere light
+  // var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
+  // light.position.set(0.5, 1, 0.25);
+  // scene.add(light);
 
-  //creating a spotlight to have shadows
-  let directionalLight = new THREE.DirectionalLight();
-  directionalLight.castShadow = true;
-  directionalLight.shadow.mapSize.width = 2048 * 2;
-  directionalLight.shadow.mapSize.height = 2048 * 2;
-  directionalLight.shadow.camera.near = 0.05;
-  directionalLight.shadow.camera.far = 50;
-  scene.add(directionalLight);
+  // creating a spotlight that casts shadows
+  spotLight = new THREE.SpotLight(0xffa95c, 4);
+  spotLight.castShadow = true;
+  spotLight.shadow.bias = -0.0001;
+  spotLight.shadow.mapSize.width = 1024 * 4;
+  spotLight.shadow.mapSize.height = 1024 * 4;
+  scene.add(spotLight);
 }
 
 /*
@@ -715,7 +741,7 @@ function addShadowPlaneToScene() {
 /*
   Function addReticleToScene
   Description: 
-    Creates a reticle of a holographic plane. 
+    Creates a square reticle to represent the terrain. 
   Paramaters: None
 */
 function addSquareReticleToScene() {
@@ -725,7 +751,7 @@ function addSquareReticleToScene() {
   reticle = new THREE.Mesh(geometry, material);
 
   reticle.matrixAutoUpdate = false;
-  reticle.visible = false; 
+  reticle.visible = false;
   scene.add(reticle);
 }
 
@@ -744,6 +770,7 @@ async function loadModel() {
     if (node.isMesh) {
       node.castShadow = true;
       node.receiveShadow = true;
+      if (node.material.map) node.material.map.anisotropy = 16;
     }
   });
   model.scale.set(0.025, 0.025, 0.025);
@@ -757,8 +784,10 @@ async function loadModel() {
   Function: onSelect
   Description: 
     Runs when the screen is tapped. 
-    If the reticle is not visible, function will return. 
-    If the reticle is visible, the directional buttons and the gui is enabled, the model is placed, and the reticle is hidden. 
+    If the reticle is not visible or the model is visible, function will return. 
+    If the model is not visible and placedTerrain is false, the terrain will be placed at the location of the reticle, the reticle will change to a circle,
+    out of bounds bounding boxes will be built, and the trees will be set to have shadows. 
+    If the terrain has been placed and the model is not visible, the directional buttons will be displayed. the model will be placed and the reticle will be removed from the scene. 
   Parameters: None
 */
 function onSelect() {
@@ -766,6 +795,26 @@ function onSelect() {
   // returns null if the reticle is not visible
   if (!reticle.visible || model.visible) {
     return;
+
+  } else if (!model.visible && placedTerrain === false) {
+
+    let reticlePosition = new THREE.Vector3();
+    reticlePosition.setFromMatrixPosition(reticle.matrixWorld);
+    let x = reticlePosition.x;
+    let y = reticlePosition.y;
+    let z = reticlePosition.z;;
+    origin = [x, -1.95, z];
+
+    buildForest();
+
+    addCircleReticleToScene();
+
+    addWallBoundingBoxes(x, y, z);
+
+    document.getElementById("instructions").textContent = "Take a couple of steps away fromt terrain. Tap the screen when a circle reticle appears to place the plane."
+
+    placedTerrain = true;
+
   } else if (!model.visible && placedTerrain === true) {
     startBurning();
     // placing the model at the location of the reticle
@@ -786,42 +835,14 @@ function onSelect() {
     reticle.visible = false;
     scene.remove(reticle);
 
-    addModelBoundingBox(); 
+    addModelBoundingBox();
 
-    document.getElementById("instructions").textContent = "Press the directional buttons at the bottom of the screen to move the bird and the throttle to control the speed of the bird."
+    treesToCastShadows();
+
+    document.getElementById("instructions").textContent = "Press the directional buttons at the bottom of the screen to fly the plane and the throttle to control the speed of the plane."
 
     setTimeout(removeInstructions, 15000);
-  } else if (!model.visible && placedTerrain === false) {
-
-    let reticlePosition = new THREE.Vector3();
-    reticlePosition.setFromMatrixPosition(reticle.matrixWorld);
-    let x = reticlePosition.x;
-    let y = reticlePosition.y;
-    let z = reticlePosition.z;;
-    origin = [x, y, z];
-
-    buildForest();
-
-    placedTerrain = true;
-
-    addCircleReticleToScene(); 
-
-    addWallBoundingBoxes(x, y, z); 
-
-    document.getElementById("instructions").textContent = "Tap the screen when a circle reticle appears to place the plane."
-
   }
-}
-
-/*
-  Function: removeInstructions
-  Description: 
-    Runs 15 seconds after onSelect is called. 
-    Sets the instuctions text to blank. 
-  Parameters: None
-*/
-function removeInstructions() {
-  document.getElementById("instructions").textContent = "";
 }
 
 /*
@@ -831,7 +852,7 @@ function removeInstructions() {
   Parameters: None
 */
 function addCircleReticleToScene() {
-  scene.remove(reticle); 
+  scene.remove(reticle);
   const geometry = new THREE.RingBufferGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2);
   const material = new THREE.MeshBasicMaterial();
   reticle = new THREE.Mesh(geometry, material);
@@ -854,40 +875,40 @@ function addCircleReticleToScene() {
 function addWallBoundingBoxes(x, y, z) {
   wallBBFront = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshFront = new THREE.Mesh(new THREE.BoxGeometry(40, 40), new THREE.MeshBasicMaterial());
-  meshFront.position.set(x, y, z-15);
+  meshFront.position.set(x, y, z - 15);
   //scene.add(meshFront); 
   wallBBFront.setFromObject(meshFront);
 
   wallBBBack = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshBack = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshBack.position.set(x, y, z+15);
+  meshBack.position.set(x, y, z + 15);
   //scene.add(meshBack); 
   wallBBBack.setFromObject(meshBack);
 
   wallBBLeft = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshLeft = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshLeft.position.set(x-15, y, x);
+  meshLeft.position.set(x - 15, y, x);
   meshLeft.rotation.y = Math.PI / 2;
   //scene.add(meshLeft); 
   wallBBLeft.setFromObject(meshLeft);
 
   wallBBRight = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshRight = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshRight.position.set(x+15, 0, 0);
+  meshRight.position.set(x + 15, 0, 0);
   meshRight.rotation.y = Math.PI / 2;
   //scene.add(meshRight); 
   wallBBRight.setFromObject(meshRight);
 
   wallBBGround = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshGround = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshGround.position.set(z, y-1.8, x);
+  meshGround.position.set(x, -1.8, z);
   meshGround.rotation.x = Math.PI / 2;
   //scene.add(meshGround); 
   wallBBGround.setFromObject(meshGround);
 
   wallBBCeiling = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const meshCeiling = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
-  meshCeiling.position.set(x, y+20, z);
+  meshCeiling.position.set(x, y + 20, z);
   meshCeiling.rotation.x = Math.PI / 2;
   //scene.add(meshCeiling); 
   wallBBCeiling.setFromObject(meshCeiling);
@@ -904,6 +925,39 @@ function addModelBoundingBox() {
   modelBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   modelBB.setFromObject(model);
 
+}
+
+/*
+  Function: treesToCastShadows
+  Description: 
+    Iterates through all the trees. 
+    Sets the trees to cast and recieve shadows. 
+  Parameters: None
+*/
+function treesToCastShadows() {
+  let listOfTrees = forest.trees;
+  for (let i = 0; i < forest.trees.length; i++) {
+    let tree = listOfTrees[i].object3D;
+    tree.traverse((node) => {
+      if (node.isMesh) {
+        node.castShadow = true;
+        node.receiveShadow = true;
+        node.receiveShadow = true;
+        if (node.material.map) node.material.map.anisotropy = 16;
+      }
+    });
+  }
+}
+
+/*
+  Function: removeInstructions
+  Description: 
+    Runs 15 seconds after onSelect is called. 
+    Sets the instuctions text to blank. 
+  Parameters: None
+*/
+function removeInstructions() {
+  document.getElementById("instructions").textContent = "";
 }
 /*********************************************Functions For Buttons*********************************************/
 
@@ -1044,23 +1098,31 @@ function randomNumber(min, max) {
   Parameters: None
 */
 function dropWater() {
+  let waterAmount = document.getElementById("waterAmount").value;
+  if (waterAmount > 0) {
+    let waterRadius = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 0.5), new THREE.MeshBasicMaterial());
+    waterRadius.position.setFromMatrixPosition(model.matrix);
 
-  let waterRadius = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 0.5), new THREE.MeshBasicMaterial());
-  waterRadius.position.setFromMatrixPosition(model.matrix);
+    let waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    waterBB.setFromObject(waterRadius);
 
-  let waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  waterBB.setFromObject(waterRadius);
+    for (let i = 0; i < forest.trees.length; i++) {
 
-  for (let i = 0; i < forest.trees.length; i++) {
+      let tree = forest.trees[i];
+      let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+      treeBB.setFromObject(tree.object3D);
 
-    let tree = forest.trees[i];
-    let treeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-    treeBB.setFromObject(tree.object3D);
-
-    if (waterBB.intersectsBox(treeBB)) {
-      tree.water();
+      if (waterBB.intersectsBox(treeBB)) {
+        tree.water();
+      }
     }
+
+    document.getElementById("waterAmount").value -= 33;
+  } else {
+    document.getElementById("instructions").textContent = "Fly over the lake to get more water."
+    setTimeout(removeInstructions, 5000); 
   }
+
 }
 
 /**************************************************************************************************************/
@@ -1226,12 +1288,12 @@ function render(timestamp, frame) {
 
       // updates and handles the bounding box for the model
       modelBB.applyMatrix4(model.matrixWorld);
-
       checkBoxCollisions();
     }
 
     updatePhysics(deltaTime * 1000);
 
+    // updating the mixer
     if (mixer) {
       mixer.update(deltaTime);
     }
@@ -1249,6 +1311,13 @@ function render(timestamp, frame) {
   }
 
   time = timestamp;
+
+  // moving the spotlight to mimic real lighting
+  spotLight.position.set(
+    camera.position.x + 10,
+    camera.position.y + 10,
+    camera.position.z + 10
+  );
 }
 
 /* 
@@ -1298,7 +1367,7 @@ function checkBoxCollisions() {
           - Turn model completely around? 
         Add a warning message saying that the model is too high
     */
-  } 
+  }
 
   for (let i = 0; i < forest.trees.length; i++) {
 
@@ -1315,7 +1384,7 @@ function checkBoxCollisions() {
       document.querySelector("#right").disabled = true;
       document.querySelector("#water").disabled = true;
       document.getElementById("throttleSlider").disabled = true;
-  
+
       document.getElementById("instructions").textContent = "Oh no! We crashed!";
     }
   }
