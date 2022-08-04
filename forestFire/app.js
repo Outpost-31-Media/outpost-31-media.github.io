@@ -146,6 +146,9 @@ class Forest {
         if (faceNormal.angleTo(up) > options.maxSlope) {
           continue;
         }
+        if (new THREE.Vector3(0,0,0).addVectors(vertex1, vertex2).add(vertex3).divideScalar(3).z < .4) {
+          continue;
+        }
         var tree = new Tree(this.models);
         this.trees.push(tree);
         this.mixers.push(tree.mixer);
@@ -175,7 +178,7 @@ class Forest {
       }
     }
 
-    return options.scene;
+    return [options.scene, geometry];
   }
 
   iterateFire() {
@@ -1142,9 +1145,11 @@ function buildTerrain() {
     xSegments: xS,
     xSize: 3,
     ySegments: yS,
-    ySize: 3
+    ySize: 3,
+    samTesting: true
   }
-  terrainScene = THREE.Terrain(options);
+  terrainScene = new THREE.Terrain(options);
+
   terrainScene.position.set(origin[0], origin[1], origin[2]);
   scene.add(terrainScene);
 
@@ -1155,11 +1160,8 @@ function buildTerrain() {
     spread: 0.2,
     randomness: Math.random,
   });
-  terrainScene.add(decoScene);
+  terrainScene.add(decoScene[0]);
   const g = new THREE.Vector3(0,0,0);
-
-  // terrainScene.Influence(g,)
-
 }
 
 //called from render loop every $iterateStep in milliseconds

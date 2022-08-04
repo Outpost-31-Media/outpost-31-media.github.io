@@ -282,6 +282,7 @@ THREE.Terrain = function(options) {
         xSize: 1024,
         ySegments: 63,
         ySize: 1024,
+        samTesting: false,
     };
     options = options || {};
     for (var opt in defaultOptions) {
@@ -314,13 +315,33 @@ THREE.Terrain = function(options) {
     else {
         console.warn('An invalid value was passed for `options.heightmap`: ' + options.heightmap);
     }
-    THREE.Terrain.fromArray1D(mesh.geometry.attributes.position.array, zs);
-    THREE.Terrain.Normalize(mesh, options);
+
 
     // lod.addLevel(mesh, options.unit * 10 * Math.pow(2, lodLevel));
+    if (options.samTesting) {
+        // return [scene, mesh, zs, options];
+        // for(var i = 0; i < (ySize*3); i++) {
+        //     THREE.Terrain.Influence(zs, options, THREE.Terrain.Influences.Hole, .7, 0, ((1/(ySize*3))*(i+1)), .8, THREE.NormalBlending);
+        // }
+        THREE.Terrain.Influence(zs, options, THREE.Terrain.Influences.Hole, .7, 0, .5, .8, THREE.AdditiveBlending);
+        THREE.Terrain.Influence(zs, options, THREE.Terrain.Influences.Hole, .71, .1666, .5, .8, THREE.AdditiveBlending);
+        THREE.Terrain.Influence(zs, options, THREE.Terrain.Influences.Hole, .72, .3333, .5, .8, THREE.AdditiveBlending);
+        THREE.Terrain.Influence(zs, options, THREE.Terrain.Influences.Hole, .73, .5, .5, .8, THREE.AdditiveBlending);
+        THREE.Terrain.Influence(zs, options, THREE.Terrain.Influences.Hole, .73, .6666, .5, .8, THREE.AdditiveBlending);
+        THREE.Terrain.Influence(zs, options, THREE.Terrain.Influences.Hole, .72, .8333, .5, .8, THREE.AdditiveBlending);
+        THREE.Terrain.Influence(zs, options, THREE.Terrain.Influences.Hole, .71, 1, .5, .8, THREE.AdditiveBlending);
 
-    scene.add(mesh);
-    return scene;
+        THREE.Terrain.fromArray1D(mesh.geometry.attributes.position.array, zs);
+        THREE.Terrain.Normalize(mesh, options);
+        scene.add(mesh);
+        return scene;
+    } else {
+        THREE.Terrain.fromArray1D(mesh.geometry.attributes.position.array, zs);
+        THREE.Terrain.Normalize(mesh, options);
+        scene.add(mesh);
+        return scene;
+    }
+
 };
 
 /**
@@ -2062,4 +2083,5 @@ THREE.Terrain.Influence = function(g, options, f, x, y, r, h, t, e) {
             else if (typeof t === 'function')         g[k]  = t(g[k].z, d, fdr, fdxr, fdyr);
         }
     }
+
 };
