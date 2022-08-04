@@ -1255,9 +1255,14 @@ function render(timestamp, frame) {
       model.getWorldDirection(direction);
       model.position.add(direction.multiplyScalar(speed * 0.004));
 
-      // updates and handles the bounding box for the model
+      // updates the bounding box of the model
       modelBB.applyMatrix4(model.matrixWorld);
+
+      // checks if the model is intersecting the out of bounds area and the trees
       checkBoxCollisions();
+
+      // checks if the model is intersecting the water bounding box
+      //checkWaterCollision(); 
     }
 
     updatePhysics(deltaTime * 1000);
