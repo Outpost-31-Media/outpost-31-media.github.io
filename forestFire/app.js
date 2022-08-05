@@ -795,7 +795,6 @@ function onSelect() {
 
     origin = [x, y, z];
 
-
     buildForest();
 
     addCircleReticleToScene();
