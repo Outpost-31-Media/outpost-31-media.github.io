@@ -1,6 +1,4 @@
 import { ARButton } from './lib/ARButton.js';
-// import {XREstimatedLight} from "./lib/XREstimatedLight.js";
-// import {RGBELoader} from './lib/RGBELoader.js'; 
 import {
   makeGltfMask,
   loadGltf,
@@ -47,7 +45,7 @@ let waterPlane;
 let waterParticles = [];
 
 // Bounding boxes Variables
-let modelBB, wallBBFront, wallBBLeft, wallBBRight, wallBBGround, wallBBCeiling, wallBBBack, terrainBB;
+let modelBB, wallBBFront, wallBBLeft, wallBBRight, wallBBGround, wallBBCeiling, wallBBBack, waterBB;
 
 // Gui Variables
 let speed = 0.1 * 0.001;
@@ -322,14 +320,14 @@ async function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.outputEncoding = THREE.sRGBEncoding; 
-  renderer.toneMapping = THREE.ReinhardToneMapping; 
-  renderer.toneMappingExposure = 1.5; 
-  renderer.toneMappingWhitePoint = 1.0; 
-  renderer.physicallyCorrectLights = true; 
-  renderer.xr.enabled = true; 
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ReinhardToneMapping;
+  renderer.toneMappingExposure = 1.5;
+  renderer.toneMappingWhitePoint = 1.0;
+  renderer.physicallyCorrectLights = true;
+  renderer.xr.enabled = true;
   container.appendChild(renderer.domElement);
- 
+
   addLightToScene();
   addShadowPlaneToScene();
 
@@ -795,7 +793,9 @@ function onSelect() {
     let x = reticlePosition.x;
     let y = reticlePosition.y;
     let z = reticlePosition.z;;
+
     origin = [x, y, z];
+
 
     buildForest();
 
@@ -914,7 +914,6 @@ function addWallBoundingBoxes(x, y, z) {
 function addModelBoundingBox() {
   modelBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   modelBB.setFromObject(model);
-
 }
 
 /*
@@ -1067,6 +1066,7 @@ function randomNumber(min, max) {
 */
 function dropWater() {
   let waterAmount = document.getElementById("waterAmount").value;
+
   if (waterAmount > 0) {
     let waterRadius = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 0.5), new THREE.MeshBasicMaterial());
     waterRadius.position.setFromMatrixPosition(model.matrix);
@@ -1086,9 +1086,10 @@ function dropWater() {
     }
 
     document.getElementById("waterAmount").value -= 33;
+
   } else {
-    document.getElementById("instructions").textContent = "Fly over the lake to get more water."
-    setTimeout(removeInstructions, 5000); 
+    document.getElementById("instructions").textContent = "Out of water! Fly over the lake to get more water."
+    setTimeout(removeInstructions, 5000);
   }
 
 }
@@ -1297,9 +1298,14 @@ function render(timestamp, frame) {
       model.getWorldDirection(direction);
       model.position.add(direction.multiplyScalar(speed * 0.004));
 
-      // updates and handles the bounding box for the model
+      // updates the bounding box of the model
       modelBB.applyMatrix4(model.matrixWorld);
+
+      // checks if the model is intersecting the out of bounds area and the trees
       checkBoxCollisions();
+
+      // checks if the model is intersecting the water bounding box
+      //checkWaterCollision(); 
     }
 
     updatePhysics(deltaTime * 1000);
@@ -1349,7 +1355,7 @@ function checkBoxCollisions() {
 
     let movement = new THREE.Vector3();
     model.getWorldDirection(movement);
-    model.position.add(movement.multiplyScalar(-1));
+    model.position.add(movement.multiplyScalar(-1.2));
 
     let rotationX = model.rotation.x;
     let rotationY = model.rotation.y + Math.PI;
@@ -1359,7 +1365,7 @@ function checkBoxCollisions() {
     new TWEEN.Tween(model.rotation).to(direction, 500).start();
 
     document.getElementById("instructions").textContent = "We are too far away! I'm turning us back around!";
-    setTimeout(removeWarning, 5000);
+    setTimeout(removeInstructions, 5000);
 
   } else if (wallBBGround.intersectsBox(modelBB)) {
     speed = 0;
@@ -1380,6 +1386,15 @@ function checkBoxCollisions() {
           - Turn model completely around? 
         Add a warning message saying that the model is too high
     */
+    let movement = new THREE.Vector3();
+    model.getWorldDirection(movement);
+    model.position.add(movement.multiplyScalar(-1.2));
+
+    let rotationX = model.rotation.x - Math.PI / 16;
+    new TWEEN.Tween(model.rotation).to({ x: rotationX }, 500).start();
+    setTimeout(straightenDown, 1000);
+    document.getElementById("instructions").textContent = "We've flown too high! I'm lowering the altitude!";
+    setTimeout(removeInstructions, 5000);
   }
 
   for (let i = 0; i < forest.trees.length; i++) {
@@ -1404,6 +1419,22 @@ function checkBoxCollisions() {
 
 }
 
+/*
+  Function: checkWaterCollision
+  Description: 
+    If the model and the water bounding boxes intersect, waterAmount slider is filled to 99% and a message appears on screen 
+    telling the user that the tank is full. 
+  Parameters: None
+*/
+function checkWaterCollision() {
+  let waterAmount = document.getElementById("waterAmount").value;
+  if (waterAmount < 99) {
+    document.getElementById("waterAmount").value = 99;
+    document.getElementById("instructions").textContent = "We re-filled our water tank!";
+    setTimeout(removeInstructions, 5000);
+  }
+}
+
 function updatePhysics(deltaTime) {
 
   // Step world
@@ -1411,16 +1442,6 @@ function updatePhysics(deltaTime) {
   if (physicsDebug) {
     physics.updateDebugger()
   }
-}
-
-/*
-  Function: removeWarning
-  Description: 
-    Runs 5 seconds after checkCollision recognizes a collision with one of the walls. 
-  Parameters: None
-*/
-function removeWarning() {
-  document.getElementById("instructions").textContent = "";
 }
 
 PhysicsLoader('./lib/ammo', () => Start())
