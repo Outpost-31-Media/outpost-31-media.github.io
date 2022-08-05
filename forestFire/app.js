@@ -767,7 +767,6 @@ async function loadModel() {
   model.visible = false;
 }
 
-
 /****************************************Functions Called with onSelect*********************************************/
 
 /*
@@ -931,8 +930,10 @@ function randomNumber(min, max) {
 async function addCloudsToScene(x, y, z) {
 
   for (let i = 0; i < 4; i++) {
-    let randomNum1 = randomNumber(-1.5, 1.5);
-    let randomNum2 = randomNumber(1, 2.5); 
+    let randomNumX = randomNumber(-1.5, 1.5);
+    let randomNumY = randomNumber(1, 2.5); 
+    let randomNumZ = randomNumber(-1.5, 1.5); 
+
     let loaderCloud = new THREE.GLTFLoader();
     let cloudgltf = await loaderCloud.loadAsync("./gltf/cloud.glb");
     let cloud = cloudgltf.scene;
@@ -943,9 +944,9 @@ async function addCloudsToScene(x, y, z) {
         if (node.material.map) node.material.map.anisotropy = 16;
       }
     });
-    cloud.position.set(x + randomNum1, y+randomNum2, z+ randomNum1); 
+    cloud.position.set(x + randomNumX, y+randomNumY, z+ randomNumZ); 
     cloud.scale.set(0.05, 0.05, 0.05); 
-    cloud.rotation.set(0, randomNum1, 0); 
+    cloud.rotation.set(0, randomNumX, 0); 
     scene.add(cloud);  
 
   }
@@ -1249,6 +1250,11 @@ function addWaterPlane() {
 
   waterGeo.rotateX(-Math.PI / 2);
   waterPlane = new THREE.Mesh(waterGeo, waterMat);
+  waterPlane.traverse((node) => {
+    if (node.isMesh) {
+      node.receiveShadow = true;
+    }
+  });
   scene.add(waterPlane);
   waterPlane.position.set(origin[0], origin[1], origin[2]);
 
