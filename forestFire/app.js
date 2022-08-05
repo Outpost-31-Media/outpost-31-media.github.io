@@ -864,7 +864,7 @@ function addCircleReticleToScene() {
 */
 function addWallBoundingBoxes(x, y, z) {
   wallBBFront = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-  const meshFront = new THREE.Mesh(new THREE.BoxGeometry(40, 40), new THREE.MeshBasicMaterial());
+  const meshFront = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 0.25), new THREE.MeshBasicMaterial());
   meshFront.position.set(x, y, z - 15);
   //scene.add(meshFront); 
   wallBBFront.setFromObject(meshFront);
@@ -1217,6 +1217,13 @@ function addWaterPlane () {
   waterPlane = new THREE.Mesh(waterGeo, waterMat);
   scene.add(waterPlane);
   waterPlane.position.set(origin[0],origin[1],origin[2]);
+
+  // adding bounding box over the water source
+  waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3()); 
+  const water = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1, 3), new THREE.MeshBasicMaterial());
+  water.position.set(origin[0] + 0.75, origin[1], origin[2]);
+  //scene.add(water); 
+  waterBB.setFromObject(water);
 }
 
 /**************************************************************************************************************/
@@ -1305,7 +1312,7 @@ function render(timestamp, frame) {
       checkBoxCollisions();
 
       // checks if the model is intersecting the water bounding box
-      //checkWaterCollision(); 
+      checkWaterCollision(); 
     }
 
     updatePhysics(deltaTime * 1000);
@@ -1321,7 +1328,7 @@ function render(timestamp, frame) {
     forest.mixers.forEach(mixer => {
       mixer.update(deltaTime);
     })
-    console.log(waterPlane.material);
+    //console.log(waterPlane.material);
     waterPlane.material.bumpMap.offset.y = time*0.00002;
   }
   if (timestamp >= iterateTime) {
@@ -1380,12 +1387,6 @@ function checkBoxCollisions() {
     document.getElementById("instructions").textContent = "Oh no! We crashed!";
 
   } else if (wallBBCeiling.intersectsBox(modelBB)) {
-    /* TODO 
-        Determine what to do when the model collides with the ceiling. 
-          - Force the model to move down a bit, keeping direction of movement? 
-          - Turn model completely around? 
-        Add a warning message saying that the model is too high
-    */
     let movement = new THREE.Vector3();
     model.getWorldDirection(movement);
     model.position.add(movement.multiplyScalar(-1.2));
@@ -1428,7 +1429,7 @@ function checkBoxCollisions() {
 */
 function checkWaterCollision() {
   let waterAmount = document.getElementById("waterAmount").value;
-  if (waterAmount < 99) {
+  if (waterAmount < 99 && waterBB.intersectsBox(modelBB)) {
     document.getElementById("waterAmount").value = 99;
     document.getElementById("instructions").textContent = "We re-filled our water tank!";
     setTimeout(removeInstructions, 5000);
