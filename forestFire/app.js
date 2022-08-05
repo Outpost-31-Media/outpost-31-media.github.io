@@ -145,7 +145,7 @@ class Forest {
         if (faceNormal.angleTo(up) > options.maxSlope) {
           continue;
         }
-        if (new THREE.Vector3(0,0,0).addVectors(vertex1, vertex2).add(vertex3).divideScalar(3).z < .4) {
+        if (new THREE.Vector3(0, 0, 0).addVectors(vertex1, vertex2).add(vertex3).divideScalar(3).z < .4) {
           continue;
         }
         var tree = new Tree(this.models);
@@ -803,6 +803,8 @@ function onSelect() {
 
     addWallBoundingBoxes(x, y, z);
 
+    addCloudsToScene(x, y, z);
+
     document.getElementById("instructions").textContent = "Take a couple of steps away fromt terrain. Tap the screen when a circle reticle appears to place the plane."
 
     placedTerrain = true;
@@ -903,6 +905,50 @@ function addWallBoundingBoxes(x, y, z) {
   //scene.add(meshCeiling); 
   wallBBCeiling.setFromObject(meshCeiling);
 
+}
+
+/*
+  Function: randomNumber
+  Description: 
+    Returns a random number between the given min and max values. 
+  Parameters
+    - min: a float that represents the minimum value
+    - max: a float that represents the maximum value
+*/
+function randomNumber(min, max) {
+  return (Math.random() * (max - min) + min);
+}
+
+/*
+  Function: addCloudsToScene
+  Description: 
+    Adds 4 clouds to the scene in a random position and rotation. 
+  Parameters: 
+    - x: the x coordinate of the origin of the terrain
+    - y: the y coordinate of the origin of the terrain
+    - z: the z coordinate of the origin of the terrain
+*/
+async function addCloudsToScene(x, y, z) {
+
+  for (let i = 0; i < 4; i++) {
+    let randomNum1 = randomNumber(-1.5, 1.5);
+    let randomNum2 = randomNumber(1, 2.5); 
+    let loaderCloud = new THREE.GLTFLoader();
+    let cloudgltf = await loaderCloud.loadAsync("./gltf/cloud.glb");
+    let cloud = cloudgltf.scene;
+    cloud.traverse((node) => {
+      if (node.isMesh) {
+        node.castShadow = true;
+        node.receiveShadow = true;
+        if (node.material.map) node.material.map.anisotropy = 16;
+      }
+    });
+    cloud.position.set(x + randomNum1, y+randomNum2, z+ randomNum1); 
+    cloud.scale.set(0.05, 0.05, 0.05); 
+    cloud.rotation.set(0, randomNum1, 0); 
+    scene.add(cloud);  
+
+  }
 }
 
 /*
@@ -1046,18 +1092,6 @@ function straightenRight() {
 }
 
 /*
-  Function: randomNumber
-  Description: 
-    Returns a random number between the given min and max values. 
-  Parameters
-    - min: a float that represents the minimum value
-    - max: a float that represents the maximum value
-*/
-function randomNumber(min, max) {
-  return (Math.random() * (max - min) + min);
-}
-
-/*
   Function: dropWater
   Description: 
     Function runs when the drop water button is clicked. 
@@ -1153,7 +1187,7 @@ function buildTerrain() {
   }
   terrainScene = new THREE.Terrain(options);
 
-  terrainScene.position.set(origin[0], origin[1]-.3, origin[2]);
+  terrainScene.position.set(origin[0], origin[1] - .3, origin[2]);
   scene.add(terrainScene);
 
   var geo = terrainScene.children[0].geometry;
@@ -1164,7 +1198,7 @@ function buildTerrain() {
     randomness: Math.random,
   });
   terrainScene.add(decoScene[0]);
-  const g = new THREE.Vector3(0,0,0);
+  const g = new THREE.Vector3(0, 0, 0);
 }
 
 //called from render loop every $iterateStep in milliseconds
@@ -1191,7 +1225,7 @@ function setupPhysicsWorld() {
 
 }
 
-function addWaterPlane () {
+function addWaterPlane() {
   const matLoader = new THREE.TextureLoader();
   const waterHdri = matLoader.load('./img/sky.jpg');
   const waterBump = matLoader.load('./img/waterNormal.jpg');
@@ -1211,15 +1245,15 @@ function addWaterPlane () {
   })
   waterMat.bumpMap.wrapT = THREE.RepeatWrapping;
   waterMat.bumpMap.repeat.y = 3;
-  const waterGeo = new THREE.PlaneGeometry(3,3);
+  const waterGeo = new THREE.PlaneGeometry(3, 3);
 
   waterGeo.rotateX(-Math.PI / 2);
   waterPlane = new THREE.Mesh(waterGeo, waterMat);
   scene.add(waterPlane);
-  waterPlane.position.set(origin[0],origin[1],origin[2]);
+  waterPlane.position.set(origin[0], origin[1], origin[2]);
 
   // adding bounding box over the water source
-  waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3()); 
+  waterBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
   const water = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1, 3), new THREE.MeshBasicMaterial());
   water.position.set(origin[0] + 0.75, origin[1], origin[2]);
   //scene.add(water); 
@@ -1312,7 +1346,7 @@ function render(timestamp, frame) {
       checkBoxCollisions();
 
       // checks if the model is intersecting the water bounding box
-      checkWaterCollision(); 
+      checkWaterCollision();
     }
 
     updatePhysics(deltaTime * 1000);
@@ -1329,7 +1363,7 @@ function render(timestamp, frame) {
       mixer.update(deltaTime);
     })
     //console.log(waterPlane.material);
-    waterPlane.material.bumpMap.offset.y = time*0.00002;
+    waterPlane.material.bumpMap.offset.y = time * 0.00002;
   }
   if (timestamp >= iterateTime) {
     iterateTime += iterateStep;
