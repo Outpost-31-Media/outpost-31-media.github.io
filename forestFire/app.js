@@ -932,6 +932,7 @@ async function addCloudsToScene(x, y, z) {
     let randomNumX = randomNumber(-1.5, 1.5);
     let randomNumY = randomNumber(1, 2.5); 
     let randomNumZ = randomNumber(-1.5, 1.5); 
+    let randomNumRotation = randomNumber(0, 2*Math.PI); 
 
     let loaderCloud = new THREE.GLTFLoader();
     let cloudgltf = await loaderCloud.loadAsync("./gltf/cloud.glb");
@@ -945,7 +946,7 @@ async function addCloudsToScene(x, y, z) {
     });
     cloud.position.set(x + randomNumX, y+randomNumY, z+ randomNumZ); 
     cloud.scale.set(0.05, 0.05, 0.05); 
-    cloud.rotation.set(0, randomNumX, 0); 
+    cloud.rotation.set(0, randomNumRotation, 0); 
     scene.add(cloud);  
 
   }
