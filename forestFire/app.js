@@ -40,6 +40,7 @@ let timeout;
 let terrainScene, decoScene;
 let placedTerrain = false;
 let spotLight;
+let waterPlane;
 
 let waterParticles = [];
 
@@ -792,7 +793,9 @@ function onSelect() {
     let x = reticlePosition.x;
     let y = reticlePosition.y;
     let z = reticlePosition.z;;
-    origin = [x, -2.05, z];
+
+    origin = [x, y, z];
+
 
     buildForest();
 
@@ -1111,6 +1114,7 @@ function forestCallback() {
       node.receiveShadow = true;
     }
   });
+  addWaterPlane();
 
 }
 
@@ -1149,7 +1153,7 @@ function buildTerrain() {
   }
   terrainScene = new THREE.Terrain(options);
 
-  terrainScene.position.set(origin[0], origin[1], origin[2]);
+  terrainScene.position.set(origin[0], origin[1]-.3, origin[2]);
   scene.add(terrainScene);
 
   var geo = terrainScene.children[0].geometry;
@@ -1185,6 +1189,34 @@ function setupPhysicsWorld() {
   // console.log(physics);
   // console.log(physics.fixedTimeStep);
 
+}
+
+function addWaterPlane () {
+  const matLoader = new THREE.TextureLoader();
+  const waterHdri = matLoader.load('./img/sky.jpg');
+  const waterBump = matLoader.load('./img/waterNormal.jpg');
+
+  const waterMat = new THREE.MeshStandardMaterial({
+    color: 4767142,
+    roughness: 0,
+    metalness: 0,
+    emissive: 0,
+    bumpMap: waterBump,
+    bumpScale: 0.48,
+    envMap: waterHdri,
+    envMapIntensity: 1,
+    depthFunc: 3,
+    depthTest: true,
+    depthWrite: true,
+  })
+  waterMat.bumpMap.wrapT = THREE.RepeatWrapping;
+  waterMat.bumpMap.repeat.y = 3;
+  const waterGeo = new THREE.PlaneGeometry(3,3);
+
+  waterGeo.rotateX(-Math.PI / 2);
+  waterPlane = new THREE.Mesh(waterGeo, waterMat);
+  scene.add(waterPlane);
+  waterPlane.position.set(origin[0],origin[1],origin[2]);
 }
 
 /**************************************************************************************************************/
@@ -1289,6 +1321,8 @@ function render(timestamp, frame) {
     forest.mixers.forEach(mixer => {
       mixer.update(deltaTime);
     })
+    console.log(waterPlane.material);
+    waterPlane.material.bumpMap.offset.y = time*0.00002;
   }
   if (timestamp >= iterateTime) {
     iterateTime += iterateStep;
