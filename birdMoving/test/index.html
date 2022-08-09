@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script src="https://unpkg.com/three@0.133.0/build/three.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+  <script src="https://unpkg.com/three@0.133.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src = './main.js' type="module"> </script>
+
+  <style>
+    html, body {position: relative; margin: 0; width: 100%; height: 100%; overflow: hidden}
+
+    #text {
+      position: absolute; 
+      top: 50px; 
+      width: 100%; 
+      text-align: center; 
+      z-index: 100;
+      display:block;
+      color: black; 
+      font-size: 70px;
+    }
+  </style>
+
+</head>
+<body>
+  <div id = "text">Press the Start AR button at the bottom of the screen to begin this AR experience.</div>
+</body>
+</html>
