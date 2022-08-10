@@ -1,3 +1,11 @@
+/************************************************************************************** 
+Bird Moving: 
+- places bird model
+- moves bird model to reticles
+- tween and quaternion to get model to face the direction of the reticles and move towards it
+- moving animation will play when model is moving
+**************************************************************************************/
+
 import { ARButton } from 'https://unpkg.com/three@0.133.0/examples/jsm/webxr/ARButton.js';
 
 // variables for the scene
