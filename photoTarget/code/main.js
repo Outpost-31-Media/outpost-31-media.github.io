@@ -1,16 +1,17 @@
-import {loadGLTF, loadTexture, loadTextures, loadVideo} from '../helper/loader.js';
+import {loadGLTF, loadTexture, loadTextures, loadVideo} from '../lib/loader.js';
 const THREE = window.MINDAR.IMAGE.THREE;
 
 document.addEventListener('DOMContentLoaded', () => {
   async function init() {
-    //mockWithVideo('../../assets/mock-videos/musicband1.mp4');
 
+    // setting up MindAR
     const mindarThree = new window.MINDAR.IMAGE.MindARThree({
       container: document.body,
-      imageTargetSrc: '../target/cat.mind',
+      imageTargetSrc: '../target/cat.mind', // target image
     });
     const {renderer, scene, camera} = mindarThree;
 
+    // setting up light
     const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
     scene.add(light);
 
@@ -42,8 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageMaterial = new THREE.MeshBasicMaterial({map: imageTexture}); 
     const image = new THREE.Mesh(imageGeometry, imageMaterial); 
 
-    //const text = new THREE.TextGeometry(); 
-
     // making the arrows
     const arrowGeometry = new THREE.CircleGeometry(0.075, 32 )
     const arrowMaterial = new THREE.MeshBasicMaterial({color: "#0000FF"}); 
@@ -60,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     anchor.group.add(leftArrow); 
     anchor.group.add(rightArrow); 
 
+    // display items in order 
     const displayItems = [chair, video, fox, image];
     let currentItem = 0;
 
@@ -79,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 obj = obj.parent; 
             }
 
-            // runs if the object clicked is one of the arrows
             if (obj.userData.clickable) {
 
                 // If the object clicked is the leftArrow, currentItem is decreased. 
