@@ -9,7 +9,7 @@ Sam's Challenge:
 - plane will move forwards if button is not being selected or a button to move plane forwards
 
 *****NOTE*****
-- See forestFire for updated controls of plane!!!!
+- See forestFire for updated controls of plane and box collisions!!!!
 **************************************************************************************/
 
 import { ARButton } from 'https://unpkg.com/three@0.133.0/examples/jsm/webxr/ARButton.js';
