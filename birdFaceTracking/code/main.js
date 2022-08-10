@@ -1,3 +1,17 @@
+/************************************************************************************** 
+Bird Face Tracking: 
+- model of a bird flies around the user's head
+- lands on user (anchored to their forehead atm)
+- animations of bird to make it seem realistic 
+- button to take screenshot of user with bird 
+    - currently not automatically saving to camera roll
+        - photo can be found in downloads on phone and computer 
+- button to switch camera for phone use
+
+Note: 
+- bird model can be combined into one
+**************************************************************************************/
+
 import { loadGLTF } from '../lib/loader.js';
 const THREE = window.MINDAR.FACE.THREE;
 
