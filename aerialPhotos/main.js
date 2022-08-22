@@ -75,11 +75,18 @@ async function init() {
     light.position.set(0.5, 1, 0.25);
     scene.add(light);
 
+    loader = new THREE.GLTFLoader();
+    gltf = await loader.loadAsync("./gltf/a52.glb");
+    model = gltf.scene;
+    model.scale.set(0.005, 0.005, 0.005); 
+    model.rotation.y = Math.PI/2; 
+    smallerScene.add(model)
+
     axisX = new THREE.Vector3(1, 0, 0);
     axisXneg = new THREE.Vector3(-1, 0, 0);
     qu = new THREE.Quaternion();
 
-    const somePoints = [
+    const pointsOnCurve = [
 
         new THREE.Vector3(1, 0.4, -0.5),
         new THREE.Vector3(1, 0.6, 0.75),
@@ -88,19 +95,12 @@ async function init() {
 
     ];
 
-    curve = new THREE.CatmullRomCurve3(somePoints);
+    curve = new THREE.CatmullRomCurve3(pointsOnCurve);
     curve.closed = true;
 
     const points = curve.getPoints(60);
     const line = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: 0xffffaa }));
     scene.add(line);
-
-    loader = new THREE.GLTFLoader();
-    gltf = await loader.loadAsync("./gltf/a52.glb");
-    model = gltf.scene;
-    model.scale.set(0.005, 0.005, 0.005); 
-    model.rotation.y = Math.PI/2; 
-    smallerScene.add(model)
 
 
     const button = ARButton.createButton(renderer, {
