@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Aerial Photos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link type="text/css" rel="stylesheet" href="./style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js" crossorigin="anonymous"></script>
+  <script src="./lib/THREE.Terrain.js"></script>
+  <script src="./lib/tween.umd.js"></script>
+  <script src="./lib/GLTFLoader.js"></script>
+
+</head>
+
+<body>
+  <div id="welcome" class="wrapper">
+    <h1 class="overlayText">Aerial Photos AR Experience</h1>
+  </div>
+  <div id="overlay"></div>
+
+  <button class='gui-button' id="up">Up</button>
+  <button class='gui-button' id="down">Down</button>
+  <button class='gui-button' id="left">Left</button>
+  <button class='gui-button' id="right">Right</button>
+  
+  <div id="instructions"></div>
+
+  <script src='./main.js' type="module"> </script>
+
+</body>
+
+</html>
