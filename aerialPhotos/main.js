@@ -91,6 +91,7 @@ async function init() {
         new THREE.Vector3(1, 0.4, -0.5),
         new THREE.Vector3(1, 0.6, 0.75),
         new THREE.Vector3(-0.8, 0.75, 1),
+        new THREE.Vector3(-0.3, 0.5, 1),
         new THREE.Vector3(-1, 0.2, -0.6),
 
     ];
