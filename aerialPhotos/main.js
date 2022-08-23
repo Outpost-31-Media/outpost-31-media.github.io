@@ -88,9 +88,15 @@ async function init() {
 
     const pointsOnCurve = [
 
+        // new THREE.Vector3(-0.57, -0.42, 1),
+        // new THREE.Vector3(0.42, -0.42, 1),
+        // new THREE.Vector3(0.91, -0.07, 0.23),
+        // new THREE.Vector3(0.59, 0.69, 0.23),
+        // new THREE.Vector3(-0.28, 0.91, 0.23),
+        // new THREE.Vector3(-0.57, 0.26, -0.1),
+
         new THREE.Vector3(1, 0.4, -0.5),
         new THREE.Vector3(1, 0.6, 0.75),
-        new THREE.Vector3(-0.8, 0.75, 1),
         new THREE.Vector3(-0.3, 0.5, 1),
         new THREE.Vector3(-1, 0.2, -0.6),
 
@@ -126,7 +132,7 @@ function animate() {
 function render(timestamp, frame) {
     if (frame) {
 
-        fraction += 0.0001;
+        fraction += 0.001;
         if (fraction > 1) fraction = 0;
 
         smallerScene.position.copy(curve.getPoint(fraction));
@@ -135,9 +141,9 @@ function render(timestamp, frame) {
 
         if (tangent.x < 0) {
 
-            qu.setFromUnitVectors(axisXneg, tangent);
-            qu.invert();
-            smallerScene.quaternion.copy(qu);
+            //qu.setFromUnitVectors(axisXneg, tangent);
+            //qu.invert();
+            //smallerScene.quaternion.copy(qu);
 
         } else {
 
@@ -148,5 +154,3 @@ function render(timestamp, frame) {
         renderer.render(scene, camera);
     }
 }
-
-
