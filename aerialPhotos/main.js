@@ -33,19 +33,21 @@ let container;
 let camera, scene, renderer;
 let reticle;
 let controller;
-let gltf; 
-let loader; 
-let modelBee; 
-let fraction = 0;
-let char; 
-let curve; 
-let model; 
-let tangent; 
-let axisX; 
-let qu; 
-let axisXneg; 
+let gltf;
+let loader;
+let modelBee;
+let positionOnLine = 0;
+let char;
+let curve;
+let points; 
+let model;
+let tangent;
+let axisX;
+let line;
+let qu;
+let axisXneg;
 
-let smallerScene; 
+let smallerScene;
 
 init();
 animate();
@@ -56,7 +58,7 @@ async function init() {
 
     scene = new THREE.Scene();
     smallerScene = new THREE.Scene();
-    scene.add(smallerScene); 
+    scene.add(smallerScene);
 
     camera = new THREE.PerspectiveCamera(
         70,
@@ -78,8 +80,8 @@ async function init() {
     loader = new THREE.GLTFLoader();
     gltf = await loader.loadAsync("./gltf/a52.glb");
     model = gltf.scene;
-    model.scale.set(0.005, 0.005, 0.005); 
-    model.rotation.y = Math.PI/2; 
+    model.scale.set(0.005, 0.005, 0.005);
+    //model.rotation.y = Math.PI / 2;
     smallerScene.add(model)
 
     axisX = new THREE.Vector3(1, 0, 0);
@@ -105,8 +107,8 @@ async function init() {
     curve = new THREE.CatmullRomCurve3(pointsOnCurve);
     curve.closed = true;
 
-    const points = curve.getPoints(60);
-    const line = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: 0xffffaa }));
+    points = curve.getPoints(1000);
+    line = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: 0xffffaa }));
     scene.add(line);
 
 
@@ -129,28 +131,80 @@ function animate() {
     renderer.setAnimationLoop(render);
 }
 
+let fraction = 0;
+
+
 function render(timestamp, frame) {
+
     if (frame) {
 
-        fraction += 0.01;
-        if (fraction > 1) fraction = 0;
+        let newPosition = curve.getPoints(1000); 
 
-        smallerScene.position.copy(curve.getPoint(fraction));
 
-        tangent = curve.getTangent(fraction);
+        fraction += 1;
+        if (fraction > 999) fraction = 0;
+        //const newPosition = curve.getPoints(60);
+        let point = newPosition[fraction];
 
-        if (tangent.x < 0) {
+        smallerScene.position.copy(point); 
 
-            //qu.setFromUnitVectors(axisXneg, tangent);
-            //qu.invert();
-            //smallerScene.quaternion.copy(qu);
+        let nextPoint = newPosition[fraction + 1]; 
 
-        } else {
+        let time = { t: 0 };
+        let start = smallerScene.quaternion.clone();
+        smallerScene.lookAt(nextPoint);
+        // let end = smallerScene.quaternion.clone();
+        // smallerScene.quaternion.copy(start);
 
-            //smallerScene.quaternion.setFromUnitVectors(axisX, tangent);
+        // // turning the model towards the reticle with Tween.js
+        // new TWEEN.Tween(time).to({ t: 1 }, 1).onUpdate(() => {
+        //     THREE.Quaternion.slerp(start, end, smallerScene.quaternion, time.t);
+        // }).easing(TWEEN.Easing.Quadratic.InOut).start();
 
-        }
+        // TWEEN.update(); 
+
+
+        // TWEEN.update(); 
+
+        // fraction += 0.001;
+        // if (fraction > 1) fraction = 0;
+        // var point = curve.getPoint(fraction);
+        // var rotation = curve.getTangent(fraction);
+
+        // smallerScene.position.x = point.x;
+        // smallerScene.position.y = point.y;
+        // smallerScene.position.z = point.z;
+
+        // let nextPoint = curve.getPoint(fraction + 0.001); 
+
+        // let time = { t: 0 };
+        // let start = smallerScene.quaternion.clone();
+        // smallerScene.lookAt(nextPoint);
+        // let end = smallerScene.quaternion.clone();
+        // smallerScene.quaternion.copy(start);
+
+        // // turning the model towards the reticle with Tween.js
+        // new TWEEN.Tween(time).to({ t: 1 }, 1).onUpdate(() => {
+        //   THREE.Quaternion.slerp(start, end, smallerScene.quaternion, time.t);
+        // }).easing(TWEEN.Easing.Quadratic.InOut).start();
+
+
+        // //smallerScene.lookAt(curve.getPoint(fraction + 0.001));
+        // let fraction = 0; 
+
+        // const newPosition = curve.getPoint(fraction);
+        // const tangent = curve.getTangent(fraction);
+        // smallerScene.position.copy(newPosition);
+        // axis.crossVectors( up, tangent ).normalize();
+
+        // const radians = Math.acos( up.dot( tangent ) );
+
+        // smallerScene.quaternion.setFromAxisAngle( axis, radians );
 
         renderer.render(scene, camera);
+
+
+
     }
+
 }
