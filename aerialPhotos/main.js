@@ -132,7 +132,7 @@ function animate() {
 function render(timestamp, frame) {
     if (frame) {
 
-        fraction += 0.001;
+        fraction += 0.01;
         if (fraction > 1) fraction = 0;
 
         smallerScene.position.copy(curve.getPoint(fraction));
@@ -147,7 +147,7 @@ function render(timestamp, frame) {
 
         } else {
 
-            smallerScene.quaternion.setFromUnitVectors(axisX, tangent);
+            //smallerScene.quaternion.setFromUnitVectors(axisX, tangent);
 
         }
 
