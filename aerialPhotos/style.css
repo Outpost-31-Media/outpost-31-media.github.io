@@ -240,6 +240,14 @@ button:active {
 /*    font-size: 50px;*/
 }
 
+#start {
+    bottom: 8vh;
+    right: 37.5%;
+    display: none;
+    user-select: none;
+/*    font-size: 50px;*/
+}
+
 div {
     /* Makes the text unzoomable and unselectable */
     touch-action: manipulation;
