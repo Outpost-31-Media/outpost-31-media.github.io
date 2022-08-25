@@ -456,6 +456,14 @@ function render(timestamp, frame) {
                 THREE.Quaternion.slerp(start, end, smallerScene.quaternion, time.t);
             }).easing(TWEEN.Easing.Quadratic.InOut).start();
 
+            // commented out code is just changing the color of the terrain
+            // might be able to use this with bounding boxes to gradually change the color of the terrain
+            // terrain.traverse((node) => {
+            //     if (node.isMesh) {
+            //         node.material.color.set(0xffffff * Math.random()); 
+            //     }
+            // });
+
             let deltaTime = clock.getDelta();
 
             // updating the animations
