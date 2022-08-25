@@ -29,161 +29,81 @@ YTM Project:
 
 import { ARButton } from "https://unpkg.com/three@0.133.0/examples/jsm/webxr/ARButton.js";
 
-// initializing variables
+
 let container;
 let camera, scene, renderer;
-let gltf;
 let loader;
-let curve;
-let listofPoints;
 let model;
-let line;
+let gltf;
+let gltfTerrain;
+let terrain;
+let clock = new THREE.Clock();
+let mixer;
+
 let smallerScene;
-let spotLight;
 
 init();
 animate();
 
 async function init() {
-
     container = document.createElement("div");
     document.body.appendChild(container);
 
     scene = new THREE.Scene();
-
-    //creating a smaller scene that will move on path
     smallerScene = new THREE.Scene();
     scene.add(smallerScene);
 
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
+    camera = new THREE.PerspectiveCamera(
+        70,
+        window.innerWidth / window.innerHeight,
+        0.01,
+        20
+    );
 
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.toneMapping = THREE.ReinhardToneMapping;
-    renderer.toneMappingExposure = 1.5;
-    renderer.toneMappingWhitePoint = 1.0;
-    renderer.physicallyCorrectLights = true;
     renderer.xr.enabled = true;
     container.appendChild(renderer.domElement);
 
-    // setting up light
-    addLightToScene();
+    var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+    light.position.set(0.5, 1, 0.25);
+    scene.add(light);
 
-    // loading the model
-    loadModel();
+    loader = new THREE.GLTFLoader();
+    gltfTerrain = await loader.loadAsync("./gltf/testScene.glb");
+    terrain = gltfTerrain.scene;
+    terrain.scale.set(2, 2, 2);
+    terrain.position.set(0, -0.5, -1);
+    terrain.children[1].visible = false; 
+    scene.add(terrain);
 
-    // initializing the curve
-    createCurve(); 
+    smallerScene.position.copy(terrain.children[1].position);
 
-    const button = ARButton.createButton(renderer, {
-    });
+    loader = new THREE.GLTFLoader();
+    gltf = await loader.loadAsync("./gltf/a52.glb");
+    model = gltf.scene;
+    model.scale.set(0.01, 0.01, 0.01);
+    smallerScene.add(model);
+
+    mixer = new THREE.AnimationMixer(terrain);
+    let cubeMoving = mixer.clipAction(gltfTerrain.animations[0]);
+    cubeMoving.play();
+
+    console.log(gltfTerrain.animations[0]);
+
+    const button = ARButton.createButton(renderer, {});
     document.body.appendChild(button);
     renderer.domElement.style.display = "none";
 
     window.addEventListener("resize", onWindowResize, false);
 }
 
-/***************************************Initializing Items In Scene*********************************************/
-
-/*
-  Function: addLightToScene
-  Description: 
-    Creates a hemisphere light and adds it to the scene. 
-    Creates a spot light that casts shadows and adds it to the scene
-  Parameters: None
-*/
-function addLightToScene() {
-
-    // creating hemisphere light
-    var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
-    light.position.set(0.5, 1, 0.25);
-    scene.add(light);
-
-    // creating a spotlight that casts shadows
-    spotLight = new THREE.SpotLight(0xffa95c, 4);
-    spotLight.castShadow = true;
-    spotLight.shadow.bias = -0.0001;
-    spotLight.shadow.mapSize.width = 1024 * 4;
-    spotLight.shadow.mapSize.height = 1024 * 4;
-    scene.add(spotLight);
-}
-
-/*
-  Function addReticleToScene
-  Description: 
-    Creates a square reticle to represent the terrain. 
-  Paramaters: None
-*/
-function addSquareReticleToScene() {
-    const geometry = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
-    const material = new THREE.MeshBasicMaterial();
-
-    reticle = new THREE.Mesh(geometry, material);
-
-    reticle.matrixAutoUpdate = false;
-    reticle.visible = false;
-    scene.add(reticle);
-}
-
-/*
-  Function: loadModel
-  Description: 
-    Loads the model. 
-    Ensures that each node casts a shadow
-  Parameters: None
-*/
-async function loadModel() {
-    loader = new THREE.GLTFLoader();
-    gltf = await loader.loadAsync("./gltf/a52.glb");
-    model = gltf.scene;
-    model.traverse((node) => {
-        if (node.isMesh) {
-            node.castShadow = true;
-            node.receiveShadow = true;
-            if (node.material.map) node.material.map.anisotropy = 16;
-        }
-    });
-    model.scale.set(0.005, 0.005, 0.005);
-    //model.rotation.y = Math.PI / 2;
-    smallerScene.add(model)
-}
-
-function createCurve() {
-    const pointsOnCurve = [
-
-        // new THREE.Vector3(-0.57, -0.42, 1),
-        // new THREE.Vector3(0.42, -0.42, 1),
-        // new THREE.Vector3(0.91, -0.07, 0.23),
-        // new THREE.Vector3(0.59, 0.69, 0.23),
-        // new THREE.Vector3(-0.28, 0.91, 0.23),
-        // new THREE.Vector3(-0.57, 0.26, -0.1),
-
-        new THREE.Vector3(1, 0.4, -0.5),
-        new THREE.Vector3(1, 0.6, 0.75),
-        new THREE.Vector3(-0.3, 0.5, 1),
-        new THREE.Vector3(-1, 0.2, -0.6),
-
-    ];
-
-    curve = new THREE.CatmullRomCurve3(pointsOnCurve);
-    curve.closed = true;
-
-    // making the curve visible in the scene, comment out code before release
-    listofPoints = curve.getPoints(1000);
-    line = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(listofPoints), new THREE.LineBasicMaterial({ color: 0xffffaa }));
-    scene.add(line);
-
-}
-
-/************************************************************************************************************/
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
@@ -191,23 +111,40 @@ function animate() {
     renderer.setAnimationLoop(render);
 }
 
-let fraction = 0;
-
 
 function render(timestamp, frame) {
-
     if (frame) {
 
-        // getting the smaller scene to move along the curve and 
-        fraction += 1;
-        if (fraction > 999) fraction = 0;
-        let point = listofPoints[fraction];
-        smallerScene.position.copy(point);
+        let cubePos = new THREE.Vector3();
 
-        // getting the smaller scene to rotate towards the next point of the curve
-        let nextPoint = listofPoints[fraction + 1];
-        smallerScene.lookAt(nextPoint);
+        cubePos.setFromMatrixPosition(terrain.children[1].matrixWorld);
+    
+        let cubePosCoords = { x: cubePos.x, y: cubePos.y, z: cubePos.z };
+
+        // This line of code must be before the actual Tweens
+        TWEEN.update(); 
+
+        // moving the model towards the reticle with Tween.js
+        new TWEEN.Tween(smallerScene.position).to(cubePosCoords, 10).easing(TWEEN.Easing.Quadratic.InOut).start();
+
+        let time = { t: 0 };
+        let start = smallerScene.quaternion.clone();
+        smallerScene.lookAt(cubePos);
+        let end = smallerScene.quaternion.clone();
+        smallerScene.quaternion.copy(start);
+    
+        // turning the model towards the box
+        new TWEEN.Tween(time).to({ t: 1 }, 100).onUpdate(() => {
+          THREE.Quaternion.slerp(start, end, smallerScene.quaternion, time.t);
+        }).easing(TWEEN.Easing.Quadratic.InOut).start();
+
+        let deltaTime = clock.getDelta();
+
+        if (mixer) {
+            mixer.update(deltaTime);
+        }
+
         renderer.render(scene, camera);
     }
-
 }
+
