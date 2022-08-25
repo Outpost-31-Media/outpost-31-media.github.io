@@ -9,7 +9,7 @@ YTM Project:
     3) A reticle the size of the terrain wll appear on screen. The user will also be given instruction on how to use the experiences as an overlay on the screen. 
 
     4) Once the user determines where to place the terrain and taps the screen at the desired location, the terrain appears as a textured solid colour. 
-    The starting town (Atlin or Carcross) will pop out of the terrain fully textured. The town will be vibrant which willl be in contrast with the texture surrounding it. 
+    The starting town (Atlin or Carcross) will pop out of the terrain fully textured. The town will be vibrant which will be in contrast with the texture surrounding it. 
     Some clouds will be floating over the town. 
 
     5) A button to start the experience appears. When clicked, the plane emerges from the clouds over the starting town. 
@@ -242,6 +242,8 @@ async function loadTerrain() {
     mixer = new THREE.AnimationMixer(terrain);
     movingAnimation = mixer.clipAction(gltfTerrain.animations[0]);
 
+    console.log(terrain); 
+
 }
 
 /*
@@ -268,7 +270,8 @@ async function loadModel() {
     model.visible = false;
     smallerScene.add(model);
 }
-/****************************************Functions Called with onSelect*********************************************/
+
+/***************************************Functions Called with onSelect*******************************************/
 
 /*
   Function: onSelect
@@ -298,7 +301,6 @@ function onSelect() {
     }
 
 }
-
 
 /*********************************************Functions For Buttons*********************************************/
 
@@ -336,7 +338,7 @@ function startAR() {
 function moveUp() {
 
     model.position.y += 0.01;
-    //new TWEEN.Tween(model.position).to({y: model.position.y + 0.01}, 500).start();
+    //new TWEEN.Tween(model.position).to({y: model.position.y + 0.01}, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
     timeout = setTimeout(moveUp, 100);
 }
 
@@ -367,7 +369,6 @@ function moveRight() {
     Parameters: None
 */
 function moveLeft() {
-
 }
 
 /**************************************************************************************************************/
@@ -389,7 +390,7 @@ let hitTestSourceInitialized = false;
 let planeCreated = false;
 
 async function initializeHitTestSource() {
-    const session = renderer.xr.getSession(); // XRSession
+    const session = renderer.xr.getSession();
 
     const viewerSpace = await session.requestReferenceSpace("viewer");
     hitTestSource = await session.requestHitTestSource({
@@ -433,16 +434,15 @@ function render(timestamp, frame) {
 
         if (model.visible) {
 
+            // getting the position of the cube, unsure if simplifying it will effect the tweens
             let cubePos = new THREE.Vector3();
-
             cubePos.setFromMatrixPosition(terrain.children[1].matrixWorld);
-
             let cubePosCoords = { x: cubePos.x, y: cubePos.y, z: cubePos.z };
 
-            // This line of code must be before the actual Tweens
+            // This line of code must be before the actual Tweens in the renderer
             TWEEN.update();
 
-            // moving the model towards the reticle with Tween.js
+            // moving the model towards the cube
             new TWEEN.Tween(smallerScene.position).to(cubePosCoords, 10).easing(TWEEN.Easing.Quadratic.InOut).start();
 
             let time = { t: 0 };
@@ -458,7 +458,7 @@ function render(timestamp, frame) {
 
             let deltaTime = clock.getDelta();
 
-            // playing the animation
+            // updating the animations
             if (mixer) {
                 mixer.update(deltaTime);
             }
