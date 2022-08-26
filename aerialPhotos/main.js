@@ -42,8 +42,10 @@ let timeout;
 let loader;
 let model;
 let gltf;
+let modelBB;
 let gltfTerrain;
 let terrain;
+let terrainBB; 
 let mixer;
 let movingAnimation;
 
@@ -231,7 +233,7 @@ async function loadTerrain() {
             if (node.material.map) node.material.map.anisotropy = 16;
         }
     });
-    terrain.scale.set(3, 3, 3);
+    terrain.scale.set(5, 5, 5);
     terrain.position.set(0, -0.5, -1);
     terrain.visible = false;
     terrain.children[1].visible = false;
@@ -242,7 +244,7 @@ async function loadTerrain() {
     mixer = new THREE.AnimationMixer(terrain);
     movingAnimation = mixer.clipAction(gltfTerrain.animations[0]);
 
-    console.log(terrain); 
+    console.log(terrain);
 
 }
 
@@ -316,6 +318,7 @@ function onSelect() {
 function startAR() {
 
     model.visible = true;
+    addModelBoundingBox(); 
     movingAnimation.play();
 
     // directional buttons become visible
@@ -327,6 +330,20 @@ function startAR() {
     // hides the start button
     document.querySelector("#start").style.display = "None";
 
+}
+
+/*
+  Function: addModelBoundingBox
+  Description: 
+    Creates a bounding box for the plane model. 
+  Parameters: None
+*/
+function addModelBoundingBox() {
+    modelBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.1), new THREE.MeshBasicMaterial());
+    mesh.position.copy(model.position);
+    //smallerScene.add(mesh); 
+    modelBB.setFromObject(mesh);
 }
 
 /*
@@ -456,13 +473,11 @@ function render(timestamp, frame) {
                 THREE.Quaternion.slerp(start, end, smallerScene.quaternion, time.t);
             }).easing(TWEEN.Easing.Quadratic.InOut).start();
 
-            // commented out code is just changing the color of the terrain
-            // might be able to use this with bounding boxes to gradually change the color of the terrain
-            // terrain.traverse((node) => {
-            //     if (node.isMesh) {
-            //         node.material.color.set(0xffffff * Math.random()); 
-            //     }
-            // });
+            // updates the position of the bounding box for the model
+            modelBB.applyMatrix4(model.matrixWorld);
+
+            // checks where the model is intersecting the terrain
+            checkBoxCollisions();
 
             let deltaTime = clock.getDelta();
 
@@ -476,3 +491,17 @@ function render(timestamp, frame) {
     }
 }
 
+function checkBoxCollisions() {
+    // commented out code is just changing the color of the terrain
+    // might be able to use this with bounding boxes to gradually change the color of the terrain
+    terrain.traverse((node) => {
+        console.log(node); 
+        if (node.isMesh) {
+            let nodeBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+            nodeBB.setFromObject(node);
+            if (nodeBB.intersectsBox(modelBB)) {
+                node.material.color.set(0xff0000);
+            }
+        }
+    });
+}
