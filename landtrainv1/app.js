@@ -222,7 +222,7 @@ async function loadModels(lod) {
             scene.add(ship);
         },
         function(xhr) {
-            progressBar.style.width = (Math.round(xhr.loaded / xhr.total * 100)) + "%";
+            progressBar.style.width = (xhr.loaded / xhr.total * 100)+ "%";
             progressBar.innerHTML = (Math.round(xhr.loaded / xhr.total * 100)) + "% 2/2";
             if ((xhr.loaded / xhr.total * 100) === 100) {
                 document.querySelector("#myBar").style.display = "none";

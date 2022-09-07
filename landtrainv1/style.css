@@ -54,7 +54,9 @@ select {
 }
 
 .gui-button {
+	display: inline-block;
     position: absolute;
+
     padding-top: 6px;
     padding-right: 6px;
     padding-bottom: 6px;
@@ -65,11 +67,13 @@ select {
     color: rgb(255, 255, 255);
     font: 13px sans-serif;
     text-align: center;
+    vertical-align: top;
     opacity: 0.5;
     outline: none;
     z-index: 999;
     cursor: pointer;
-    width: 25%;
+    /*width: auto;*/
+
     user-select: none;
     /* supported by Chrome and Opera */
     -webkit-user-select: none;
@@ -119,8 +123,8 @@ select {
     top: 0;
     bottom: 0;
     position: absolute;
-    background: linear-gradient(124deg,#0D0D0D, #F28B50, #592202, #A63F03, #D95204);
-    background-size: 1800% 1800%;
+    background: linear-gradient(124deg,#F28705, #042940,#042940,#9FC131);
+    background-size: 400% 400%;
 
     -webkit-animation: rainbow 18s ease infinite;
     -z-animation: rainbow 18s ease infinite;
@@ -185,15 +189,6 @@ select {
 }
 
 button {
-    position: fixed;
-    height: 4vh;
-    width: 14vh;
-    border: solid 2px;
-    border-color: black;
-    background-color: transparent;
-    color: black;
-    z-index: 10;
-
     /* Makes the text unzoomable and unselectable */
     touch-action: manipulation;
     -webkit-touch-callout: none;
@@ -209,29 +204,36 @@ button:active {
     background-color: rgb(212, 212, 212);
 }
 #ultra {
-    bottom: 18vh;
-    left: 37.5%;
+    bottom: 11vh;
+        margin: 5%;
+    width: 90%;
+    /*left: 37.5%;*/
     display: block;
     user-select: none;
     /*font-size: 50px;*/
 }
 #high {
-    bottom: 13vh;
-    left: 37.5%;
+    bottom: 6vh;
+        margin: 5%;
+    width: 90%;
+    /*left: 37.5%;*/
     display: block;
     user-select: none;
     /*font-size: 50px;*/
 }
 
 #low {
-    bottom: 8vh;
-    left: 37.5%;
+    bottom: 1vh;
+        margin: 5%;
+    width: 90%;
+    /*left: 37.5%;*/
     display: block;
     user-select: none;
     /*font-size: 50px;*/
 }
 
 #left {
+	position: absolute;
     bottom: 13vh;
     left: 6.25%;
     display: none;
@@ -240,6 +242,7 @@ button:active {
 }
 
 #right {
+	position: absolute;
     bottom: 13vh;
     right: 6.25%;
     display: none;
@@ -250,18 +253,23 @@ button:active {
 #myProgress {
 	display: none;
 	position: absolute;
-left:  10%;
-  width: 80%;
-  background-color: grey;
-  z-index: 999;
+	left:  10%;
+  	width: 80%;
+  	background-color: grey;
+  	border: 1px solid rgb(255, 255, 255);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+  	z-index: 999;
 }
 
 #myBar {
 	display: none;
   width: 1%;
   height: 30px;
-  background-color: green;
+  background-color: white;
   z-index: 998;
+  text-align: center;
+  color: black;
 }
 
 div {
