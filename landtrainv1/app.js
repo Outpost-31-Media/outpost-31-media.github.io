@@ -1,200 +1,331 @@
-
-      import { ARButton } from 'https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js';
-      // import { DRACOLoader } from './libs/DRACOLoader.js';
-
-
-			let camera, scene, renderer;
-    	let loader;
-      let reticle;
-      let controller;
-      let ship;
-      let mask;
-      let pane;
-      let loadingPane;
-      var object3D = null;
+import {
+    ARButton
+} from 'https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js';
+// import { DRACOLoader } from './libs/DRACOLoader.js';
 
 
-      const PARAMS = {
-       loaded: '0'
-
-      }
 
 
-      setupGui();
-      init();
-			animate();
+let camera, scene, renderer;
+let loader;
+let reticle;
+let controller;
+let ship;
+let mask;
+let pane;
+let loadingPane;
+var object3D = null;
+let arButton;
+let desktopTesting = true;
+let rotDir = 0;
+let placerReticle;
+let spotLight;
+let plane;
+
+let xrSessionStarted = false;
 
 
-      function setupGui() {
-        pane = new Tweakpane.Pane({
-          title: 'AR @ Outpost31',
+init();
+animate();
+
+
+
+
+function init() {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+
+    scene = new THREE.Scene();
+
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 40);
+
+    renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+    });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.xr.enabled = true;
+
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ReinhardToneMapping;
+    renderer.physicallyCorrectLights = true;
+
+
+    container.appendChild(renderer.domElement);
+
+    light
+    var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .3);
+    light.position.set(0.5, 1, 0.25);
+    scene.add(light);
+
+    spotLight = new THREE.SpotLight(0xffa95c, 16);
+    spotLight.castShadow = true;
+    spotLight.shadow.bias = -0.0001;
+    spotLight.shadow.mapSize.width = 1024 * 4;
+    spotLight.shadow.mapSize.height = 1024 * 4;
+    scene.add(spotLight);
+
+    controller = renderer.xr.getController(0);
+    controller.addEventListener('select', onSelect);
+    scene.add(controller);
+
+    addShadowPlaneToScene();
+
+
+    document.querySelector("#ultra").addEventListener("click", () => {
+        lodSelection(0);
+    });
+
+    document.querySelector("#high").addEventListener("click", () => {
+        lodSelection(1);
+    });
+    document.querySelector("#low").addEventListener("click", () => {
+        lodSelection(2);
+    });
+    document.querySelector("#left").addEventListener('beforexrselect', ev => ev.preventDefault());
+    document.querySelector("#right").addEventListener('beforexrselect', ev => ev.preventDefault());
+
+
+    if (!desktopTesting) {
+        document.querySelector("#left").addEventListener("touchstart", () => {
+            rotDir = -1;
         });
-        pane.containerElem_.style.zIndex = "10";
-        loadingPane = pane.addMonitor(PARAMS, 'loaded', {
-          label: 'Model',
-          multiline: false
+        document.querySelector("#left").addEventListener("touchend", () => {
+            rotDir = 0;
         });
+        document.querySelector("#right").addEventListener("touchstart", () => {
+            rotDir = 1;
+        });
+        document.querySelector("#right").addEventListener("touchend", () => {
+            rotDir = 0;
+        });
+
+    } else if (desktopTesting) {
+        document.querySelector("#left").addEventListener("mousedown", () => {
+            rotDir = -1;
+        });
+        document.querySelector("#left").addEventListener("mouseup", () => {
+            rotDir = 0;
+        });
+        document.querySelector("#right").addEventListener("mousedown", () => {
+            rotDir = 1;
+        });
+        document.querySelector("#right").addEventListener("mouseup", () => {
+            rotDir = 0;
+        });
+    };
+    // addReticleToScene();
+
+
+
+
+
+    arButton = ARButton.createButton(renderer, {
+        optionalFeatures: ["dom-overlay"],
+        domOverlay: {
+            root: document.body
+        },
+        requiredFeatures: ["hit-test"]
+    });
+    arButton.addEventListener("click", () => {
+      if (!xrSessionStarted) {
+        document.getElementById("welcome").style.display = 'none';
+        xrSessionStarted = true;
+      } else if (xrSessionStarted) {
+        console.log('exit')
+        location.href = './congrats.html';
       }
+      
+    });
+    
 
-			function init() {
-				const container = document.createElement('div');
-				document.body.appendChild(container);
-	
-				scene = new THREE.Scene();
-	
-				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 40);
-	
-				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-				renderer.setPixelRatio(window.devicePixelRatio);
-				renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true;
-				container.appendChild(renderer.domElement);
-	
-				//light
-				var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-				light.position.set(0.5, 1, 0.25);
-				scene.add(light);
-	
-        controller = renderer.xr.getController(0);
-        controller.addEventListener('select', onSelect);
-        scene.add(controller);
-	       
-         
-				addReticleToScene();
-        
-        addShipToScene();
-
-        
-
-        const button = ARButton.createButton(renderer, {requiredFeatures: ["hit-test"]});
-        document.body.appendChild(button);
-
-        window.addEventListener('resize', onWindowResize, false);
-			}
+    window.addEventListener('resize', onWindowResize, false);
+}
 
 
-      async function addShipToScene() {
+function lodSelection(lod) {
+    document.querySelector("#high").style.display = "none";
+    document.querySelector("#low").style.display = "none";
+    document.querySelector("#ultra").style.display = "none";
 
-        const shipUrl = "landtrain.glb";
+    loadModels(lod);
+}
 
-        // const loader = new THREE.GLTFLoader();
-        const dracoLoader = new THREE.DRACOLoader();
+function addShadowPlaneToScene () {
+  const geometry = new THREE.PlaneGeometry(1000, 1000);
+  const material = new THREE.ShadowMaterial();
+  // const material = new THREE.MeshBasicMaterial();
+  material.opacity = 0.4;
 
-        dracoLoader.setDecoderPath('./libs/draco/gltf/');
+  plane = new THREE.Mesh(geometry, material);
+  plane.receiveShadow = true;
+  plane.rotateX(-Math.PI / 2);
+  // plane.matrixAutoUpdate = true;
+  scene.add(plane);
+}
 
-        const loader = new THREE.GLTFLoader()
-        loader.setDRACOLoader(dracoLoader)
+async function loadModels(lod) {
 
+    const models = ["./gltf/landtrainUltra.glb", "./gltf/landtrainHigh.glb", "./gltf/landtrainLow.glb"];
+    const reticleURL = "./gltf/reticle.glb"
 
+    // const loader = new THREE.GLTFLoader();
+    const dracoLoader = new THREE.DRACOLoader();
+
+    dracoLoader.setDecoderPath('./libs/draco/gltf/');
+
+    const loader = new THREE.GLTFLoader()
+    loader.setDRACOLoader(dracoLoader)
+    const polyLevel = lod;
+    const progressBar = document.getElementById("myBar");
+    console.log(`prepping to load ${models[polyLevel]}`)
         // loader.setDRACOLoader(dracoLoader);
 
-        // load the ship
-        loader.load(shipUrl,
-          function (gltf) {
+    // load the ship
+    document.querySelector("#myBar").style.display = "block";
+    document.querySelector("#myProgress").style.display = "block";
+    loader.load(reticleURL,
+        function(gltf) {
+            reticle = gltf.scene;
+            // reticle.matrixAutoUpdate = false; //stops 3js from moving the reticle
+            reticle.visible = false;
+            scene.add(reticle);
+        },
+        function(xhr) {
+            progressBar.style.width = (Math.round(xhr.loaded / xhr.total * 100)) + "%";
+            progressBar.innerHTML = (Math.round(xhr.loaded / xhr.total * 100)) + "% 1/2";
+            if ((xhr.loaded / xhr.total * 100) === 100) {
+
+
+            }
+        },
+        // onError callback
+        function(error) {
+            console.error(error);
+        }
+    );
+
+
+    loader.load(models[polyLevel],
+        function(gltf) {
+            gltf.scene.traverse(function(node) {
+                if (node.isMesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+            });
             ship = gltf.scene;
             ship.visible = false;
             scene.add(ship);
-          },
-          function (xhr) {
-            PARAMS['loaded']=((Math.round(xhr.loaded / xhr.total * 100)) + '% loaded' );
+        },
+        function(xhr) {
+            progressBar.style.width = (Math.round(xhr.loaded / xhr.total * 100)) + "%";
+            progressBar.innerHTML = (Math.round(xhr.loaded / xhr.total * 100)) + "% 2/2";
             if ((xhr.loaded / xhr.total * 100) === 100) {
-              pane.dispose();
+                document.querySelector("#myBar").style.display = "none";
+                document.querySelector("#myProgress").style.display = "none";
+                document.body.appendChild(arButton);
+
             }
-          },
-          // onError callback
-          function (error) {
+        },
+        // onError callback
+        function(error) {
             console.error(error);
-          }
-        );
-
-      }
-      
-
-      function addReticleToScene() {
-        const geometry = new THREE.RingBufferGeometry(0.15, 0.2, 31).rotateX(-Math.PI/2); //draws ring
-        const material = new THREE.MeshBasicMaterial();
-
-        reticle = new THREE.Mesh(geometry, material);
-
-        reticle.matrixAutoUpdate = false; //stops 3js from moving the reticle
-        reticle.visible = false;
-        scene.add(reticle);
-      }
-
-      function onSelect() {
-        console.log("tap");
-        if (reticle.visible && ship && !spawned) {
-          ship.visible = true;
-          ship.position.setFromMatrixPosition(reticle.matrix); 
-          ship.quaternion.setFromRotationMatrix(reticle.matrix);
-          ship.translateY(0);   
-          spawned = true;
         }
-      }
+    );
+    placerReticle = new THREE.Object3D();
+    placerReticle.matrixAutoUpdate = false;
+    scene.add(placerReticle);
+
+}
 
 
-			function onWindowResize() {
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-	
-				renderer.setSize(window.innerWidth, window.innerHeight);
-			}
-
-			function animate() {
-				
-				renderer.setAnimationLoop(render);
-			}
-
-      let hitTestSource = null;
-      let localSpace = null;
-      let hitTestSourceInitialized = false;
-      let spawned = false;
+function onSelect() {
+    if (reticle.visible && ship && !spawned) {
+        ship.visible = true;
+        ship.position.setFromMatrixPosition(reticle.matrix);
+        ship.quaternion.setFromRotationMatrix(reticle.matrix);
+        plane.position.setFromMatrixPosition(reticle.matrix);
+        spotLight.position.set( plane.position.x, 20, plane.position.y );
+        spawned = true;
+    }
+}
 
 
-      async function initializeHitTestSource() {
-        const session = renderer.xr.getSession();
-        const viewerSpace = await session.requestReferenceSpace("viewer");//get viewer space basically orgin of the phone that always moves with phone
-        hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
-        console.log(hitTestSource);
-        localSpace = await session.requestReferenceSpace("local");
-        console.log(localSpace);
-        hitTestSourceInitialized = true;
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-       
-        session.addEventListener("end", () => {
-          hitTestSourceInitialized = false;
-          hitTestSource = null;
-        });
-      }
+}
 
-	
+function animate() {
 
-			function render(timestamp, frame) {
-        if (frame) {
-          if (!spawned){
-            if(!hitTestSourceInitialized){
-              initializeHitTestSource();
+    renderer.setAnimationLoop(render);
+}
+
+let hitTestSource = null;
+let localSpace = null;
+let hitTestSourceInitialized = false;
+let spawned = false;
+
+
+async function initializeHitTestSource() {
+    const session = renderer.xr.getSession();
+    const viewerSpace = await session.requestReferenceSpace("viewer"); //get viewer space basically orgin of the phone that always moves with phone
+    hitTestSource = await session.requestHitTestSource({
+        space: viewerSpace
+    });
+    localSpace = await session.requestReferenceSpace("local");
+    hitTestSourceInitialized = true;
+
+
+    session.addEventListener("end", () => {
+        hitTestSourceInitialized = false;
+        hitTestSource = null;
+    });
+}
+
+
+
+function render(timestamp, frame) {
+    if (frame) {
+        if (!spawned) {
+            if (!hitTestSourceInitialized) {
+                initializeHitTestSource();
             }
-            
-            if(hitTestSourceInitialized){
-              const hitTestResults = frame.getHitTestResults(hitTestSource);
-              //console.log(hitTestResults); 
-  
-              if (hitTestResults.length > 0) {
-                const hit = hitTestResults[0];
-  
-                const pose = hit.getPose(localSpace);
-                reticle.visible = true;
-  
-                reticle.matrix.fromArray(pose.transform.matrix);
 
-              } else {
-                reticle.visible = false;
-              }
-            }          
-          } else {
+            if (hitTestSourceInitialized) {
+                const hitTestResults = frame.getHitTestResults(hitTestSource);
+                //console.log(hitTestResults); 
+
+                if (hitTestResults.length > 0) {
+                    const hit = hitTestResults[0];
+
+                    const pose = hit.getPose(localSpace);
+                    reticle.visible = true;
+
+                    placerReticle.matrix.fromArray(pose.transform.matrix);
+                    reticle.position.setFromMatrixPosition(placerReticle.matrix);
+
+                } else {
+                    reticle.visible = false;
+                }
+            }
+        } else {
             reticle.visible = false;
-          }
-				  renderer.render(scene, camera);
-    		}
-      }
+        }
+        if (reticle.visible == true) {
+            document.querySelector("#left").style.display = "block";
+            document.querySelector("#right").style.display = "block";
+            reticle.rotation.y += (rotDir * .05);
+        } else {
+            document.querySelector("#left").style.display = "none";
+            document.querySelector("#right").style.display = "none";
+        };
+        renderer.render(scene, camera);
+    }
+}

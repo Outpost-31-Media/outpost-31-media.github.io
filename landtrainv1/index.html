@@ -5,14 +5,27 @@
 		<title>Landtrain V1</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link type="text/css" rel="stylesheet" href="style.css">
-  	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/DRACOLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js"></script>
-    <!-- <script src='https://unpkg.com/three-mesh-ui@6.3.1/src/three-mesh-ui.js'></script> -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js" crossorigin="anonymous"></script>
+		<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+		<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/DRACOLoader.js"></script>
+<!-- 		<script src="https://unpkg.com/three@0.126.0/examples/jsm/postprocessing/EffectComposer.js"></script>
+		<script src="https://unpkg.com/three@0.126.0/examples/jsm/postprocessing/SSAOPass.js"></script> -->
 	</head>
-
 	<body>
+		<div id="welcome" class="wrapper">
+			<h1 class="overlayText">AR Landtrain</h1>
+			<p class="overlayText">This is a highly detailed model created using photogrammetry, please select the level of detail you would like to view based on your internet conection and device capability. <br> Please note this experience will only work on Chrome for Android or <a href="https://apps.apple.com/ca/app/webxr-viewer/id1295998056" target="_blank">Mozilla WebXR Viewer</a> from the iOS App Store. <br> Full compatability list availible <a href="https://immersiveweb.dev/#supporttable" target="_blank">here</a><br><br>This model is at true to life scale so go find a large open area to view it in.<br><br>Once you start the experience look around with your phone to let it get a feel of your suroundings, once it detects the ground a grid will appear to help you place the Land Train where you want, once you are happy with the placement tap your screen and the model will appear.</p>
+			<div id="myProgress">
+				<div id="myBar">
+				</div>
+			</div>
+		</div>
+		<div id="overlay"></div>
+		<button class='gui-button' id="ultra">High Detail 35MB</button>
+		<button class='gui-button' id="high">Regular Detail 20MB</button>
+		<button class='gui-button' id="low">Low Detail 5MB</button>
+		<button class='gui-button' id="left">Rotate Left</button>
+		<button class='gui-button' id="right">Rotate Right</button>
 		<script src="./app.js" type="module"></script>
 	</body>
 </html>
