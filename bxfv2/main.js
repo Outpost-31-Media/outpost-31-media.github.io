@@ -27,7 +27,9 @@ YTM Project:
 
 **************************************************************************************/
 
+
 import { ARButton } from "./lib/ARButton.js";
+
 
 // initilizing global variables
 let container;
@@ -180,6 +182,8 @@ async function init() {
     }
 
     window.addEventListener("resize", onWindowResize, false);
+    // document.body.appendChild(arButton);
+
 }
 
 /***************************************Initializing Items In Scene*********************************************/
