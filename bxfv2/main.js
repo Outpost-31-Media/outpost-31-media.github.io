@@ -29,7 +29,7 @@ YTM Project:
 
 
 import { ARButton } from "./lib/ARButton.js";
-
+console.log('loading Three JS Version R' + THREE.REVISION);
 
 // initilizing global variables
 let container;
@@ -67,7 +67,7 @@ var url = document.location.href;
 if (url.includes('localhost') || url.includes('127.0.0.1')) {
     desktopTesting = true;
 }
-
+console.log('desktop testing is ' + desktopTesting);
 init();
 animate();
 
@@ -243,12 +243,12 @@ function loadTerrain() {
     const dracoLoader = new THREE.DRACOLoader();
     dracoLoader.setDecoderPath('./lib/draco/');
     loader.setDRACOLoader(dracoLoader)
-
+    const modelUrl = "./gltf/terrain.glb"
     document.querySelector("#myBar").style.display = "block";
     document.querySelector("#myProgress").style.display = "block";
 
 
-      loader.load("./gltf/terrain.glb",
+      loader.load(modelUrl,
         function(gltf) {
             gltf.scene.traverse(function(node) {
                 if (node.isMesh) {
@@ -259,6 +259,7 @@ function loadTerrain() {
             terrain = gltf.scene;
             gltfTerrain = gltf;
             terrainLoaderCallback();
+            console.log('successfully loaded ' + modelUrl);
         },
         function(xhr) {
 
@@ -332,9 +333,9 @@ function loadModel() {
 
     document.querySelector("#myBar").style.display = "block";
     document.querySelector("#myProgress").style.display = "block";
+    const modelUrl = "./gltf/a52.glb";
 
-
-    loader.load("./gltf/a52.glb",
+    loader.load(modelUrl,
         function(gltf) {
             gltf.scene.traverse(function(node) {
                 if (node.isMesh) {
@@ -348,6 +349,7 @@ function loadModel() {
             model.visible = false;
             smallerScene.add(model);
             modelLoaderCallback();
+            console.log('successfully loaded ' + modelUrl);
         },
         function(xhr) {
 
@@ -381,7 +383,7 @@ function modelLoaderCallback() {
         const anim = modelMixer.clipAction(modelGltf.animations[key]);
         modelAnims.push(anim);
     })
-    console.log(modelAnims);
+    // console.log(modelAnims);
 }
 
 /***************************************Functions Called with onSelect*******************************************/
@@ -571,8 +573,8 @@ function render(timestamp, frame) {
 
 
             // turning the model towards the box
-            new TWEEN.Tween(time).to({ t: 1 }, 100).onUpdate(() => {
-                THREE.Quaternion.slerp(start, end, smallerScene.quaternion, time.t);
+            new TWEEN.Tween(time).to({ t: 1 }, 150).onUpdate(() => {
+                smallerScene.quaternion.slerpQuaternions(start, end, time.t);
             }).easing(TWEEN.Easing.Quadratic.InOut).start();
 
             // updates the position of the bounding box for the model
