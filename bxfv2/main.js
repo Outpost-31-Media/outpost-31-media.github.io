@@ -27,7 +27,7 @@ YTM Project:
 
 **************************************************************************************/
 
-import { ARButton } from "https://unpkg.com/three@0.133.0/examples/jsm/webxr/ARButton.js";
+import { ARButton } from "./lib/ARButton.js";
 
 // initilizing global variables
 let container;
@@ -38,7 +38,8 @@ let reticle;
 let spotLight;
 let timeout;
 let scenePlaced = false;
-
+let modelMixer;
+let modelAnims = [];
 // initializing model global variables
 let loader;
 let model;
@@ -294,7 +295,7 @@ function terrainLoaderCallback() {
     movingAnimation = mixer.clipAction(gltfTerrain.animations[movingAnimKey]);
     movingAnimation.clampWhenFinished = true;
     movingAnimation.setLoop(THREE.LoopOnce);
-    console.log(gltfTerrain.animations);
+    // console.log(gltfTerrain.animations);
 
 
     const worldAnimKeys = [...Array(gltfTerrain.animations.length).keys()];
@@ -307,7 +308,7 @@ function terrainLoaderCallback() {
         worldAnims.push(anim);
     })
     loadModel();
-    console.log(worldAnims);
+    // console.log(worldAnims);
 }
 
 /*
@@ -342,6 +343,7 @@ function loadModel() {
             model.scale.set(0.01, 0.01, 0.01);
             model.visible = false;
             smallerScene.add(model);
+            modelLoaderCallback();
         },
         function(xhr) {
 
@@ -363,6 +365,19 @@ function loadModel() {
     );
 
 
+}
+
+function modelLoaderCallback() {
+    modelMixer = new THREE.AnimationMixer(model);
+    // console.log(modelGltf.animations);
+
+    const modelAnimKeys = [12,13];
+
+    modelAnimKeys.forEach(key => {
+        const anim = modelMixer.clipAction(modelGltf.animations[key]);
+        modelAnims.push(anim);
+    })
+    console.log(modelAnims);
 }
 
 /***************************************Functions Called with onSelect*******************************************/
@@ -414,6 +429,9 @@ function startAR() {
     addModelBoundingBox(); 
     movingAnimation.play();
     worldAnims.forEach(anim => {
+        anim.play();
+    });
+    modelAnims.forEach(anim => {
         anim.play();
     });
 
@@ -532,8 +550,6 @@ function render(timestamp, frame) {
             const cy = Math.sqrt(Math.pow(a, 2) + Math.pow(by , 2));
             const bby = Math.asin(by/cy);
 
-            var QuadOut = TWEEN.Easing.Quadratic.Out;
-            var QuadIn = TWEEN.Easing.Quadratic.In;
             new TWEEN.Tween(model.rotation).to({x: bbx*-1, y: bby, z: bby*-1}, 250).easing(TWEEN.Easing.Quadratic.InOut).start();
             
             new TWEEN.Tween(model.position).to(planePos, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
@@ -566,6 +582,9 @@ function render(timestamp, frame) {
             // updating the animations
             if (mixer) {
                 mixer.update(deltaTime);
+            }
+            if (modelMixer) {
+                modelMixer.update(deltaTime);
             }
         }
         renderer.render(scene, camera);
