@@ -13,6 +13,9 @@
   <script src="./lib/tween.umd.js"></script>
   <script src="./lib/GLTFLoader.js"></script>
 
+  <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
+
 </head>
 
 <body>
@@ -27,6 +30,10 @@
     </div>
   </div>
   <div id="overlay"></div>
+
+  <video id="video" loop muted crossOrigin="anonymous" playsinline style="display:none">
+    <source src="./img/stockVid_1.mp4" type="video/mp4">
+  </video> 
 
   <button class='gui-button' id="up">Up</button>
   <button class='gui-button' id="down">Down</button>

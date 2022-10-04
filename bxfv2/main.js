@@ -29,6 +29,9 @@ YTM Project:
 
 
 import { ARButton } from "./lib/ARButton.js";
+// import { EffectComposer } from './lib/EffectComposer.js';
+// import  * as RenderPass  from './lib/RenderPass.js';
+// import * as SAOPass  from './lib/SAOPass.js';
 console.log('loading Three JS Version R' + THREE.REVISION);
 
 // initilizing global variables
@@ -58,7 +61,13 @@ let worldAnims = [];
 let planeMoveAmmount = .15;
 let clock = new THREE.Clock();
 let arButton
-
+let spotLightHelper;
+let videoTexture;
+let hemisphereLight;
+let projectorSpotLight;
+let flightCompleted;
+let sepiaTex;
+let started = false;
 // tp run mousedown/touchstart
 
 //set desktop testing to true if localhost
@@ -87,17 +96,20 @@ async function init() {
     );
 
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    // renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.toneMapping = THREE.ReinhardToneMapping;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.5;
     // renderer.toneMappingWhitePoint = 1.0;
     renderer.physicallyCorrectLights = true;
     renderer.xr.enabled = true;
     container.appendChild(renderer.domElement);
+
+
 
     // To run onSelect when a hit occurs 
     controller = renderer.xr.getController(0);
@@ -106,6 +118,7 @@ async function init() {
     addReticleToScene();
 
     // initializing the light in the scene
+    loadProjectorTexture();
     addLightToScene();
 
     //loading the models
@@ -125,6 +138,7 @@ async function init() {
         document.getElementById("welcome").style.display = 'none';
         document.getElementById("instructions").textContent = "Find an open area. Look around the room to calibrate the space. Tap your screen once a reticle appears on the ground to place the terrain."
     });
+
 
     // if start button is clicked, startAR function is called
     document.querySelector("#start").addEventListener("click", startAR);
@@ -198,9 +212,9 @@ async function init() {
 function addLightToScene() {
 
     // creating hemisphere light
-    var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
-    light.position.set(0.5, 1, 0.25);
-    scene.add(light);
+    hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, .7);
+    hemisphereLight.position.set(0.5, 1, 0.25);
+    scene.add(hemisphereLight);
 
     // creating a spotlight that casts shadows
     spotLight = new THREE.SpotLight(0xffa95c, 4);
@@ -209,9 +223,37 @@ function addLightToScene() {
     spotLight.shadow.mapSize.width = 1024 * 4;
     spotLight.shadow.mapSize.height = 1024 * 4;
     scene.add(spotLight);
+
+    projectorSpotLight = new THREE.SpotLight(0xffa95c, 25);
+    projectorSpotLight.castShadow = true;
+    projectorSpotLight.shadow.bias = -0.0001;
+    projectorSpotLight.shadow.mapSize.width = 1024 * 4;
+    projectorSpotLight.shadow.mapSize.height = 1024 * 4;
+    projectorSpotLight.map = videoTexture;
+    projectorSpotLight.angle = 0.174533;
+    projectorSpotLight.visible = false;
+    scene.add(projectorSpotLight);
+
+
+
+
+    spotLightHelper = new THREE.SpotLightHelper( spotLight );
+    // scene.add( spotLightHelper );
+
 }
 
-/*
+
+function loadProjectorTexture(){
+    const video = document.getElementById( 'video' );
+    videoTexture = new THREE.VideoTexture( video );
+
+    // videoTexture.mapping = 2;
+    // videoTexture.repeat.set(30,30);
+    // console.log(videoTexture)
+    // sepiaTex =  new THREE.TextureLoader().load('./img/sepiaTerrain.jpg');
+    // videoTexture =  new THREE.TextureLoader().load('./img/uv.png');
+}
+ /*
   Function addReticleToScene
   Description: 
     Creates a square reticle to represent the terrain. 
@@ -226,6 +268,44 @@ function addReticleToScene() {
     reticle.matrixAutoUpdate = false;
     reticle.visible = false;
     scene.add(reticle);
+}
+
+function flightComplete() {
+    document.getElementById( 'video' ).play();
+    projectorSpotLight.visible = true;
+
+
+    flightCompleted = true;
+    const clouds = terrain.getObjectByName('clouds');
+    clouds.visible = false;
+    document.querySelector("#up").style.display = "none";
+    document.querySelector("#down").style.display = "none";
+    document.querySelector("#left").style.display = "none";
+    document.querySelector("#right").style.display = "none";
+    
+    terrain.traverse((node) => {
+        if (node.isMesh) {
+            if (node.name == "Terrain") {
+                node.material.map = null;
+                node.material.needsUpdate = true;
+            }
+        }
+    });
+    new TWEEN.Tween(smallerScene.position).to({x: terrain.position.x, y: terrain.position.y + .5,z:  terrain.position.z}, 3000).easing(TWEEN.Easing.Quadratic.InOut).start();
+    new TWEEN.Tween(model.scale).to({x: .1,y: .1,z: .1}, 3000).easing(TWEEN.Easing.Quadratic.InOut).start();
+    new TWEEN.Tween(hemisphereLight).to({intensity: 0.000},500).easing(TWEEN.Easing.Quadratic.InOut).start();
+    new TWEEN.Tween(spotLight).to({intensity: 0.000},500).easing(TWEEN.Easing.Quadratic.InOut).start();
+    // new TWEEN.Tween(projectorSpotLight).to({intensity: 25},600).easing(TWEEN.Easing.Quadratic.InOut).start();
+    console.log('Flight Complete');
+
+}
+
+function handleAnimComplete(anim) {
+    if (anim.action._clip.name == "placerCubeAction") {
+        flightComplete();
+    } else {
+        console.log("animation " + anim.action._clip.name + " is Complete")
+    }
 }
 
 /*
@@ -268,8 +348,6 @@ function loadTerrain() {
             progressBar.style.width = (xhr.loaded / xhr.total * 100)+ "%";
             progressBar.innerHTML = (Math.round(xhr.loaded / xhr.total * 100)) + "% 1/2";
             if ((xhr.loaded / xhr.total * 100) === 100) {
-                document.querySelector("#myBar").style.display = "none";
-                document.querySelector("#myProgress").style.display = "none";
                 // document.body.appendChild(arButton);
 
             }
@@ -300,8 +378,10 @@ function terrainLoaderCallback() {
     movingAnimation = mixer.clipAction(gltfTerrain.animations[movingAnimKey]);
     movingAnimation.clampWhenFinished = true;
     movingAnimation.setLoop(THREE.LoopOnce);
-    // console.log(gltfTerrain.animations);
-
+    console.log(gltfTerrain.animations);
+    mixer.addEventListener( 'finished', function( e ) {
+        handleAnimComplete(e);
+    } );
 
     const worldAnimKeys = [...Array(gltfTerrain.animations.length).keys()];
     worldAnimKeys.splice(movingAnimKey, 1);
@@ -409,11 +489,18 @@ function onSelect() {
 
         // start button become visible
         document.querySelector("#start").style.display = "block";
+        spotLight.position.set( terrain.position.x+.5, terrain.position.y+3, terrain.position.z+.5);
+        spotLight.target = terrain;
+
+        projectorSpotLight.position.set( terrain.position.x, terrain.position.y +22, terrain.position.z);
+        // projectorSpotLight.rotation.set(terrain.rotation.x, terrain.rotation.y, terrain.rotation.z);
+        projectorSpotLight.target = terrain;
 
         // reticle is removed from the scene
         scenePlaced = true;
         reticle.visible = false;
         scene.remove(reticle);
+
     }
 
 }
@@ -430,6 +517,7 @@ function onSelect() {
     Parameters: None
 */
 function startAR() {
+    started = true;
 
     model.visible = true;
     addModelBoundingBox(); 
@@ -474,10 +562,13 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
 
     renderer.setSize(window.innerWidth, window.innerHeight);
+
 }
 
 function animate() {
     renderer.setAnimationLoop(render);
+    // requestAnimationFrame( animate );
+    // render();
 }
 
 let hitTestSource = null;
@@ -515,7 +606,7 @@ function render(timestamp, frame) {
             const hitTestResults = frame.getHitTestResults(hitTestSource);
 
 
-            if (hitTestResults.length > 0) {
+            if (hitTestResults.length > 0 && !started) {
                 const hit = hitTestResults[0];
 
                 const pose = hit.getPose(localSpace);
@@ -529,53 +620,58 @@ function render(timestamp, frame) {
         }
 
         if (model.visible) {
-
-            // getting the position of the cube, unsure if simplifying it will effect the tweens
-            let cubePos = new THREE.Vector3();
-            cubePos.setFromMatrixPosition(placerCube.matrixWorld);
-            let cubePosCoords = { x: cubePos.x, y: cubePos.y, z: cubePos.z };
-
-            // This line of code must be before the actual Tweens in the renderer
             TWEEN.update();
+            if (!flightCompleted) {
+            // getting the position of the cube, unsure if simplifying it will effect the tweens
+                let cubePos = new THREE.Vector3();
+                cubePos.setFromMatrixPosition(placerCube.matrixWorld);
+                let cubePosCoords = { x: cubePos.x, y: cubePos.y, z: cubePos.z };
+    
+                // This line of code must be before the actual Tweens in the renderer
+                
+    
+                // moving the model towards the cube
+                new TWEEN.Tween(smallerScene.position).to(cubePosCoords, 10).easing(TWEEN.Easing.Quadratic.InOut).start();
+    
+    
+                //move the plane up and down
+                //calc angle of plane based on trajectory point being z+ a and pos from planePos
+                const a = .15;
+    
+                //solve for x
+                const bx = planePos.y - model.position.y;
+                const cx = Math.sqrt(Math.pow(a, 2) + Math.pow(bx , 2));
+                const bbx = Math.asin(bx/cx);
+    
+                //solve for y
+                const by = planePos.x - model.position.x;
+                const cy = Math.sqrt(Math.pow(a, 2) + Math.pow(by , 2));
+                const bby = Math.asin(by/cy);
+    
+                new TWEEN.Tween(model.rotation).to({x: bbx*-1, y: bby, z: bby*-1}, 250).easing(TWEEN.Easing.Quadratic.InOut).start();
+                
+                new TWEEN.Tween(model.position).to(planePos, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
+                
+    
+    
+                
+    
+    
+                let time = { t: 0 };
+                let start = smallerScene.quaternion.clone();
+                smallerScene.lookAt(cubePos);
+                let end = smallerScene.quaternion.clone();
+                smallerScene.quaternion.copy(start);
+    
+    
+                // turning the model towards the box
+                new TWEEN.Tween(time).to({ t: 1 }, 150).onUpdate(() => {
+                    smallerScene.quaternion.slerpQuaternions(start, end, time.t);
+                }).easing(TWEEN.Easing.Quadratic.InOut).start();
 
-            // moving the model towards the cube
-            new TWEEN.Tween(smallerScene.position).to(cubePosCoords, 10).easing(TWEEN.Easing.Quadratic.InOut).start();
-
-
-            //move the plane up and down
-            //calc angle of plane based on trajectory point being z+ a and pos from planePos
-            const a = .15;
-
-            //solve for x
-            const bx = planePos.y - model.position.y;
-            const cx = Math.sqrt(Math.pow(a, 2) + Math.pow(bx , 2));
-            const bbx = Math.asin(bx/cx);
-
-            //solve for y
-            const by = planePos.x - model.position.x;
-            const cy = Math.sqrt(Math.pow(a, 2) + Math.pow(by , 2));
-            const bby = Math.asin(by/cy);
-
-            new TWEEN.Tween(model.rotation).to({x: bbx*-1, y: bby, z: bby*-1}, 250).easing(TWEEN.Easing.Quadratic.InOut).start();
-            
-            new TWEEN.Tween(model.position).to(planePos, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
-            
-
-
-            
-
-
-            let time = { t: 0 };
-            let start = smallerScene.quaternion.clone();
-            smallerScene.lookAt(cubePos);
-            let end = smallerScene.quaternion.clone();
-            smallerScene.quaternion.copy(start);
-
-
-            // turning the model towards the box
-            new TWEEN.Tween(time).to({ t: 1 }, 150).onUpdate(() => {
-                smallerScene.quaternion.slerpQuaternions(start, end, time.t);
-            }).easing(TWEEN.Easing.Quadratic.InOut).start();
+            } else {
+                smallerScene.rotation.y += 0.02;
+            };
 
             // updates the position of the bounding box for the model
             // modelBB.applyMatrix4(model.matrixWorld);
@@ -593,7 +689,10 @@ function render(timestamp, frame) {
                 modelMixer.update(deltaTime);
             }
         }
+        // videoTexture.update();
         renderer.render(scene, camera);
+        spotLightHelper.update();
+
     }
 }
 
