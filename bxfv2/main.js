@@ -493,7 +493,7 @@ function onSelect() {
         spotLight.target = terrain;
 
         projectorSpotLight.position.set( terrain.position.x, terrain.position.y +22, terrain.position.z);
-        // projectorSpotLight.rotation.set(terrain.rotation.x, terrain.rotation.y, terrain.rotation.z);
+        projectorSpotLight.rotation.set(terrain.rotation.x, terrain.rotation.y, terrain.rotation.z);
         projectorSpotLight.target = terrain;
 
         // reticle is removed from the scene
