@@ -304,7 +304,7 @@ function handleAnimComplete(anim) {
     if (anim.action._clip.name == "placerCubeAction") {
         flightComplete();
     } else {
-        console.log("animation " + anim.action._clip.name + " is Complete")
+        // console.log("animation " + anim.action._clip.name + " is Complete")
     }
 }
 
@@ -378,7 +378,7 @@ function terrainLoaderCallback() {
     movingAnimation = mixer.clipAction(gltfTerrain.animations[movingAnimKey]);
     movingAnimation.clampWhenFinished = true;
     movingAnimation.setLoop(THREE.LoopOnce);
-    console.log(gltfTerrain.animations);
+    // console.log(gltfTerrain.animations);
     mixer.addEventListener( 'finished', function( e ) {
         handleAnimComplete(e);
     } );
@@ -492,10 +492,20 @@ function onSelect() {
         spotLight.position.set( terrain.position.x+.5, terrain.position.y+3, terrain.position.z+.5);
         spotLight.target = terrain;
 
-        projectorSpotLight.position.set( terrain.position.x, terrain.position.y +22, terrain.position.z);
-        projectorSpotLight.rotation.set(terrain.rotation.x, terrain.rotation.y, terrain.rotation.z);
-        projectorSpotLight.target = terrain;
+        const projectorPlacer = new THREE.Object3D();
+        terrain.add(projectorPlacer);
+        projectorPlacer.translateY(22);
+        projectorPlacer.translateZ(0.001);
+        const projVect = new THREE.Vector3();
+        projectorPlacer.getWorldPosition(projVect);
+        // console.log(projVect);
 
+
+        projectorSpotLight.position.set( projVect.x, projVect.y, projVect.z);
+        // projectorSpotLight.rotation.set(terrain.rotation.x, terrain.rotation.y, terrain.rotation.z);
+        projectorSpotLight.target = terrain;
+        // videoTexture.rotation = terrain.rotation.y;
+        // videoTexture.updateMatrix();
         // reticle is removed from the scene
         scenePlaced = true;
         reticle.visible = false;
@@ -517,8 +527,8 @@ function onSelect() {
     Parameters: None
 */
 function startAR() {
+    document.getElementById("instructions").textContent = "";
     started = true;
-
     model.visible = true;
     addModelBoundingBox(); 
     movingAnimation.play();
@@ -670,6 +680,7 @@ function render(timestamp, frame) {
                 }).easing(TWEEN.Easing.Quadratic.InOut).start();
 
             } else {
+                // videoTexture.rotation += 0.02;
                 smallerScene.rotation.y += 0.02;
             };
 
