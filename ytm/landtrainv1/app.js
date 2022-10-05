@@ -199,6 +199,9 @@ async function loadModels(lod) {
             reticle = gltf.scene;
             // reticle.matrixAutoUpdate = false; //stops 3js from moving the reticle
             reticle.visible = false;
+            if (polyLevel == 0) {
+                reticle.scale.set(0.5, 0.5, 0.5);
+            };
             scene.add(reticle);
         },
         function(xhr) {
@@ -226,6 +229,9 @@ async function loadModels(lod) {
             });
             ship = gltf.scene;
             ship.visible = false;
+            if (polyLevel == 0) {
+                ship.scale.set(0.5, 0.5, 0.5);
+            };
             scene.add(ship);
         },
         function(xhr) {
