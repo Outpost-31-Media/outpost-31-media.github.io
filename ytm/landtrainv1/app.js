@@ -1,10 +1,10 @@
 import {
     ARButton
-} from 'https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js';
+} from '../lib/ARButton.js';
 // import { DRACOLoader } from './libs/DRACOLoader.js';
 
 
-
+console.log('loading Three JS Version R' + THREE.REVISION);
 
 let camera, scene, renderer;
 let loader;
@@ -182,7 +182,7 @@ async function loadModels(lod) {
     // const loader = new THREE.GLTFLoader();
     const dracoLoader = new THREE.DRACOLoader();
 
-    dracoLoader.setDecoderPath('./libs/draco/gltf/');
+    dracoLoader.setDecoderPath('../lib/draco/');
 
     const loader = new THREE.GLTFLoader()
     loader.setDRACOLoader(dracoLoader)

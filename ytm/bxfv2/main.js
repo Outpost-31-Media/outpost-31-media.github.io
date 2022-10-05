@@ -28,7 +28,7 @@ YTM Project:
 **************************************************************************************/
 
 
-import { ARButton } from "./lib/ARButton.js";
+import { ARButton } from "../lib/ARButton.js";
 // import { EffectComposer } from './lib/EffectComposer.js';
 // import  * as RenderPass  from './lib/RenderPass.js';
 // import * as SAOPass  from './lib/SAOPass.js';
@@ -329,7 +329,7 @@ function loadTerrain() {
     const progressBar = document.getElementById("myBar");
     loader = new THREE.GLTFLoader();
     const dracoLoader = new THREE.DRACOLoader();
-    dracoLoader.setDecoderPath('./lib/draco/');
+    dracoLoader.setDecoderPath('../lib/draco/');
     loader.setDRACOLoader(dracoLoader)
     const modelUrl = "./gltf/terrain.glb"
     document.querySelector("#myBar").style.display = "block";
@@ -416,7 +416,7 @@ function loadModel() {
     const progressBar = document.getElementById("myBar");
     loader = new THREE.GLTFLoader();
     const dracoLoader = new THREE.DRACOLoader();
-    dracoLoader.setDecoderPath('./lib/draco/');
+    dracoLoader.setDecoderPath('../lib/draco/');
     loader.setDRACOLoader(dracoLoader)
 
     document.querySelector("#myBar").style.display = "block";
