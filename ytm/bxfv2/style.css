@@ -248,6 +248,13 @@ button:active {
 /*    font-size: 50px;*/
 }
 
+#load {
+    bottom: 8vh;
+    right: 37.5%;
+    user-select: none;
+/*    font-size: 50px;*/
+}
+
 #myProgress {
     display: none;
     position: absolute;

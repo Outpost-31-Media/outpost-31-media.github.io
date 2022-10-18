@@ -69,6 +69,8 @@ let flightCompleted;
 let sepiaTex;
 let started = false;
 let xrSessionStarted = false;
+let textEmptys = [];
+// let myRegEx = new RegExp("[a-zA-Z]extEmpty+[0-9]{3}");
 // tp run mousedown/touchstart
 
 //set desktop testing to true if localhost
@@ -78,8 +80,14 @@ if (url.includes('localhost') || url.includes('127.0.0.1')) {
     desktopTesting = true;
 }
 console.log('desktop testing is ' + desktopTesting);
-init();
-animate();
+
+
+document.querySelector("#load").addEventListener("click", () => {
+    document.querySelector("#load").style.display = "none";
+    document.getElementById("welcomeText").textContent = "This flight takes you over the traditional territories of the Carcross Tagish First Nation and the Taku River Tlingit. ";
+    init();
+    animate();
+});
 
 async function init() {
     container = document.createElement("div");
@@ -116,7 +124,6 @@ async function init() {
     controller = renderer.xr.getController(0);
     controller.addEventListener("select", onSelect);
     scene.add(controller);
-    addReticleToScene();
 
     // initializing the light in the scene
     loadProjectorTexture();
@@ -139,7 +146,7 @@ async function init() {
     arButton.addEventListener("click", () => {
       if (!xrSessionStarted) {
         document.getElementById("welcome").style.display = 'none';
-        document.getElementById("instructions").textContent = "Find an open area. Look around the room to calibrate the space. Tap your screen once a reticle appears on the ground to place the terrain."
+        document.getElementById("instructions").textContent = "Find an open area. Look around the room to calibrate the space.";
         xrSessionStarted = true;
       } else if (xrSessionStarted) {
         console.log('exit')
@@ -254,29 +261,9 @@ function addLightToScene() {
 function loadProjectorTexture(){
     const video = document.getElementById( 'video' );
     videoTexture = new THREE.VideoTexture( video );
-
-    // videoTexture.mapping = 2;
-    // videoTexture.repeat.set(30,30);
-    // console.log(videoTexture)
-    // sepiaTex =  new THREE.TextureLoader().load('./img/sepiaTerrain.jpg');
-    // videoTexture =  new THREE.TextureLoader().load('./img/uv.png');
 }
- /*
-  Function addReticleToScene
-  Description: 
-    Creates a square reticle to represent the terrain. 
-  Paramaters: None
-*/
-function addReticleToScene() {
-    const geometry = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
-    const material = new THREE.MeshBasicMaterial();
 
-    reticle = new THREE.Mesh(geometry, material);
 
-    reticle.matrixAutoUpdate = false;
-    reticle.visible = false;
-    scene.add(reticle);
-}
 
 function flightComplete() {
     document.getElementById( 'video' ).play();
@@ -327,6 +314,7 @@ function handleAnimComplete(anim) {
 */
 function loadTerrain() {
     const progressBar = document.getElementById("myBar");
+    const reticleURL = "./gltf/reticle.glb"
     loader = new THREE.GLTFLoader();
     const dracoLoader = new THREE.DRACOLoader();
     dracoLoader.setDecoderPath('../lib/draco/');
@@ -335,8 +323,28 @@ function loadTerrain() {
     document.querySelector("#myBar").style.display = "block";
     document.querySelector("#myProgress").style.display = "block";
 
+    loader.load(reticleURL,
+        function(gltf) {
+            reticle = gltf.scene;
+            reticle.matrixAutoUpdate = false; //stops 3js from moving the reticle
+            reticle.visible = false;
+            scene.add(reticle);
+        },
+        function(xhr) {
+            progressBar.style.width = (Math.round(xhr.loaded / xhr.total * 100)) + "%";
+            progressBar.innerHTML = (Math.round(xhr.loaded / xhr.total * 100)) + "% 1/3";
+            if ((xhr.loaded / xhr.total * 100) === 100) {
 
-      loader.load(modelUrl,
+
+            }
+        },
+        // onError callback
+        function(error) {
+            console.error(error);
+        }
+    );
+
+    loader.load(modelUrl,
         function(gltf) {
             gltf.scene.traverse(function(node) {
                 if (node.isMesh) {
@@ -354,7 +362,7 @@ function loadTerrain() {
             // console.log(xhr.loaded / xhr.total * 100);
 
             progressBar.style.width = (xhr.loaded / xhr.total * 100)+ "%";
-            progressBar.innerHTML = (Math.round(xhr.loaded / xhr.total * 100)) + "% 1/2";
+            progressBar.innerHTML = (Math.round(xhr.loaded / xhr.total * 100)) + "% 2/3";
             if ((xhr.loaded / xhr.total * 100) === 100) {
                 // document.body.appendChild(arButton);
 
@@ -371,7 +379,7 @@ function loadTerrain() {
 
 }
 function terrainLoaderCallback() {
-    const movingAnimKey = 19;
+    const movingAnimKey = 1;
 
     placerCube = terrain.getObjectByName('placerCube');
     // terrain.scale.set(5, 5, 5);
@@ -386,7 +394,23 @@ function terrainLoaderCallback() {
     movingAnimation = mixer.clipAction(gltfTerrain.animations[movingAnimKey]);
     movingAnimation.clampWhenFinished = true;
     movingAnimation.setLoop(THREE.LoopOnce);
-    // console.log(gltfTerrain.animations);
+    // console.log(gltfTerrain);
+
+    //add text emptys to array
+    const myRegEx = new RegExp("[a-zA-Z]extEmpty+[0-9]{3}");
+    gltfTerrain.scene.children.forEach( mesh => {
+        if (myRegEx.test(mesh.name)) {
+            // console.log(mesh.name);
+            const placerObj = new THREE.Object3D();
+            placerObj.name =  mesh.name + "placerObj";
+            placerObj.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
+            placerObj.rotation.set(mesh.rotation.x, mesh.rotation.y, mesh.rotation.z);
+            terrain.add(placerObj);
+            textEmptys.push([mesh, placerObj]);
+        }
+    });
+
+
     mixer.addEventListener( 'finished', function( e ) {
         handleAnimComplete(e);
     } );
@@ -444,7 +468,7 @@ function loadModel() {
             // console.log(xhr.loaded / xhr.total * 100);
 
             progressBar.style.width = (xhr.loaded / xhr.total * 100)+ "%";
-            progressBar.innerHTML = (Math.round(xhr.loaded / xhr.total * 100)) + "% 2/2";
+            progressBar.innerHTML = (Math.round(xhr.loaded / xhr.total * 100)) + "% 3/3";
             if ((xhr.loaded / xhr.total * 100) === 100) {
                 document.querySelector("#myBar").style.display = "none";
                 document.querySelector("#myProgress").style.display = "none";
@@ -535,7 +559,6 @@ function onSelect() {
     Parameters: None
 */
 function startAR() {
-    document.getElementById("instructions").textContent = "";
     started = true;
     model.visible = true;
     addModelBoundingBox(); 
@@ -625,6 +648,7 @@ function render(timestamp, frame) {
 
 
             if (hitTestResults.length > 0 && !started) {
+                document.getElementById("instructions").textContent = "";
                 const hit = hitTestResults[0];
 
                 const pose = hit.getPose(localSpace);
@@ -691,6 +715,18 @@ function render(timestamp, frame) {
                 // videoTexture.rotation += 0.02;
                 smallerScene.rotation.y += 0.02;
             };
+            
+            // gltfTerrain.scene.children.forEach( mesh => {
+            //     if (myRegEx.test(mesh.name)) {
+            //         mesh.rotation.y = Math.atan2( ( camera.position.x - mesh.position.x ), ( camera.position.z - mesh.position.z ) );
+            //     }
+            // });
+            textEmptys.forEach(textMt => {
+                textMt[1].lookAt(camera.position);
+                textMt[0].rotation.y = textMt[1].rotation.y;
+            })
+
+            
 
             // updates the position of the bounding box for the model
             // modelBB.applyMatrix4(model.matrixWorld);
